@@ -1,0 +1,16 @@
+{
+  "short_name": "Cronômetro",
+  "name": "Cronômetro Bravo",
+  "icons": [
+    {
+      "src": "favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "index.html",
+  "background_color": "#121212",
+  "theme_color": "#121212",
+  "display": "standalone"
+}
