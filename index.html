@@ -30,10 +30,10 @@
   .preset-card.selected{border-color:var(--c,#555);background:var(--surface2);}
   .preset-name{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;margin-top:5px;}
   .preset-meta{margin-top:5px;display:flex;gap:12px;flex-wrap:wrap;}
-  .meta-pill{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:4px;}
-  .meta-pill b{color:var(--text);font-weight:500;}
-  .preset-obs{margin-top:8px;font-size:11px;color:var(--muted);line-height:1.5;font-style:italic;border-top:1px solid var(--surface2);padding-top:8px;}
-  .preset-mode-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(41,121,255,.15);color:#2979FF;border:1px solid rgba(41,121,255,.3);margin-bottom:5px;letter-spacing:1px;font-weight:500;}
+  .meta-pill{font-size:14px;color:#999;display:flex;align-items:center;gap:4px;}
+  .meta-pill b{color:#E8E8E8;font-weight:600;}
+  .preset-obs{margin-top:8px;font-size:13px;color:#888;line-height:1.5;font-style:italic;border-top:1px solid var(--surface2);padding-top:8px;}
+  .preset-mode-badge{display:inline-flex;align-items:center;gap:4px;font-size:12px;padding:3px 10px;border-radius:10px;background:rgba(41,121,255,.15);color:#5C9EFF;border:1px solid rgba(41,121,255,.4);margin-bottom:5px;letter-spacing:1px;font-weight:600;}
   .preset-actions{position:absolute;right:12px;top:12px;display:flex;gap:6px;}
   .btn-small{font-size:13px;padding:4px 10px;border-radius:8px;border:1px solid var(--surface2);background:var(--bg);color:var(--muted);cursor:pointer;}
   .fab-start{position:fixed;right:0;top:50%;transform:translateY(-50%);writing-mode:vertical-rl;text-orientation:mixed;background:var(--accent);color:#000;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;padding:20px 10px;border-radius:12px 0 0 12px;border:none;cursor:pointer;box-shadow:-4px 0 20px rgba(0,0,0,.4);transition:opacity .25s,transform .25s;z-index:50;}
@@ -234,7 +234,7 @@
   </div>
   <div>
     <div class="section-label">Modo Guiado</div>
-    <div id="autoCard" class="preset-card" style="--c:#B47FFF;cursor:pointer;margin-bottom:6px" onclick="startAutoMode()">
+    <div id="autoCard" class="preset-card selected" style="--c:#B47FFF;cursor:pointer;margin-bottom:6px" onclick="selectAutoMode()">
       <div class="preset-mode-badge" style="background:rgba(180,127,255,.15);color:#B47FFF;border-color:rgba(180,127,255,.3)">♾️ AUTOMÁTICO</div>
       <div class="preset-name" style="color:#B47FFF">Automático ♾️</div>
       <div class="preset-meta">
@@ -407,10 +407,33 @@
   </div>
   <div class="auto-center">
     <div class="auto-prep-title">Escolha um exercício<br>e prepare-se</div>
-    <div class="auto-prep-sub">Você poderá trocar depois</div>
+    <div style="height:4px"></div>
     <div class="ring-wrap" style="margin-top:8px">
       <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="52"/><circle class="ring-fg" id="autoPrepRing" cx="60" cy="60" r="52" style="stroke:#F5C518"/></svg>
       <div class="ring-center"><div class="time-display" id="autoPrepTime" style="color:#F5C518">15</div><div class="time-sub">segundos</div></div>
+    </div>
+    <!-- Exercise type icons -->
+    <div style="display:flex;gap:10px;justify-content:center;margin-top:20px;width:100%;max-width:340px">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1">
+        <div style="width:48px;height:48px;background:rgba(180,127,255,.15);border:1.5px solid rgba(180,127,255,.4);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px">🏋️</div>
+        <div style="font-size:10px;color:#9966CC;letter-spacing:.5px;font-weight:600;text-transform:uppercase;text-align:center">PUXAR</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1">
+        <div style="width:48px;height:48px;background:rgba(249,199,79,.1);border:1.5px solid rgba(249,199,79,.35);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px">🦵</div>
+        <div style="font-size:10px;color:#C49A2A;letter-spacing:.5px;font-weight:600;text-transform:uppercase;text-align:center">AGACHAR</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1">
+        <div style="width:48px;height:48px;background:rgba(41,121,255,.1);border:1.5px solid rgba(41,121,255,.35);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px">💪</div>
+        <div style="font-size:10px;color:#4A8AFF;letter-spacing:.5px;font-weight:600;text-transform:uppercase;text-align:center">EMPURRAR</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1">
+        <div style="width:48px;height:48px;background:rgba(0,230,118,.1);border:1.5px solid rgba(0,230,118,.35);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px">🔥</div>
+        <div style="font-size:10px;color:#00B860;letter-spacing:.5px;font-weight:600;text-transform:uppercase;text-align:center">CORE</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1">
+        <div style="width:48px;height:48px;background:rgba(160,160,160,.1);border:1.5px solid rgba(160,160,160,.3);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px">🏃</div>
+        <div style="font-size:10px;color:#999;letter-spacing:.5px;font-weight:600;text-transform:uppercase;text-align:center">CONJUGADO</div>
+      </div>
     </div>
   </div>
 </div>
@@ -430,8 +453,14 @@
       </div>
     </div>
     <div class="auto-big-label" id="autoExecOverflowLabel" style="color:#B47FFF;opacity:0;font-size:13px;letter-spacing:1px;margin-top:0">Série contínua ou prolongada</div>
-    <div style="height:24px"></div>
+    <div style="height:16px"></div>
     <button class="btn-auto-done" id="btnAutoSerieOk">✔ SÉRIE CONCLUÍDA</button>
+    <div style="height:16px"></div>
+    <div class="controls">
+      <button class="btn-ctrl" id="btnAutoExecBack">&#8592;</button>
+      <button class="btn-playpause" id="btnAutoExecPlay" style="background:#B47FFF;color:#fff">&#9208;</button>
+      <button class="btn-ctrl" id="btnAutoExecSkip" title="Pular para repetições">&#9197;</button>
+    </div>
   </div>
 </div>
 
@@ -510,8 +539,19 @@
         <div class="time-sub">segundos</div>
       </div>
     </div>
-    <div style="margin-top:16px">
-      <button class="btn-auto-done" style="background:#2979FF;box-shadow:0 4px 24px rgba(41,121,255,.3)" id="btnAutoStartEarly">▶ PRÓXIMA SÉRIE JÁ</button>
+    <div style="margin-top:16px;width:100%;max-width:320px">
+      <div style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:10px;letter-spacing:1px;text-transform:uppercase">O que deseja fazer?</div>
+      <div class="continue-grid">
+        <button class="btn-continue primary" id="btnAutoStartEarly" onclick="autoSkipRestNextSerie()">🔁 Nova série</button>
+        <button class="btn-continue secondary" onclick="autoSkipRestNewExercise()">➕ Novo exercício</button>
+        <button class="btn-continue danger" onclick="autoSkipRestFinish()">✅ Finalizar treino</button>
+      </div>
+    </div>
+    <div style="height:16px"></div>
+    <div class="controls">
+      <button class="btn-ctrl" id="btnAutoRestBack">&#8592;</button>
+      <button class="btn-playpause" id="btnAutoRestPlay" style="background:#2979FF;color:#fff">&#9208;</button>
+      <button class="btn-ctrl" id="btnAutoRestSkip" title="Pular descanso">&#9197;</button>
     </div>
   </div>
 </div>
@@ -562,6 +602,26 @@
     <div class="modal-title">MARCAR TREINO</div>
     <div style="font-size:13px;color:var(--muted)" id="markWorkoutName">Automático ♾️</div>
     <div class="field-group" style="margin-top:8px">
+      <div class="field-label">Tipo de exercício realizado (opcional)</div>
+      <div id="markExTypeGrid" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
+        <button class="mark-extype-btn" data-type="puxar" onclick="toggleExType(this)" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 12px;border-radius:12px;border:1.5px solid rgba(180,127,255,.3);background:transparent;cursor:pointer;flex:1;min-width:52px">
+          <span style="font-size:18px">🏋️</span><span style="font-size:10px;color:#9966CC;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Puxar</span>
+        </button>
+        <button class="mark-extype-btn" data-type="agachar" onclick="toggleExType(this)" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 12px;border-radius:12px;border:1.5px solid rgba(249,199,79,.3);background:transparent;cursor:pointer;flex:1;min-width:52px">
+          <span style="font-size:18px">🦵</span><span style="font-size:10px;color:#C49A2A;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Agachar</span>
+        </button>
+        <button class="mark-extype-btn" data-type="empurrar" onclick="toggleExType(this)" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 12px;border-radius:12px;border:1.5px solid rgba(41,121,255,.3);background:transparent;cursor:pointer;flex:1;min-width:52px">
+          <span style="font-size:18px">💪</span><span style="font-size:10px;color:#4A8AFF;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Empurrar</span>
+        </button>
+        <button class="mark-extype-btn" data-type="core" onclick="toggleExType(this)" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 12px;border-radius:12px;border:1.5px solid rgba(0,230,118,.3);background:transparent;cursor:pointer;flex:1;min-width:52px">
+          <span style="font-size:18px">🔥</span><span style="font-size:10px;color:#00B860;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Core</span>
+        </button>
+        <button class="mark-extype-btn" data-type="conjugado" onclick="toggleExType(this)" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 12px;border-radius:12px;border:1.5px solid rgba(160,160,160,.25);background:transparent;cursor:pointer;flex:1;min-width:52px">
+          <span style="font-size:18px">🏃</span><span style="font-size:10px;color:#999;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Conjugado</span>
+        </button>
+      </div>
+    </div>
+    <div class="field-group" style="margin-top:4px">
       <div class="field-label">Observação (opcional)</div>
       <textarea class="mark-obs-input" id="markWorkoutObs" placeholder="Ex: Senti bem hoje..."></textarea>
     </div>
@@ -606,7 +666,8 @@ function savePresets(p){localStorage.setItem('nt_presets',JSON.stringify(p));}
 function loadHistory(){const s=localStorage.getItem('nt_history');return s?JSON.parse(s):[];}
 function saveHistory(h){localStorage.setItem('nt_history',JSON.stringify(h.slice(-50)));}
 
-let presets=loadPresets(),selectedId=presets[0]?.id??null,editingId=null,editMode='normal',editColor=PALETTE[3].hex;
+let presets=loadPresets(),selectedId=null,editingId=null,editMode='normal',editColor=PALETTE[3].hex;
+let autoModeSelected=true; // auto mode pre-selected by default
 
 let cfg=JSON.parse(localStorage.getItem('nt_cfg')||'{}');
 cfg={sound:true,vibrate:true,hrMin:70,hrMax:180,...cfg};
@@ -693,20 +754,44 @@ function renderHome(){
     card.addEventListener('click',e=>{
       if(e.target.dataset.edit){openEdit(e.target.dataset.edit);return;}
       if(e.target.dataset.del){deletePreset(e.target.dataset.del);return;}
-      selectedId=p.id;renderHome();
+      selectedId=p.id;autoModeSelected=false;
+      document.getElementById('autoCard').classList.remove('selected');
+      renderHome();
     });
     list.appendChild(card);
   });
   const sel=presets.find(p=>p.id===selectedId);
-  const fc=sel?.color||'#00E676';
+  const fc=sel?.color||'#B47FFF';
   const fab=document.getElementById('fabStart');
-  fab.style.background=fc;fab.style.color=isLight(fc)?'#000':'#fff';
-  fab.style.boxShadow=`-4px 0 20px ${fc}55`;
-  fab.classList.toggle('hidden-fab',!selectedId);
-  document.querySelector('.logo span').style.color=fc;
+  if(autoModeSelected&&!selectedId){
+    fab.style.background='#B47FFF';fab.style.color='#fff';
+    fab.style.boxShadow='-4px 0 20px rgba(180,127,255,.5)';
+    fab.classList.remove('hidden-fab');
+    document.querySelector('.logo span').style.color='#B47FFF';
+  } else if(selectedId){
+    fab.style.background=fc;fab.style.color=isLight(fc)?'#000':'#fff';
+    fab.style.boxShadow=`-4px 0 20px ${fc}55`;
+    fab.classList.toggle('hidden-fab',!selectedId);
+    document.querySelector('.logo span').style.color=fc;
+  } else {
+    fab.classList.remove('hidden-fab');
+    fab.style.background='#B47FFF';fab.style.color='#fff';
+    document.querySelector('.logo span').style.color='#B47FFF';
+  }
+}
+function selectAutoMode(){
+  autoModeSelected=true;
+  selectedId=null;
+  document.getElementById('autoCard').classList.add('selected');
+  document.querySelectorAll('#presetList .preset-card').forEach(c=>c.classList.remove('selected'));
+  const fab=document.getElementById('fabStart');
+  fab.style.background='#B47FFF';fab.style.color='#fff';
+  fab.style.boxShadow='-4px 0 20px rgba(180,127,255,.5)';
+  fab.classList.remove('hidden-fab');
+  document.querySelector('.logo span').style.color='#B47FFF';
 }
 renderHome();
-document.getElementById('fabStart').onclick=()=>{getAC();startTimer();};
+document.getElementById('fabStart').onclick=()=>{getAC();if(autoModeSelected&&!selectedId)startAutoMode();else startTimer();};
 document.getElementById('btnNew').onclick=()=>openEdit(null);
 
 function setMode(m){
@@ -970,7 +1055,7 @@ let _prevChartFrom='home',_viewingLog=null,_viewingPreset=null;
 
 function showFinish(p){
   releaseWakeLock();
-  if(typeof auto!=='undefined')auto.pendingMarkName=p.name||'Treino';
+  auto.pendingMarkName=p.name||'Treino';
   speak('Treino concluído. Parabéns!');
   beep(880,.15,.6,'sine',0);beep(1100,.15,.6,'sine',.2);beep(1320,.3,.7,'sine',.4);
   vibrate([100,50,100,50,200]);
@@ -980,6 +1065,13 @@ function showFinish(p){
   document.getElementById('btnViewChart').style.display=hasChart?'flex':'none';
   document.getElementById('savePrompt').style.display=hasChart?'flex':'none';
   showScreen('finish');
+  // Auto-open the mark modal after a short delay
+  setTimeout(()=>{
+    document.getElementById('markWorkoutName').textContent=auto.pendingMarkName;
+    document.getElementById('markWorkoutObs').value='';
+    resetExTypes();
+    document.getElementById('markWorkoutModal').classList.add('open');
+  },1200);
 }
 document.getElementById('btnSaveSession').onclick=()=>{
   const hist=loadHistory();const p=tmr.preset;
@@ -1257,7 +1349,18 @@ function renderCalendar(){
     const isToday=today.getFullYear()===calYear&&today.getMonth()===calMonth&&today.getDate()===d;
     cell.className='cal-day'+(rec?' done':'')+(isToday?' today':'');
     cell.textContent=d;
-    if(rec){cell.onclick=()=>showCalDetail(dateStr,rec);}
+    // Show count badge if multiple workouts
+    if(rec){
+      const count=(rec.workouts||[rec]).length;
+      if(count>1){
+        const badge=document.createElement('span');
+        badge.style.cssText='position:absolute;top:-2px;right:-2px;background:#F5C518;color:#000;font-size:8px;font-weight:700;border-radius:50%;width:14px;height:14px;display:flex;align-items:center;justify-content:center;line-height:1';
+        badge.textContent=count;
+        cell.style.position='relative';
+        cell.appendChild(badge);
+      }
+      cell.onclick=()=>showCalDetail(dateStr,rec);
+    }
     grid.appendChild(cell);
   }
 }
@@ -1265,15 +1368,43 @@ function showCalDetail(dateStr,rec){
   const det=document.getElementById('calDayDetail');
   const [y,m,d]=dateStr.split('-');
   document.getElementById('calDetailDate').textContent=`${d}/${m}/${y}`;
-  document.getElementById('calDetailName').textContent=rec.name||'Automático ♾️';
-  document.getElementById('calDetailObs').textContent=rec.obs||'';
+  // Support legacy and new multi-workout format
+  const workouts=rec.workouts||(rec.name?[{name:rec.name,obs:rec.obs||'',exTypes:[]}]:[]);
+  const EX_TYPE_MAP={puxar:{emoji:'🏋️',label:'Puxar',color:'#9966CC'},agachar:{emoji:'🦵',label:'Agachar',color:'#C49A2A'},empurrar:{emoji:'💪',label:'Empurrar',color:'#4A8AFF'},core:{emoji:'🔥',label:'Core',color:'#00B860'},conjugado:{emoji:'🏃',label:'Conjugado',color:'#999'}};
+  let html='';
+  workouts.forEach((w,i)=>{
+    html+=`<div style="margin-bottom:${i<workouts.length-1?'14px':'0'}">`;
+    html+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">`;
+    if(workouts.length>1)html+=`<div style="font-size:11px;color:#555;background:var(--surface2);padding:2px 8px;border-radius:8px">#${i+1}</div>`;
+    if(w.time)html+=`<div style="font-size:11px;color:#555">${w.time}</div>`;
+    html+=`</div>`;
+    html+=`<div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:#B47FFF">${w.name||'Automático ♾️'}</div>`;
+    if(w.exTypes&&w.exTypes.length){
+      html+=`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">`;
+      w.exTypes.forEach(t=>{const et=EX_TYPE_MAP[t];if(et)html+=`<div style="display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:8px;background:var(--surface2);font-size:12px;color:${et.color};font-weight:600">${et.emoji} ${et.label}</div>`;});
+      html+=`</div>`;
+    }
+    if(w.obs)html+=`<div style="font-size:13px;color:#888;margin-top:5px;font-style:italic">${w.obs}</div>`;
+    html+=`</div>`;
+    if(i<workouts.length-1)html+=`<hr style="border:none;border-top:1px solid var(--surface2);margin:8px 0">`;
+  });
+  document.getElementById('calDetailName').innerHTML='';
+  document.getElementById('calDetailObs').innerHTML=html;
   det.classList.add('open');
 }
-function markCalendar(name,obs){
+function markCalendar(name,obs,exTypes){
   const today=new Date();
   const dateStr=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
-  const records=loadCalendar().filter(r=>r.date!==dateStr);
-  records.push({date:dateStr,name,obs:obs||''});
+  const records=loadCalendar();
+  // Find existing day entry or create new one with workouts array
+  let dayEntry=records.find(r=>r.date===dateStr);
+  if(!dayEntry){
+    dayEntry={date:dateStr,workouts:[]};
+    records.push(dayEntry);
+  }
+  // Support legacy single-workout format: migrate to workouts array
+  if(!dayEntry.workouts){dayEntry.workouts=[{name:dayEntry.name,obs:dayEntry.obs||'',exTypes:[]}];delete dayEntry.name;delete dayEntry.obs;}
+  dayEntry.workouts.push({name,obs:obs||'',exTypes:exTypes||[],time:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})});
   saveCalendar(records);
   showToast('Treino marcado no calendário ✓');
 }
@@ -1381,6 +1512,59 @@ document.getElementById('btnAutoSerieOk').onclick=()=>{
   showScreen('autoReps');
 };
 
+// Auto exec controls (fix 9)
+let autoExecPaused=false;
+document.getElementById('btnAutoExecBack').onclick=()=>{
+  clearInterval(auto._int);autoExecPaused=false;
+  applyAccent('#00E676');showScreen('home');
+};
+document.getElementById('btnAutoExecPlay').onclick=()=>{
+  autoExecPaused=!autoExecPaused;
+  const btn=document.getElementById('btnAutoExecPlay');
+  if(autoExecPaused){
+    clearInterval(auto._int);btn.textContent='▶';btn.style.background='#555';
+  } else {
+    btn.innerHTML='&#9208;';btn.style.background='#B47FFF';
+    auto._int=setInterval(()=>{
+      auto.execSecs--;updateAutoExecUI();
+      if(auto.execSecs===3&&!auto.execOverflow)beepCountdown();
+      if(auto.execSecs<=0&&!auto.execOverflow){
+        auto.execOverflow=true;
+        document.getElementById('autoExecOverflowLabel').style.opacity='1';
+      }
+    },1000);
+  }
+};
+document.getElementById('btnAutoExecSkip').onclick=()=>{
+  clearInterval(auto._int);autoExecPaused=false;
+  document.getElementById('autoRepsSerieNum').textContent=auto.serieNum;
+  showScreen('autoReps');
+};
+
+// Auto rest controls (fix 9)
+let autoRestPaused=false;
+document.getElementById('btnAutoRestBack').onclick=()=>{
+  clearInterval(auto._int);autoRestPaused=false;
+  applyAccent('#00E676');showScreen('home');
+};
+document.getElementById('btnAutoRestPlay').onclick=()=>{
+  autoRestPaused=!autoRestPaused;
+  const btn=document.getElementById('btnAutoRestPlay');
+  if(autoRestPaused){
+    clearInterval(auto._int);btn.textContent='▶';btn.style.background='#555';
+  } else {
+    btn.innerHTML='&#9208;';btn.style.background='#2979FF';
+    auto._int=setInterval(()=>{
+      auto.restSecs--;updateAutoRestUI();
+      if(auto.restSecs===3)beepCountdown();
+      if(auto.restSecs<=0){clearInterval(auto._int);onAutoRestDone();}
+    },1000);
+  }
+};
+document.getElementById('btnAutoRestSkip').onclick=()=>{
+  clearInterval(auto._int);autoRestPaused=false;onAutoRestDone();
+};
+
 function selectReps(btn){
   auto.selectedRepsKey=btn.dataset.restKey;
   document.getElementById('autoIntSerieNum').textContent=auto.serieNum;
@@ -1419,9 +1603,23 @@ function updateAutoRestUI(){
   document.getElementById('autoRestRing').style.strokeDashoffset=AUTO_CIRC*(1-(auto.restTotal>0?s/auto.restTotal:0));
 }
 
-document.getElementById('btnAutoStartEarly').onclick=()=>{
-  clearInterval(auto._int);onAutoRestDone();
-};
+// Skip-rest helpers used from rest screen buttons
+function autoSkipRestNextSerie(){
+  clearInterval(auto._int);
+  auto.serieNum++;
+  startAutoExecDirect(); // no prep, goes straight to execution
+}
+function autoSkipRestNewExercise(){
+  clearInterval(auto._int);
+  auto.exIndex++;auto.serieNum=1;
+  showAutoPrep(); // new exercise gets prep time
+}
+function autoSkipRestFinish(){
+  clearInterval(auto._int);
+  autoFinishWorkout();
+}
+
+document.getElementById('btnAutoStartEarly').onclick=()=>{}; // handled by inline onclick in HTML
 
 function onAutoRestDone(){
   beep(880,.15,.6,'sine',0);beep(1100,.15,.6,'sine',.2);vibrate([80,30,80]);
@@ -1431,30 +1629,97 @@ function onAutoRestDone(){
   showScreen('autoContinue');
 }
 
+function startAutoExecDirect(){
+  // Goes straight to execution without prep countdown
+  auto.execSecs=60;auto.execTotal=60;auto.execOverflow=false;
+  document.getElementById('autoExecSerieNum').textContent=auto.serieNum;
+  document.getElementById('autoExecExName').textContent=autoExName();
+  document.getElementById('autoExecPhaseLabel').textContent='EXECUÇÃO';
+  document.getElementById('autoExecPhaseLabel').style.color='#B47FFF';
+  const ring=document.getElementById('autoExecRing');
+  ring.style.strokeDasharray=AUTO_CIRC;ring.style.stroke='#B47FFF';
+  document.getElementById('autoExecOverflowLabel').style.opacity='0';
+  showScreen('autoExec');
+  speak('Borá!');beep(1200,.15,.6);vibrate([80,30,80]);
+  const fl=document.getElementById('flash');fl.style.background='#B47FFF';fl.classList.add('on');setTimeout(()=>fl.classList.remove('on'),150);
+  clearInterval(auto._int);
+  auto._int=setInterval(()=>{
+    auto.execSecs--;
+    updateAutoExecUI();
+    if(auto.execSecs===3&&!auto.execOverflow)beepCountdown();
+    if(auto.execSecs<=0&&!auto.execOverflow){
+      auto.execOverflow=true;
+      document.getElementById('autoExecOverflowLabel').style.opacity='1';
+    }
+  },1000);
+}
+
 function autoNextSerie(){
   auto.serieNum++;
-  showAutoPrep();
+  startAutoExecDirect(); // Fix 6: nova série vai direto para execução, sem prep
 }
 
 function autoNewExercise(){
   auto.exIndex++;auto.serieNum=1;
-  showAutoPrep();
+  showAutoPrep(); // novo exercício tem tempo de preparação
 }
 
 function autoFinishWorkout(){
   clearInterval(auto._int);
   auto.pendingMarkName='Automático ♾️';
-  document.getElementById('markWorkoutName').textContent=auto.pendingMarkName;
-  document.getElementById('markWorkoutObs').value='';
   speak('Treino concluído. Parabéns!');
   beep(880,.15,.6,'sine',0);beep(1100,.15,.6,'sine',.2);beep(1320,.3,.7,'sine',.4);
   vibrate([100,50,100,50,200]);
-  document.getElementById('markWorkoutModal').classList.add('open');
+  // Go to finish screen and auto-trigger mark modal (fix 10)
+  document.getElementById('finishSub').textContent='Automático ♾️';
+  document.getElementById('btnViewChart').style.display='none';
+  document.getElementById('savePrompt').style.display='none';
+  showScreen('finish');
+  setTimeout(()=>{
+    document.getElementById('markWorkoutName').textContent=auto.pendingMarkName;
+    document.getElementById('markWorkoutObs').value='';
+    resetExTypes();
+    document.getElementById('markWorkoutModal').classList.add('open');
+  },1200);
+}
+
+let selectedExTypes=new Set();
+function toggleExType(btn){
+  const t=btn.dataset.type;
+  if(selectedExTypes.has(t)){
+    selectedExTypes.delete(t);
+    btn.style.opacity='1';
+    btn.style.transform='scale(1)';
+  } else {
+    selectedExTypes.add(t);
+    btn.style.opacity='1';
+    btn.style.transform='scale(1.05)';
+    btn.style.background='rgba(180,127,255,.18)';
+    btn.style.borderColor='rgba(180,127,255,.7)';
+  }
+  // Update visual state
+  document.querySelectorAll('.mark-extype-btn').forEach(b=>{
+    if(selectedExTypes.has(b.dataset.type)){
+      b.style.background='rgba(180,127,255,.18)';
+      b.style.transform='scale(1.05)';
+    } else {
+      b.style.background='transparent';
+      b.style.transform='scale(1)';
+    }
+  });
+}
+function resetExTypes(){
+  selectedExTypes=new Set();
+  document.querySelectorAll('.mark-extype-btn').forEach(b=>{
+    b.style.background='transparent';
+    b.style.transform='scale(1)';
+  });
 }
 
 document.getElementById('btnMarkDone').onclick=()=>{
   const obs=document.getElementById('markWorkoutObs').value.trim();
-  markCalendar(auto.pendingMarkName,obs);
+  markCalendar(auto.pendingMarkName,obs,[...selectedExTypes]);
+  resetExTypes();
   document.getElementById('markWorkoutModal').classList.remove('open');
   applyAccent('#00E676');showScreen('home');
 };
@@ -1464,22 +1729,7 @@ function skipMarkWorkout(){
 }
 document.getElementById('markWorkoutModal').onclick=e=>{if(e.target.id==='markWorkoutModal')skipMarkWorkout();};
 
-// Calendar mark from finish screen — add a button before VOLTAR
-(function(){
-  const fb=document.getElementById('btnFinishHome');
-  const calBtn=document.createElement('button');
-  calBtn.className='btn-finish';
-  calBtn.id='btnCalFromFinish';
-  calBtn.style.cssText='background:rgba(180,127,255,.15);color:#B47FFF;border:1px solid rgba(180,127,255,.3)';
-  calBtn.innerHTML='📅 Marcar no Calendário';
-  calBtn.onclick=()=>{
-    document.getElementById('markWorkoutName').textContent=auto.pendingMarkName||'Treino';
-    document.getElementById('markWorkoutObs').value='';
-    document.getElementById('markWorkoutModal').classList.add('open');
-  };
-  fb.parentElement.insertBefore(calBtn,fb);
-})();
-
+// Calendar mark flow now auto-triggers from showFinish and autoFinishWorkout
 
 document.getElementById('btnBLE').onclick=async()=>{
   if(!navigator.bluetooth){showToast('Bluetooth não suportado');return;}
