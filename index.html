@@ -58,16 +58,7 @@
   .color-swatch{width:34px;height:34px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:transform .15s,border-color .15s;flex-shrink:0;}
   .color-swatch.selected{border-color:#fff;transform:scale(1.2);}
   .btn-save{height:52px;border-radius:26px;border:none;background:var(--accent);color:#000;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;cursor:pointer;margin-top:4px;width:100%;}
-  #timer{flex-direction:row!important;align-items:stretch;padding:0;}
-  .hr-sidebar{width:48px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;padding:28px 0 24px;gap:5px;background:var(--surface);transition:opacity .4s;}
-  .hr-sidebar.ble-off{opacity:0.15;}
-  .hr-label{font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);text-align:center;line-height:1.4;}
-  .hr-val-max{font-family:'Bebas Neue',sans-serif;font-size:15px;color:#ff4d6d;line-height:1;}
-  .hr-val-min{font-family:'Bebas Neue',sans-serif;font-size:15px;color:#00E676;line-height:1;}
-  .hr-track{flex:1;width:14px;border-radius:7px;background:var(--surface2);position:relative;overflow:visible;}
-  .hr-fill{position:absolute;bottom:0;left:0;right:0;border-radius:7px;transition:height .8s ease,background .4s;}
-  .hr-needle{position:absolute;left:-5px;right:-5px;height:3px;background:#fff;border-radius:2px;box-shadow:0 0 8px rgba(255,255,255,.8);transition:bottom .8s ease;}
-  @keyframes zonewarn{0%,100%{opacity:1}50%{opacity:.2}}
+  #timer{flex-direction:column!important;align-items:stretch;padding:0;}
   .timer-main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:24px 14px 32px;overflow:hidden;position:relative;}
   .timer-top{width:100%;display:flex;align-items:center;justify-content:space-between;}
   .phase-label{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:3px;transition:color .4s;}
@@ -80,15 +71,7 @@
   .ring-fg{fill:none;stroke-width:10;stroke-linecap:round;transition:stroke .4s,stroke-dashoffset .95s linear;}
   .ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
   .time-display{font-family:'Bebas Neue',sans-serif;font-size:clamp(52px,14vw,80px);line-height:1;letter-spacing:2px;transition:color .4s;}
-  .time-sub{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:3px;}
-  .bpm-hero{display:flex;align-items:center;justify-content:center;gap:10px;height:56px;}
-  .bpm-hero-num{font-family:'Bebas Neue',sans-serif;font-size:56px;line-height:1;letter-spacing:1px;transition:color .4s;color:var(--muted);}
-  .bpm-hero-num.active{color:#ff4d6d;}
-  .bpm-hero-right{display:flex;flex-direction:column;align-items:flex-start;gap:2px;}
-  .bpm-hero-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
-  .bpm-heart{font-size:16px;color:#ff4d6d;animation:hpulse .9s infinite;}
-  @keyframes hpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.4)}}
-  .bpm-hero-num.warn{animation:zonewarn .55s infinite;}
+  .time-sub{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:3px;}50%{transform:scale(1.4)}}
   .dots{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:200px;}
   .dot{width:10px;height:10px;border-radius:50%;background:var(--surface2);transition:background .3s,transform .3s;}
   .dot.done{background:var(--accent);}
@@ -102,7 +85,6 @@
   .btn-ctrl:active{background:var(--surface2);}
   .btn-playpause{width:68px;height:68px;border-radius:50%;border:none;font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,transform .15s;}
   .btn-playpause:active{transform:scale(.93);}
-  .btn-chart-live{position:absolute;bottom:32px;right:12px;width:34px;height:34px;border-radius:50%;border:1px solid var(--surface2);background:var(--surface);color:var(--muted);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
   .flash{position:fixed;inset:0;pointer-events:none;opacity:0;transition:opacity .2s;z-index:99;}
   .flash.on{opacity:.18;transition:opacity 0s;}
   #finish{align-items:center;justify-content:center;gap:18px;text-align:center;padding:32px 24px;}
@@ -113,37 +95,6 @@
   .btn-finish{height:52px;border-radius:26px;border:none;background:var(--surface2);color:var(--text);font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
   .btn-finish.primary{background:var(--accent);color:#000;}
   .btn-finish.outline{background:transparent;border:1px solid var(--surface2);color:var(--muted);}
-  .save-prompt{background:var(--surface);border-radius:16px;padding:16px;width:100%;max-width:280px;display:flex;flex-direction:column;gap:10px;border:1px solid var(--surface2);}
-  .save-prompt-title{font-size:13px;color:var(--muted);text-align:center;}
-  #chartScreen{padding:0;}
-  .chart-header{padding:20px 20px 12px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
-  .chart-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;}
-  .chart-canvas-wrap{flex:1;padding:0 14px;position:relative;min-height:0;}
-  #bpmChart{width:100%;height:100%;}
-  .chart-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;padding:10px 16px;flex-shrink:0;}
-  .stat-box{background:var(--surface);border-radius:12px;padding:9px 6px;text-align:center;}
-  .stat-val{font-family:'Bebas Neue',sans-serif;font-size:24px;line-height:1;}
-  .stat-lbl{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:2px;}
-  .chart-meta{padding:6px 16px 10px;display:flex;gap:14px;flex-wrap:wrap;}
-  .chart-meta span{font-size:11px;color:var(--muted);}
-  .chart-meta b{color:var(--text);}
-  .chart-actions{padding:0 16px 28px;display:flex;gap:10px;flex-shrink:0;}
-  .btn-chart-action{flex:1;height:48px;border-radius:24px;border:1px solid var(--surface2);background:var(--surface2);color:var(--text);font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;}
-  .btn-chart-action.primary{background:var(--accent);color:#000;border-color:var(--accent);}
-  #historyScreen{padding:0;}
-  .history-header{padding:24px 20px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
-  .history-list{flex:1;overflow-y:auto;padding:0 16px 24px;display:flex;flex-direction:column;gap:10px;}
-  .history-card{background:var(--surface);border-radius:14px;padding:14px 16px;cursor:pointer;border:1px solid var(--surface2);}
-  .history-card:active{background:var(--surface2);}
-  .history-card-top{display:flex;justify-content:space-between;align-items:flex-start;}
-  .history-card-name{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;}
-  .history-card-date{font-size:11px;color:var(--muted);}
-  .history-card-stats{display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;}
-  .history-stat{font-size:12px;color:var(--muted);}
-  .history-stat b{color:var(--text);}
-  .history-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--muted);}
-  .history-empty-icon{font-size:48px;opacity:.3;}
-  .btn-del-history{font-size:11px;background:none;border:none;color:var(--muted);cursor:pointer;padding:4px 8px;}
   .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--surface2);color:var(--text);padding:10px 20px;border-radius:24px;font-size:13px;white-space:nowrap;opacity:0;transition:opacity .3s;z-index:500;pointer-events:none;}
   .toast.show{opacity:1;}
   /* ---- AUTO MODE STYLES ---- */
@@ -198,6 +149,9 @@
   .cal-detail-name{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:#B47FFF;}
   .cal-detail-obs{font-size:13px;color:var(--muted);margin-top:6px;font-style:italic;}
   .cal-legend{padding:12px 16px;font-size:12px;color:var(--muted);text-align:center;}
+  .cal-day-detail-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+  .btn-del-workout{font-size:12px;padding:5px 12px;border-radius:10px;border:1px solid rgba(255,77,109,.35);background:transparent;color:#ff4d6d;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .2s;}
+  .btn-del-workout:active{background:rgba(255,77,109,.12);}
   /* Mark workout modal */
   .mark-obs-input{background:var(--surface2);border:1px solid var(--surface2);border-radius:12px;padding:12px 16px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);width:100%;resize:none;min-height:60px;}
   .mark-obs-input:focus{outline:none;border-color:#B47FFF;}
@@ -214,7 +168,6 @@
   .divider{border:none;border-top:1px solid var(--surface2);margin:4px 0;}
   .btn-connect{width:100%;height:48px;border-radius:24px;border:1px solid var(--surface2);background:transparent;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
   .hint{font-size:11px;color:var(--muted);margin-top:6px;}
-  .photo-preview{width:100%;max-height:140px;object-fit:cover;border-radius:10px;display:none;}
 </style>
 </head>
 <body>
@@ -227,7 +180,6 @@
     <div class="logo">CRONÔMETRO <span>BRAVO</span></div>
     <div style="display:flex;gap:8px">
       <button class="btn-icon" id="btnCalendar">📅</button>
-      <button class="btn-icon" id="btnHistory">📋</button>
       <button class="btn-icon" id="btnSettings">⚙</button>
       <button class="btn-icon" id="btnNew">＋</button>
     </div>
@@ -291,15 +243,7 @@
   <button class="btn-save" id="btnSave">SALVAR</button>
 </div>
 
-<div class="screen hidden" id="timer">
-  <div class="hr-sidebar ble-off" id="hrSidebar">
-    <div class="hr-label">FC<br>MÁX</div>
-    <div class="hr-val-max" id="hrMaxDisp">180</div>
-    <div class="hr-track"><div class="hr-fill" id="hrFill" style="height:0%"></div><div class="hr-needle" id="hrNeedle" style="bottom:0%"></div></div>
-    <div class="hr-val-min" id="hrMinDisp">70</div>
-    <div class="hr-label">FC<br>MÍN</div>
-  </div>
-  <div class="timer-main">
+<div class="screen hidden" id="timer">    <div class="timer-main">
     <div class="timer-top">
       <div class="phase-label" id="phaseLabel">PREPARE-SE</div>
       <div class="cycle-badge" id="cycleBadge">Série <span id="cycleNum">1</span>/<span id="cycleTotal">4</span></div>
@@ -309,10 +253,6 @@
       <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="52"/><circle class="ring-fg" id="ringFg" cx="60" cy="60" r="52"/></svg>
       <div class="ring-center"><div class="time-display" id="timeDisplay">00</div><div class="time-sub" id="timeSub">segundos</div></div>
     </div>
-    <div class="bpm-hero">
-      <div class="bpm-hero-num" id="bpmHeroNum">--</div>
-      <div class="bpm-hero-right"><div class="bpm-heart" id="bpmHeart" style="display:none">&#9829;</div><div class="bpm-hero-label">BPM</div></div>
-    </div>
     <div id="dotsRow" class="dots"></div>
     <div id="roundDotsRow" class="round-dots" style="display:none"></div>
     <div class="controls">
@@ -320,7 +260,6 @@
       <button class="btn-playpause" id="btnPlay">&#9208;</button>
       <button class="btn-ctrl" id="btnSkip">&#9197;</button>
     </div>
-    <button class="btn-chart-live" id="btnLiveChart" style="display:none">&#128200;</button>
   </div>
 </div>
 
@@ -328,48 +267,9 @@
   <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px 24px">
     <div class="finish-icon">&#127937;</div>
     <div class="finish-title">TREINO<br>CONCLU&#205;DO</div>
-    <div class="finish-sub" id="finishSub"></div>
-    <div class="save-prompt" id="savePrompt" style="display:none">
-      <div class="save-prompt-title">&#128190; Salvar este treino no hist&#243;rico?</div>
-      <div class="finish-btns">
-        <button class="btn-finish primary" id="btnSaveSession">SALVAR TREINO</button>
-        <button class="btn-finish outline" id="btnSkipSave">N&#227;o salvar</button>
-      </div>
-    </div>
-    <div class="finish-btns" style="width:100%;max-width:280px">
-      <button class="btn-finish" id="btnViewChart" style="display:none">&#128200; Ver gr&#225;fico de BPM</button>
+    <div class="finish-sub" id="finishSub"></div>    <div class="finish-btns" style="width:100%;max-width:280px">
       <button class="btn-finish outline" id="btnFinishHome">VOLTAR</button>
     </div>
-  </div>
-</div>
-
-<div class="screen hidden" id="chartScreen">
-  <div class="chart-header"><div class="chart-title" id="chartScreenTitle">GR&#193;FICO BPM</div><button class="btn-icon" id="btnChartBack">&#8592;</button></div>
-  <div class="chart-canvas-wrap"><canvas id="bpmChart"></canvas></div>
-  <div class="chart-stats" id="chartStats"></div>
-  <div class="chart-meta" id="chartMeta"></div>
-  <div class="chart-actions"><button class="btn-chart-action primary" id="btnSaveChart">&#128190; EXPORTAR</button></div>
-</div>
-
-<div class="screen hidden" id="historyScreen">
-  <div class="history-header">
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px">HIST&#211;RICO</div>
-    <button class="btn-icon" id="btnHistoryBack">&#8592;</button>
-  </div>
-  <div class="history-list" id="historyList"></div>
-</div>
-
-<div class="modal-overlay" id="exportModal">
-  <div class="modal-sheet">
-    <div class="modal-title">EXPORTAR GR&#193;FICO</div>
-    <div class="field-group"><div class="field-label">Anota&#231;&#227;o (opcional)</div><textarea class="field-textarea" id="exportNote" placeholder="Ex: Senti bem na 3&#170; s&#233;rie..." style="min-height:80px"></textarea></div>
-    <div class="field-group"><div class="field-label">Foto (opcional)</div>
-      <input type="file" id="exportPhoto" accept="image/*" style="display:none">
-      <button class="btn-connect" id="btnAddPhoto">&#128247; Adicionar foto</button>
-      <img class="photo-preview" id="photoPreview">
-    </div>
-    <button class="btn-save" id="btnDoExport">GERAR IMAGEM 1:1</button>
-    <button class="btn-connect" onclick="closeExportModal()">CANCELAR</button>
   </div>
 </div>
 
@@ -378,23 +278,6 @@
     <div class="modal-title">CONFIGURA&#199;&#213;ES</div>
     <div class="modal-row"><div><div style="font-size:14px">Sons</div><div style="font-size:12px;color:var(--muted)">Voz + bipes</div></div><button class="toggle on" id="toggleSound"></button></div>
     <div class="modal-row"><div><div style="font-size:14px">Vibra&#231;&#227;o</div><div style="font-size:12px;color:var(--muted)">Ao trocar fase</div></div><button class="toggle on" id="toggleVibrate"></button></div>
-    <hr class="divider">
-    <div>
-      <div style="font-size:14px;margin-bottom:2px">Zona Card&#237;aca</div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Limites m&#237;n/m&#225;x da barra</div>
-      <div class="row2">
-        <div class="field-group"><div class="field-label">FC M&#237;nima (bpm)</div><input class="field-input" id="cfgHrMin" type="number" min="40" max="220" value="70"></div>
-        <div class="field-group"><div class="field-label">FC M&#225;xima (bpm)</div><input class="field-input" id="cfgHrMax" type="number" min="40" max="220" value="180"></div>
-      </div>
-      <button class="btn-save" id="btnSaveHr" style="height:44px;font-size:16px;margin-top:10px">SALVAR ZONA</button>
-    </div>
-    <hr class="divider">
-    <div>
-      <div style="font-size:14px;margin-bottom:2px">Monitor Card&#237;aco</div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Bluetooth GATT &#183; Coospo HW9</div>
-      <button class="btn-connect" id="btnBLE"><span>&#129488;</span><span id="bleLabel">Conectar via Bluetooth</span></button>
-      <div class="hint">Requer Chrome + HTTPS + localiza&#231;&#227;o ativada no Android</div>
-    </div>
     <button class="btn-save" onclick="closeSettings()">FECHAR</button>
   </div>
 </div>
@@ -588,7 +471,10 @@
     </div>
     <div class="cal-grid" id="calGrid"></div>
     <div class="cal-day-detail" id="calDayDetail">
-      <div class="cal-detail-date" id="calDetailDate"></div>
+      <div class="cal-day-detail-header">
+        <div class="cal-detail-date" id="calDetailDate"></div>
+        <button class="btn-del-workout" id="btnDelWorkout">🗑 Deletar</button>
+      </div>
       <div class="cal-detail-name" id="calDetailName"></div>
       <div class="cal-detail-obs" id="calDetailObs"></div>
     </div>
@@ -663,14 +549,12 @@ function loadPresets(){
   return s?JSON.parse(s):JSON.parse(JSON.stringify(FACTORY_DEFAULTS));
 }
 function savePresets(p){localStorage.setItem('nt_presets',JSON.stringify(p));}
-function loadHistory(){const s=localStorage.getItem('nt_history');return s?JSON.parse(s):[];}
-function saveHistory(h){localStorage.setItem('nt_history',JSON.stringify(h.slice(-50)));}
 
 let presets=loadPresets(),selectedId=null,editingId=null,editMode='normal',editColor=PALETTE[3].hex;
 let autoModeSelected=true; // auto mode pre-selected by default
 
 let cfg=JSON.parse(localStorage.getItem('nt_cfg')||'{}');
-cfg={sound:true,vibrate:true,hrMin:70,hrMax:180,...cfg};
+cfg={sound:true,vibrate:true,...cfg};
 function saveCfg(){localStorage.setItem('nt_cfg',JSON.stringify(cfg));}
 
 const toggleSound=document.getElementById('toggleSound');
@@ -679,14 +563,6 @@ toggleSound.classList.toggle('on',cfg.sound);
 toggleVibrate.classList.toggle('on',cfg.vibrate);
 toggleSound.onclick=()=>{cfg.sound=!cfg.sound;toggleSound.classList.toggle('on',cfg.sound);saveCfg();};
 toggleVibrate.onclick=()=>{cfg.vibrate=!cfg.vibrate;toggleVibrate.classList.toggle('on',cfg.vibrate);saveCfg();};
-document.getElementById('cfgHrMin').value=cfg.hrMin;
-document.getElementById('cfgHrMax').value=cfg.hrMax;
-document.getElementById('btnSaveHr').onclick=()=>{
-  const mn=parseInt(document.getElementById('cfgHrMin').value);
-  const mx=parseInt(document.getElementById('cfgHrMax').value);
-  if(isNaN(mn)||isNaN(mx)||mn>=mx||mn<30||mx>250){showToast('Valores inválidos');return;}
-  cfg.hrMin=mn;cfg.hrMax=mx;saveCfg();refreshHrLabels();showToast('Zona salva ✓');
-};
 document.getElementById('btnSettings').onclick=()=>document.getElementById('settingsModal').classList.add('open');
 function closeSettings(){document.getElementById('settingsModal').classList.remove('open');}
 document.getElementById('settingsModal').onclick=e=>{if(e.target.id==='settingsModal')closeSettings();};
@@ -877,40 +753,8 @@ function deletePreset(id){
   savePresets(presets);renderHome();
 }
 
-let currentHR=0;
-function refreshHrLabels(){
-  document.getElementById('hrMinDisp').textContent=cfg.hrMin;
-  document.getElementById('hrMaxDisp').textContent=cfg.hrMax;
-  updateHr(currentHR);
-}
-refreshHrLabels();
-function updateHr(hr){
-  currentHR=hr;
-  const rangeMin=cfg.hrMin-10,rangeMax=cfg.hrMax+10;
-  const pct=hr>0?Math.min(100,Math.max(0,(hr-rangeMin)/(rangeMax-rangeMin)*100)):0;
-  document.getElementById('hrFill').style.height=pct+'%';
-  document.getElementById('hrNeedle').style.bottom=pct+'%';
-  let fillBg;
-  if(hr<=0)fillBg='linear-gradient(to top,#1a1a1a,#2a2a2a)';
-  else if(hr<cfg.hrMin)fillBg='linear-gradient(to top,#1a3a6e,#2979FF)';
-  else if(hr>cfg.hrMax)fillBg='linear-gradient(to top,#7a1a1a,#ff1744)';
-  else fillBg='linear-gradient(to top,#00E676 0%,#F5C518 55%,#ff4d6d 100%)';
-  document.getElementById('hrFill').style.background=fillBg;
-  const num=document.getElementById('bpmHeroNum'),heart=document.getElementById('bpmHeart');
-  num.textContent=hr>0?hr:'--';
-  if(hr>0){num.classList.add('active');heart.style.display='block';
-    if(hr<cfg.hrMin||hr>cfg.hrMax){num.classList.add('warn');num.style.color=hr>cfg.hrMax?'#ff1744':'#2979FF';}
-    else{num.classList.remove('warn');num.style.color='#ff4d6d';}
-  } else {num.classList.remove('active','warn');num.style.color='var(--muted)';heart.style.display='none';}
-}
 
-let bpmLog=[],sessionStart=null;
-function logBpm(bpm,phase){if(sessionStart===null)return;bpmLog.push({t:Date.now()-sessionStart,bpm,phase});}
 
-let wakeLock=null;
-async function acquireWakeLock(){if(!('wakeLock' in navigator))return;try{wakeLock=await navigator.wakeLock.request('screen');wakeLock.addEventListener('release',()=>wakeLock=null);}catch(e){}}
-function releaseWakeLock(){if(wakeLock){wakeLock.release();wakeLock=null;}}
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&tmr.running)acquireWakeLock();});
 
 const CIRC=2*Math.PI*52;
 const ringFg=document.getElementById('ringFg');
@@ -924,10 +768,13 @@ function phaseColor(phase,base){
   return '#2979FF';
 }
 function applyAccent(c){document.documentElement.style.setProperty('--accent',c);}
+let wakeLock=null;
+async function acquireWakeLock(){if(!('wakeLock' in navigator))return;try{wakeLock=await navigator.wakeLock.request('screen');wakeLock.addEventListener('release',()=>wakeLock=null);}catch(e){}}
+function releaseWakeLock(){if(wakeLock){wakeLock.release();wakeLock=null;}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&tmr.running)acquireWakeLock();});
 
 function startTimer(){
   const p=presets.find(x=>x.id===selectedId);if(!p)return;
-  bpmLog=[];sessionStart=Date.now();
   tmr.preset=p;tmr.running=true;tmr.isCircuit=(p.mode==='circuit');tmr.color=p.color||'#00E676';
   applyAccent(tmr.color);
   if(tmr.isCircuit){
@@ -947,7 +794,6 @@ function startTimer(){
     document.getElementById('circuitExLabel').style.display='none';
   }
   updateTimerUI();showScreen('timer');
-  document.getElementById('btnLiveChart').style.display=currentHR>0?'flex':'none';
   acquireWakeLock();phaseStart();tick();
 }
 
@@ -957,7 +803,6 @@ function tick(){
     if(!tmr.running)return;
     tmr.seconds--;
     if(tmr.seconds===3)beepCountdown();
-    if(currentHR>0)logBpm(currentHR,tmr.phase);
     updateTimerUI();
     if(tmr.seconds<=0)nextPhase();
   },1000);
@@ -1049,9 +894,7 @@ document.getElementById('btnPlay').onclick=()=>{
 };
 document.getElementById('btnSkip').onclick=()=>{clearInterval(tmr._int);tmr.seconds=1;nextPhase();if(tmr.running)tick();};
 document.getElementById('btnTimerBack').onclick=()=>{clearInterval(tmr._int);tmr.running=false;releaseWakeLock();applyAccent('#00E676');showScreen('home');};
-document.getElementById('btnLiveChart').onclick=()=>showChartScreen('timer',bpmLog,tmr.preset);
 
-let _prevChartFrom='home',_viewingLog=null,_viewingPreset=null;
 
 function showFinish(p){
   releaseWakeLock();
@@ -1061,9 +904,6 @@ function showFinish(p){
   vibrate([100,50,100,50,200]);
   const label=p.mode==='circuit'?`${p.name} · ${p.rounds} rodadas`:`${p.name} · ${p.cycles} séries`;
   document.getElementById('finishSub').textContent=label;
-  const hasChart=bpmLog.length>2;
-  document.getElementById('btnViewChart').style.display=hasChart?'flex':'none';
-  document.getElementById('savePrompt').style.display=hasChart?'flex':'none';
   showScreen('finish');
   // Auto-open the mark modal after a short delay
   setTimeout(()=>{
@@ -1073,250 +913,9 @@ function showFinish(p){
     document.getElementById('markWorkoutModal').classList.add('open');
   },1200);
 }
-document.getElementById('btnSaveSession').onclick=()=>{
-  const hist=loadHistory();const p=tmr.preset;
-  const bpms=bpmLog.map(d=>d.bpm);
-  hist.push({id:'h'+Date.now(),date:new Date().toISOString(),presetName:p.name,mode:p.mode,color:p.color,
-    bpmLog:[...bpmLog],stats:{min:Math.min(...bpms),max:Math.max(...bpms),avg:Math.round(bpms.reduce((a,b)=>a+b,0)/bpms.length),dur:bpmLog[bpmLog.length-1].t}});
-  saveHistory(hist);document.getElementById('savePrompt').style.display='none';showToast('Treino salvo ✓');
-};
-document.getElementById('btnSkipSave').onclick=()=>{document.getElementById('savePrompt').style.display='none';};
 document.getElementById('btnFinishHome').onclick=()=>{applyAccent('#00E676');showScreen('home');};
-document.getElementById('btnViewChart').onclick=()=>showChartScreen('finish',bpmLog,tmr.preset);
 
-document.getElementById('btnHistory').onclick=()=>{renderHistory();showScreen('historyScreen');};
-document.getElementById('btnHistoryBack').onclick=()=>showScreen('home');
-function renderHistory(){
-  const hist=loadHistory().reverse();
-  const list=document.getElementById('historyList');list.innerHTML='';
-  if(!hist.length){list.innerHTML='<div class="history-empty"><div class="history-empty-icon">📋</div><div>Nenhum treino salvo ainda</div></div>';return;}
-  hist.forEach(h=>{
-    const d=new Date(h.date);
-    const card=document.createElement('div');card.className='history-card';
-    card.innerHTML=`
-      <div class="history-card-top">
-        <div class="history-card-name" style="color:${h.color||'#00E676'}">${h.presetName}</div>
-        <div style="display:flex;align-items:center;gap:6px">
-          <div class="history-card-date">${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</div>
-          <button class="btn-del-history" data-hid="${h.id}">✕</button>
-        </div>
-      </div>
-      <div class="history-card-stats">
-        <div class="history-stat">❤️ MÁX <b style="color:#ff4d6d">${h.stats.max}</b></div>
-        <div class="history-stat">💚 MÍN <b style="color:#00E676">${h.stats.min}</b></div>
-        <div class="history-stat">📊 <b style="color:#F5C518">${h.stats.avg}</b> média</div>
-        <div class="history-stat">⏱ <b>${fmtMs(h.stats.dur)}</b></div>
-      </div>`;
-    card.addEventListener('click',e=>{
-      if(e.target.dataset.hid){deleteHistoryEntry(e.target.dataset.hid);return;}
-      showChartScreen('historyScreen',h.bpmLog,{name:h.presetName,color:h.color},new Date(h.date));
-    });
-    list.appendChild(card);
-  });
-}
-function deleteHistoryEntry(id){saveHistory(loadHistory().filter(h=>h.id!==id));renderHistory();}
 
-function showChartScreen(from,log,preset,dateOverride){
-  _prevChartFrom=from;_viewingLog=log;_viewingPreset=preset;
-  document.getElementById('chartScreenTitle').textContent=from==='historyScreen'?preset.name:'GRÁFICO BPM';
-  renderBpmChart(log,preset,dateOverride);showScreen('chartScreen');
-}
-document.getElementById('btnChartBack').onclick=()=>showScreen(_prevChartFrom);
-
-function renderBpmChart(log,preset,dateOverride){
-  if(!log||log.length<2){showToast('Sem dados de BPM');return;}
-  const canvas=document.getElementById('bpmChart');
-  const ctx=canvas.getContext('2d');
-  const wrap=canvas.parentElement;
-  canvas.width=wrap.clientWidth*window.devicePixelRatio;
-  canvas.height=wrap.clientHeight*window.devicePixelRatio;
-  ctx.scale(window.devicePixelRatio,window.devicePixelRatio);
-  const lineColor=preset?.color||'#00E676';
-  drawChartOnCtx(ctx,wrap.clientWidth,wrap.clientHeight,log,lineColor);
-  const bpms=log.map(d=>d.bpm);
-  const now=dateOverride||new Date();
-  document.getElementById('chartStats').innerHTML=`
-    <div class="stat-box"><div class="stat-val" style="color:#ff4d6d">${Math.max(...bpms)}</div><div class="stat-lbl">Máx</div></div>
-    <div class="stat-box"><div class="stat-val" style="color:#00E676">${Math.min(...bpms)}</div><div class="stat-lbl">Mín</div></div>
-    <div class="stat-box"><div class="stat-val" style="color:#F5C518">${Math.round(bpms.reduce((a,b)=>a+b,0)/bpms.length)}</div><div class="stat-lbl">Média</div></div>
-    <div class="stat-box"><div class="stat-val">${fmtMs(log[log.length-1].t)}</div><div class="stat-lbl">Duração</div></div>`;
-  document.getElementById('chartMeta').innerHTML=`
-    <span>📅 <b>${now.toLocaleDateString('pt-BR')}</b></span>
-    <span>🕐 <b>${now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</b></span>
-    <span>🏋️ <b>${preset?.name??''}</b></span>`;
-}
-
-function drawChartOnCtx(ctx,W,H,log,lineColor){
-  const bpms=log.map(d=>d.bpm);
-  const minBpm=Math.min(...bpms),maxBpm=Math.max(...bpms),avgBpm=Math.round(bpms.reduce((a,b)=>a+b,0)/bpms.length);
-  const dur=log[log.length-1].t;
-  const yMin=Math.max(30,minBpm-10),yMax=maxBpm+10;
-  const PAD={top:14,right:14,bottom:34,left:42};
-  const PW=W-PAD.left-PAD.right,PH=H-PAD.top-PAD.bottom;
-  ctx.fillStyle='#0A0A0A';ctx.fillRect(0,0,W,H);
-  ctx.strokeStyle='#1E1E1E';ctx.lineWidth=1;
-  for(let i=0;i<=4;i++){
-    const y=PAD.top+PH*(1-i/4);
-    ctx.beginPath();ctx.moveTo(PAD.left,y);ctx.lineTo(PAD.left+PW,y);ctx.stroke();
-    ctx.fillStyle='#555';ctx.font='10px DM Sans,sans-serif';ctx.textAlign='right';
-    ctx.fillText(Math.round(yMin+(yMax-yMin)*i/4),PAD.left-5,y+4);
-  }
-  const ranges=[];let cur=null;
-  log.forEach(d=>{if(!cur||cur.phase!==d.phase){if(cur)ranges.push({...cur,end:d.t});cur={phase:d.phase,start:d.t};}});
-  if(cur)ranges.push({...cur,end:dur});
-  const PA={prep:'rgba(245,197,24,.07)',action:lineColor+'18',rest:'rgba(41,121,255,.07)'};
-  ranges.forEach(r=>{const x1=PAD.left+PW*(r.start/dur),x2=PAD.left+PW*(r.end/dur);ctx.fillStyle=PA[r.phase]||'transparent';ctx.fillRect(x1,PAD.top,x2-x1,PH);});
-  ctx.beginPath();
-  log.forEach((d,i)=>{const x=PAD.left+PW*(d.t/dur),y=PAD.top+PH*(1-(d.bpm-yMin)/(yMax-yMin));if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});
-  ctx.lineTo(PAD.left+PW,PAD.top+PH);ctx.lineTo(PAD.left,PAD.top+PH);ctx.closePath();
-  const grd=ctx.createLinearGradient(0,PAD.top,0,PAD.top+PH);
-  grd.addColorStop(0,lineColor+'44');grd.addColorStop(1,lineColor+'04');
-  ctx.fillStyle=grd;ctx.fill();
-  ctx.beginPath();ctx.strokeStyle=lineColor;ctx.lineWidth=2;ctx.lineJoin='round';
-  log.forEach((d,i)=>{const x=PAD.left+PW*(d.t/dur),y=PAD.top+PH*(1-(d.bpm-yMin)/(yMax-yMin));if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});
-  ctx.stroke();
-  const avgY=PAD.top+PH*(1-(avgBpm-yMin)/(yMax-yMin));
-  ctx.setLineDash([6,4]);ctx.strokeStyle='rgba(245,197,24,.5)';ctx.lineWidth=1;
-  ctx.beginPath();ctx.moveTo(PAD.left,avgY);ctx.lineTo(PAD.left+PW,avgY);ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.fillStyle='#555';ctx.font='10px DM Sans,sans-serif';ctx.textAlign='center';
-  for(let i=0;i<=4;i++)ctx.fillText(fmtMs(dur*i/4),PAD.left+PW*i/4,PAD.top+PH+18);
-}
-
-let exportPhotoData=null;
-document.getElementById('btnSaveChart').onclick=()=>{
-  document.getElementById('exportNote').value='';exportPhotoData=null;
-  document.getElementById('photoPreview').style.display='none';
-  document.getElementById('exportModal').classList.add('open');
-};
-document.getElementById('exportModal').onclick=e=>{if(e.target.id==='exportModal')closeExportModal();};
-function closeExportModal(){document.getElementById('exportModal').classList.remove('open');}
-document.getElementById('btnAddPhoto').onclick=()=>document.getElementById('exportPhoto').click();
-document.getElementById('exportPhoto').onchange=e=>{
-  const file=e.target.files[0];if(!file)return;
-  const reader=new FileReader();
-  reader.onload=ev=>{exportPhotoData=ev.target.result;const prev=document.getElementById('photoPreview');prev.src=exportPhotoData;prev.style.display='block';};
-  reader.readAsDataURL(file);
-};
-document.getElementById('btnDoExport').onclick=()=>{closeExportModal();setTimeout(generateExportImage,200);};
-
-async function generateExportImage(){
-  const log=_viewingLog,preset=_viewingPreset;
-  if(!log||log.length<2){showToast('Sem dados');return;}
-  const note=document.getElementById('exportNote').value.trim();
-  const lineColor=preset?.color||'#00E676';
-  const DPR=2,SIZE=1080;
-  const canvas=document.createElement('canvas');
-  canvas.width=SIZE*DPR;canvas.height=SIZE*DPR;
-  const ctx=canvas.getContext('2d');
-  ctx.scale(DPR,DPR);
-  const W=SIZE,H=SIZE;
-  const bpms=log.map(d=>d.bpm);
-  const minBpm=Math.min(...bpms),maxBpm=Math.max(...bpms),avgBpm=Math.round(bpms.reduce((a,b)=>a+b,0)/bpms.length);
-  const dur=log[log.length-1].t;
-  const now=new Date();
-
-  ctx.fillStyle='#0A0A0A';ctx.fillRect(0,0,W,H);
-
-  // header - sem overlap
-  ctx.font='bold 42px Bebas Neue,sans-serif';ctx.textAlign='left';ctx.fillStyle='#F0F0F0';
-  const word1='CRONÔMETRO ';
-  ctx.fillText(word1,24,56);
-  const w1=ctx.measureText(word1).width;
-  ctx.fillStyle=lineColor;
-  ctx.fillText('BRAVO',24+w1,56);
-
-  ctx.fillStyle='#555';ctx.font='14px DM Sans,sans-serif';
-  ctx.fillText(`${preset?.name??''} · ${now.toLocaleDateString('pt-BR')} ${now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}`,24,82);
-
-  const hasPhoto=!!exportPhotoData;
-  const PHOTO_H=hasPhoto?240:0;
-  const NOTE_H=note?80:0;
-  const HDR=100,STATS_H=112,LEGEND_H=44,CHART_H=H-HDR-STATS_H-LEGEND_H-PHOTO_H-NOTE_H-16;
-
-  const yMin=Math.max(30,minBpm-10),yMax=maxBpm+10;
-  const PAD={top:HDR,right:24,left:52};
-  const PW=W-PAD.left-PAD.right,PH=CHART_H;
-
-  ctx.strokeStyle='#1E1E1E';ctx.lineWidth=1;
-  for(let i=0;i<=4;i++){
-    const y=PAD.top+PH*(1-i/4);
-    ctx.beginPath();ctx.moveTo(PAD.left,y);ctx.lineTo(PAD.left+PW,y);ctx.stroke();
-    ctx.fillStyle='#555';ctx.font='13px DM Sans,sans-serif';ctx.textAlign='right';
-    ctx.fillText(Math.round(yMin+(yMax-yMin)*i/4),PAD.left-6,y+4);
-  }
-  const ranges=[];let cur=null;
-  log.forEach(d=>{if(!cur||cur.phase!==d.phase){if(cur)ranges.push({...cur,end:d.t});cur={phase:d.phase,start:d.t};}});
-  if(cur)ranges.push({...cur,end:dur});
-  const PA={prep:'rgba(245,197,24,.07)',action:lineColor+'18',rest:'rgba(41,121,255,.07)'};
-  ranges.forEach(r=>{const x1=PAD.left+PW*(r.start/dur),x2=PAD.left+PW*(r.end/dur);ctx.fillStyle=PA[r.phase]||'transparent';ctx.fillRect(x1,PAD.top,x2-x1,PH);});
-  ctx.beginPath();
-  log.forEach((d,i)=>{const x=PAD.left+PW*(d.t/dur),y=PAD.top+PH*(1-(d.bpm-yMin)/(yMax-yMin));if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});
-  ctx.lineTo(PAD.left+PW,PAD.top+PH);ctx.lineTo(PAD.left,PAD.top+PH);ctx.closePath();
-  const grd=ctx.createLinearGradient(0,PAD.top,0,PAD.top+PH);
-  grd.addColorStop(0,lineColor+'44');grd.addColorStop(1,lineColor+'04');
-  ctx.fillStyle=grd;ctx.fill();
-  ctx.beginPath();ctx.strokeStyle=lineColor;ctx.lineWidth=3;ctx.lineJoin='round';
-  log.forEach((d,i)=>{const x=PAD.left+PW*(d.t/dur),y=PAD.top+PH*(1-(d.bpm-yMin)/(yMax-yMin));if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});
-  ctx.stroke();
-  const avgY=PAD.top+PH*(1-(avgBpm-yMin)/(yMax-yMin));
-  ctx.setLineDash([8,5]);ctx.strokeStyle='rgba(245,197,24,.6)';ctx.lineWidth=1.5;
-  ctx.beginPath();ctx.moveTo(PAD.left,avgY);ctx.lineTo(PAD.left+PW,avgY);ctx.stroke();ctx.setLineDash([]);
-  ctx.fillStyle='#555';ctx.font='12px DM Sans,sans-serif';ctx.textAlign='center';
-  for(let i=0;i<=4;i++)ctx.fillText(fmtMs(dur*i/4),PAD.left+PW*i/4,PAD.top+PH+22);
-
-  const statsY=PAD.top+PH+46;
-  const cols=[{v:maxBpm,l:'MÁX',c:'#ff4d6d'},{v:minBpm,l:'MÍN',c:'#00E676'},{v:avgBpm,l:'MÉDIA',c:'#F5C518'},{v:fmtMs(dur),l:'DURAÇÃO',c:'#F0F0F0'}];
-  const bw=(W-32)/4;
-  cols.forEach((col,i)=>{
-    const bx=16+i*bw;
-    ctx.fillStyle='#141414';roundRect(ctx,bx,statsY,bw-8,84,12);ctx.fill();
-    ctx.fillStyle=col.c;ctx.font='bold 38px Bebas Neue,sans-serif';ctx.textAlign='center';
-    ctx.fillText(String(col.v),bx+bw/2-4,statsY+46);
-    ctx.fillStyle='#555';ctx.font='11px DM Sans,sans-serif';
-    ctx.fillText(col.l,bx+bw/2-4,statsY+66);
-  });
-
-  const legendY=statsY+98;
-  ctx.textAlign='left';ctx.font='13px DM Sans,sans-serif';
-  [['#F5C518','PREPARAÇÃO'],['#00E676','EXECUÇÃO'],['#2979FF','INTERVALO']].forEach(([c,l],i)=>{
-    ctx.fillStyle=c;ctx.fillRect(24+i*130,legendY,14,14);
-    ctx.fillStyle='#777';ctx.fillText(l,44+i*130,legendY+13);
-  });
-
-  let curY=legendY+LEGEND_H+4;
-  if(note){
-    ctx.fillStyle='#181818';roundRect(ctx,16,curY,W-32,NOTE_H-8,12);ctx.fill();
-    ctx.fillStyle='#888';ctx.font='italic 15px DM Sans,sans-serif';ctx.textAlign='left';
-    const words=note.split(' ');let line='';const lh=22;let ty=curY+26;
-    words.forEach(w=>{const test=line+w+' ';if(ctx.measureText(test).width>W-64&&line){ctx.fillText(line.trim(),32,ty);line=w+' ';ty+=lh;}else line=test;});
-    ctx.fillText(line.trim(),32,ty);
-    curY+=NOTE_H;
-  }
-  if(hasPhoto){
-    await new Promise(res=>{const img=new Image();img.onload=()=>{
-      const ph=PHOTO_H-8,pw=W-32;
-      const scale=Math.min(pw/img.width,ph/img.height);
-      const dw=img.width*scale,dh=img.height*scale;
-      ctx.save();ctx.beginPath();roundRect(ctx,16,curY,pw,ph,12);ctx.clip();
-      ctx.drawImage(img,16+(pw-dw)/2,curY+(ph-dh)/2,dw,dh);ctx.restore();res();
-    };img.src=exportPhotoData;});
-  }
-
-  canvas.toBlob(blob=>{
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');
-    a.href=url;a.download=`bravo-bpm-${now.toISOString().slice(0,19).replace(/[:T]/g,'-')}.png`;
-    a.click();setTimeout(()=>URL.revokeObjectURL(url),3000);showToast('Imagem 1080×1080 salva ✓');
-  },'image/png');
-}
-
-function roundRect(ctx,x,y,w,h,r){
-  ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
-  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
-  ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
-  ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
-}
 
 document.getElementById('btnCalendar').onclick=()=>{renderCalendar();showScreen('calendarScreen');};
 document.getElementById('btnCalBack').onclick=()=>showScreen('home');
@@ -1365,6 +964,7 @@ function renderCalendar(){
   }
 }
 function showCalDetail(dateStr,rec){
+  _calDetailDateStr = dateStr;
   const det=document.getElementById('calDayDetail');
   const [y,m,d]=dateStr.split('-');
   document.getElementById('calDetailDate').textContent=`${d}/${m}/${y}`;
@@ -1374,9 +974,12 @@ function showCalDetail(dateStr,rec){
   let html='';
   workouts.forEach((w,i)=>{
     html+=`<div style="margin-bottom:${i<workouts.length-1?'14px':'0'}">`;
-    html+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">`;
+    html+=`<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px">`;
+    html+=`<div style="display:flex;align-items:center;gap:8px">`;
     if(workouts.length>1)html+=`<div style="font-size:11px;color:#555;background:var(--surface2);padding:2px 8px;border-radius:8px">#${i+1}</div>`;
     if(w.time)html+=`<div style="font-size:11px;color:#555">${w.time}</div>`;
+    html+=`</div>`;
+    if(workouts.length>1)html+=`<button onclick="confirmDeleteWorkoutAt(${i})" style="font-size:11px;padding:3px 10px;border-radius:8px;border:1px solid rgba(255,77,109,.35);background:transparent;color:#ff4d6d;cursor:pointer">🗑</button>`;
     html+=`</div>`;
     html+=`<div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:#B47FFF">${w.name||'Automático ♾️'}</div>`;
     if(w.exTypes&&w.exTypes.length){
@@ -1388,10 +991,94 @@ function showCalDetail(dateStr,rec){
     html+=`</div>`;
     if(i<workouts.length-1)html+=`<hr style="border:none;border-top:1px solid var(--surface2);margin:8px 0">`;
   });
+  // Botão deletar dia inteiro só aparece quando há 1 treino; com múltiplos cada um tem o seu
+  document.getElementById('btnDelWorkout').style.display = workouts.length===1 ? '' : 'none';
   document.getElementById('calDetailName').innerHTML='';
   document.getElementById('calDetailObs').innerHTML=html;
   det.classList.add('open');
 }
+let _calDetailDateStr = null;
+document.getElementById('btnDelWorkout').onclick = confirmDeleteWorkout;
+
+function confirmDeleteWorkout(){
+  if(!_calDetailDateStr) return;
+  const [y,m,d] = _calDetailDateStr.split('-');
+  const dateToDelete = _calDetailDateStr;
+  showDeleteConfirm(`Deletar o treino do dia ${d}/${m}/${y}?`, ()=>{
+    const records = loadCalendar().filter(r => r.date !== dateToDelete);
+    saveCalendar(records);
+    document.getElementById('calDayDetail').classList.remove('open');
+    _calDetailDateStr = null;
+    renderCalendar();
+    showToast('Treino deletado ✓');
+  });
+}
+
+function confirmDeleteWorkoutAt(index){
+  if(!_calDetailDateStr) return;
+  const [y,m,d] = _calDetailDateStr.split('-');
+  const dateToDelete = _calDetailDateStr;
+  showDeleteConfirm(`Deletar o treino #${index+1} do dia ${d}/${m}/${y}?`, ()=>{
+    const records = loadCalendar();
+    const dayRec = records.find(r => r.date === dateToDelete);
+    if(!dayRec) return;
+    const workouts = dayRec.workouts || (dayRec.name ? [{name:dayRec.name,obs:dayRec.obs||'',exTypes:[]}] : []);
+    workouts.splice(index, 1);
+    if(workouts.length === 0){
+      const filtered = records.filter(r => r.date !== dateToDelete);
+      saveCalendar(filtered);
+      document.getElementById('calDayDetail').classList.remove('open');
+      _calDetailDateStr = null;
+    } else {
+      dayRec.workouts = workouts;
+      delete dayRec.name; delete dayRec.obs;
+      saveCalendar(records);
+      showCalDetail(dateToDelete, dayRec);
+    }
+    renderCalendar();
+    showToast('Treino deletado ✓');
+  });
+}
+
+function showDeleteConfirm(msg, onConfirm){
+  const overlay = document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px';
+  overlay.innerHTML=`<div style="background:var(--surface);border-radius:20px;padding:28px 24px;max-width:320px;width:100%;text-align:center">
+    <div style="font-size:15px;color:var(--text);margin-bottom:24px;line-height:1.5">${msg}</div>
+    <div style="display:flex;gap:12px">
+      <button id="_delCancel" style="flex:1;padding:14px;border-radius:14px;border:1.5px solid var(--surface2);background:transparent;color:var(--muted);font-size:15px;cursor:pointer">Cancelar</button>
+      <button id="_delConfirm" style="flex:1;padding:14px;border-radius:14px;border:none;background:#ff4d6d;color:#fff;font-size:15px;font-weight:700;cursor:pointer">Deletar</button>
+    </div>
+  </div>`;
+  document.body.appendChild(overlay);
+  overlay.querySelector('#_delCancel').onclick = ()=> overlay.remove();
+  overlay.querySelector('#_delConfirm').onclick = ()=>{ overlay.remove(); onConfirm(); };
+}function confirmDeleteWorkoutAt(index){
+  if(!_calDetailDateStr) return;
+  const [y,m,d] = _calDetailDateStr.split('-');
+  if(confirm(`Deletar o treino #${index+1} do dia ${d}/${m}/${y}?`)){
+    const records = loadCalendar();
+    const dayRec = records.find(r => r.date === _calDetailDateStr);
+    if(!dayRec) return;
+    const workouts = dayRec.workouts || (dayRec.name ? [{name:dayRec.name,obs:dayRec.obs||'',exTypes:[]}] : []);
+    workouts.splice(index, 1);
+    if(workouts.length === 0){
+      const filtered = records.filter(r => r.date !== _calDetailDateStr);
+      saveCalendar(filtered);
+      document.getElementById('calDayDetail').classList.remove('open');
+      _calDetailDateStr = null;
+    } else {
+      dayRec.workouts = workouts;
+      delete dayRec.name; delete dayRec.obs;
+      saveCalendar(records);
+      // Reabrir o detalhe com os dados atualizados
+      showCalDetail(_calDetailDateStr, dayRec);
+    }
+    renderCalendar();
+    showToast('Treino deletado ✓');
+  }
+}
+
 function markCalendar(name,obs,exTypes){
   const today=new Date();
   const dateStr=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
@@ -1672,8 +1359,6 @@ function autoFinishWorkout(){
   vibrate([100,50,100,50,200]);
   // Go to finish screen and auto-trigger mark modal (fix 10)
   document.getElementById('finishSub').textContent='Automático ♾️';
-  document.getElementById('btnViewChart').style.display='none';
-  document.getElementById('savePrompt').style.display='none';
   showScreen('finish');
   setTimeout(()=>{
     document.getElementById('markWorkoutName').textContent=auto.pendingMarkName;
@@ -1731,34 +1416,6 @@ document.getElementById('markWorkoutModal').onclick=e=>{if(e.target.id==='markWo
 
 // Calendar mark flow now auto-triggers from showFinish and autoFinishWorkout
 
-document.getElementById('btnBLE').onclick=async()=>{
-  if(!navigator.bluetooth){showToast('Bluetooth não suportado');return;}
-  if(bleDevice?.gatt?.connected){
-    bleDevice.gatt.disconnect();bleDevice=null;bleChar=null;
-    document.getElementById('bleLabel').textContent='Conectar via Bluetooth';
-    document.getElementById('hrSidebar').classList.add('ble-off');
-    updateHr(0);showToast('Desconectado');return;
-  }
-  try{
-    showToast('Buscando dispositivos…');
-    bleDevice=await navigator.bluetooth.requestDevice({filters:[{services:['heart_rate']}],optionalServices:['heart_rate']});
-    const server=await bleDevice.gatt.connect();
-    const service=await server.getPrimaryService('heart_rate');
-    bleChar=await service.getCharacteristic('heart_rate_measurement');
-    await bleChar.startNotifications();
-    bleChar.addEventListener('characteristicvaluechanged',onHR);
-    document.getElementById('bleLabel').textContent='Desconectar';
-    document.getElementById('hrSidebar').classList.remove('ble-off');
-    showToast('Monitor conectado ✓');closeSettings();
-  }catch(e){if(e.name!=='NotFoundError')showToast('Erro: '+e.message);}
-};
-function onHR(ev){
-  const v=ev.target.value,flags=v.getUint8(0);
-  const hr=(flags&1)?v.getUint16(1,true):v.getUint8(1);
-  updateHr(hr);
-  if(tmr.running)logBpm(hr,tmr.phase);
-  document.getElementById('btnLiveChart').style.display='flex';
-}
 
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
