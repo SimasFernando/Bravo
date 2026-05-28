@@ -862,7 +862,6 @@ function phaseStart(){
   const play=document.getElementById('btnPlay');
   play.style.background=c;play.style.color=isLight(c)?'#000':'#fff';
   ringFg.style.stroke=c;
-  document.getElementById('timeSub').textContent='segundos';
   const fl=document.getElementById('flash');
   fl.style.background=c;fl.classList.add('on');setTimeout(()=>fl.classList.remove('on'),150);
   vibrate([80,30,80]);
@@ -872,9 +871,14 @@ function phaseStart(){
   beep(tmr.phase==='action'?1200:800,.15,.6);
 }
 
+function fmtTime(s){
+  if(s>=60){const m=Math.floor(s/60),ss=s%60;return`${String(m).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;}
+  return String(s).padStart(2,'0');
+}
 function updateTimerUI(){
   const s=Math.max(0,tmr.seconds);
-  document.getElementById('timeDisplay').textContent=String(s).padStart(2,'0');
+  document.getElementById('timeDisplay').textContent=fmtTime(s);
+  document.getElementById('timeSub').textContent=s>=60?'min : seg':'segundos';
   ringFg.style.strokeDashoffset=CIRC*(1-(tmr.total>0?s/tmr.total:0));
 }
 
