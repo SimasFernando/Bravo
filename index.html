@@ -264,13 +264,15 @@
 </div>
 
 <div class="screen hidden" id="finish">
-  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px 24px">
-    <div class="finish-icon">&#127937;</div>
-    <div class="finish-title">TREINO<br>CONCLU&#205;DO</div>
-    <div class="finish-sub" id="finishSub"></div>    <div class="finish-btns" style="width:100%;max-width:280px">
-      <button class="btn-finish outline" id="btnFinishHome">VOLTAR</button>
-    </div>
-  </div>
+  <div class="finish-sub" id="finishSub" style="display:none"></div>
+  <button id="btnFinishHome" style="display:none"></button>
+</div>
+
+<!-- BRAVO fixo no topo, visível mesmo com modal aberto -->
+<div id="bravoFixed" style="position:fixed;top:0;left:0;right:0;z-index:400;display:none;flex-direction:column;align-items:center;padding:36px 24px 20px;pointer-events:none;background:linear-gradient(to bottom,var(--bg) 70%,transparent);">
+  <div style="font-size:48px">&#128079;</div>
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:44px;letter-spacing:4px;color:var(--accent)">BRAVO!</div>
+  <div id="bravoFixedSub" style="font-size:13px;color:var(--muted);margin-top:4px"></div>
 </div>
 
 <div class="modal-overlay" id="settingsModal">
@@ -901,6 +903,15 @@ document.getElementById('btnSkip').onclick=()=>{clearInterval(tmr._int);tmr.seco
 document.getElementById('btnTimerBack').onclick=()=>{clearInterval(tmr._int);tmr.running=false;releaseWakeLock();applyAccent('#00E676');showScreen('home');};
 
 
+function showBravoFixed(sub){
+  const el=document.getElementById('bravoFixed');
+  document.getElementById('bravoFixedSub').textContent=sub||'';
+  el.style.display='flex';
+}
+function hideBravoFixed(){
+  document.getElementById('bravoFixed').style.display='none';
+}
+
 function showFinish(p){
   releaseWakeLock();
   auto.pendingMarkName=p.name||'Treino';
@@ -910,15 +921,15 @@ function showFinish(p){
   const label=p.mode==='circuit'?`${p.name} · ${p.rounds} rodadas`:`${p.name} · ${p.cycles} séries`;
   document.getElementById('finishSub').textContent=label;
   showScreen('finish');
-  // Auto-open the mark modal after a short delay
+  showBravoFixed(label);
   setTimeout(()=>{
     document.getElementById('markWorkoutName').textContent=auto.pendingMarkName;
     document.getElementById('markWorkoutObs').value='';
     resetExTypes();
     document.getElementById('markWorkoutModal').classList.add('open');
-  },1200);
+  },2000);
 }
-document.getElementById('btnFinishHome').onclick=()=>{applyAccent('#00E676');showScreen('home');};
+document.getElementById('btnFinishHome').onclick=()=>{hideBravoFixed();applyAccent('#00E676');showScreen('home');};
 
 
 
@@ -1362,15 +1373,15 @@ function autoFinishWorkout(){
   speak('Treino concluído. Parabéns!');
   beep(880,.15,.6,'sine',0);beep(1100,.15,.6,'sine',.2);beep(1320,.3,.7,'sine',.4);
   vibrate([100,50,100,50,200]);
-  // Go to finish screen and auto-trigger mark modal (fix 10)
   document.getElementById('finishSub').textContent='Automático ♾️';
   showScreen('finish');
+  showBravoFixed('Automático ♾️');
   setTimeout(()=>{
     document.getElementById('markWorkoutName').textContent=auto.pendingMarkName;
     document.getElementById('markWorkoutObs').value='';
     resetExTypes();
     document.getElementById('markWorkoutModal').classList.add('open');
-  },1200);
+  },2000);
 }
 
 let selectedExTypes=new Set();
@@ -1411,11 +1422,11 @@ document.getElementById('btnMarkDone').onclick=()=>{
   markCalendar(auto.pendingMarkName,obs,[...selectedExTypes]);
   resetExTypes();
   document.getElementById('markWorkoutModal').classList.remove('open');
-  applyAccent('#00E676');showScreen('home');
+  hideBravoFixed();applyAccent('#00E676');showScreen('home');
 };
 function skipMarkWorkout(){
   document.getElementById('markWorkoutModal').classList.remove('open');
-  applyAccent('#00E676');showScreen('home');
+  hideBravoFixed();applyAccent('#00E676');showScreen('home');
 }
 document.getElementById('markWorkoutModal').onclick=e=>{if(e.target.id==='markWorkoutModal')skipMarkWorkout();};
 
