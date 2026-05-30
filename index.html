@@ -842,7 +842,8 @@ document.getElementById('btnRegSave').onclick=async()=>{
   const btn=document.getElementById('btnRegSave');
   btn.textContent='SALVANDO...';btn.disabled=true;
   try{
-    await fetch('https://script.google.com/macros/s/AKfycbzTDMoxP_m6z0ArFqLsaTsIwQcjoH4ebWNIZP7IDoBGRMtwPVIsfTI8iFKCjcfWyMqJ/exec',{method:'POST',mode:'no-cors',body:JSON.stringify(data)});
+    const params=new URLSearchParams(data).toString();
+    await fetch('https://script.google.com/macros/s/AKfycbzTDMoxP_m6z0ArFqLsaTsIwQcjoH4ebWNIZP7IDoBGRMtwPVIsfTI8iFKCjcfWyMqJ/exec?'+params,{method:'GET',mode:'no-cors'});
     localStorage.setItem('bravo_user',JSON.stringify(data));
     localStorage.setItem('bravo_reg_done','1');
     showToast('Cadastro salvo! Bora treinar 💪');
