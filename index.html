@@ -841,18 +841,17 @@ document.getElementById('btnRegSave').onclick=async()=>{
   const data={name,phone,email:document.getElementById('regEmail').value.trim(),year:document.getElementById('regYear').value.trim(),gender:selectedGender};
   const btn=document.getElementById('btnRegSave');
   btn.textContent='SALVANDO...';btn.disabled=true;
-  try{
-    const params=new URLSearchParams(data).toString();
-    await fetch('https://script.google.com/macros/s/AKfycbzTDMoxP_m6z0ArFqLsaTsIwQcjoH4ebWNIZP7IDoBGRMtwPVIsfTI8iFKCjcfWyMqJ/exec?'+params,{method:'GET',mode:'no-cors'});
-    localStorage.setItem('bravo_user',JSON.stringify(data));
-    localStorage.setItem('bravo_reg_done','1');
-    showToast('Cadastro salvo! Bora treinar 💪');
-    showScreen('home');
-  }catch(err){
-    showToast('Erro ao salvar. Tente novamente.');
-  }finally{
-    btn.textContent='SALVAR E CONTINUAR TREINANDO';btn.disabled=false;
-  }
+  const params=new URLSearchParams(data).toString();
+  const url='https://script.google.com/macros/s/AKfycbzTDMoxP_m6z0ArFqLsaTsIwQcjoH4ebWNIZP7IDoBGRMtwPVIsfTI8iFKCjcfWyMqJ/exec?'+params;
+  const img=new Image();
+  img.src=url;
+  img.onload=img.onerror=()=>{};
+  await new Promise(r=>setTimeout(r,1500));
+  localStorage.setItem('bravo_user',JSON.stringify(data));
+  localStorage.setItem('bravo_reg_done','1');
+  btn.textContent='SALVAR E CONTINUAR TREINANDO';btn.disabled=false;
+  showToast('Cadastro salvo! Bora treinar 💪');
+  showScreen('home');
 };
 
 // ---- REGISTRATION PROMPT (after 3 workouts) ----
