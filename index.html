@@ -265,6 +265,14 @@
       <div class="field-group"><div class="field-label">Ação (s)</div><input class="field-input" id="efAction" type="number" min="1" placeholder="60"></div>
       <div class="field-group"><div class="field-label">Intervalo (s)</div><input class="field-input" id="efRest" type="number" min="1" placeholder="40"></div>
     </div>
+    <div class="field-group">
+      <div class="field-label">Nº Exercícios</div>
+      <input class="field-input" id="efNormalExCount" type="number" min="1" max="6" placeholder="1 (padrão)" oninput="updateNormalExerciseInputs()">
+    </div>
+    <div class="field-group" id="normalExercisesGroup" style="display:none">
+      <div class="field-label">Nomes dos exercícios (opcional)</div>
+      <div class="circuit-exercises" id="normalExerciseInputs"></div>
+    </div>
   </div>
   <div id="circuitFields" style="display:none;flex-direction:column;gap:12px">
     <div class="row2">
@@ -317,7 +325,18 @@
 <div id="bravoFixed" style="position:fixed;top:0;left:0;right:0;z-index:400;display:none;flex-direction:column;align-items:center;padding:36px 24px 20px;pointer-events:none;background:linear-gradient(to bottom,var(--bg) 70%,transparent);">
   <div style="font-size:48px">&#128079;</div>
   <div style="font-family:'Bebas Neue',sans-serif;font-size:44px;letter-spacing:4px;color:var(--accent)">BRAVO!</div>
+  <div id="bravoPhrase" style="font-size:15px;color:var(--text);margin-top:6px;font-weight:500;letter-spacing:.5px"></div>
   <div id="bravoFixedSub" style="font-size:13px;color:var(--muted);margin-top:4px"></div>
+</div>
+
+<!-- EARLY REST SKIP MODAL -->
+<div class="modal-overlay" id="earlyRestModal">
+  <div class="modal-sheet" style="gap:14px">
+    <div class="modal-title" style="color:#2979FF">PRONTO PARA A PRÓXIMA SÉRIE?</div>
+    <div style="font-size:14px;color:var(--muted)" id="earlyRestSubtext">Restam 30s de recuperação.</div>
+    <button class="btn-save" id="btnEarlyRestContinue" style="background:#2979FF;border:none;margin-top:4px">▶ CONTINUAR</button>
+    <button class="btn-connect" id="btnEarlyRestWait">Aguardar descanso</button>
+  </div>
 </div>
 
 <div class="modal-overlay" id="settingsModal">
@@ -761,9 +780,10 @@ function renderHome(){
           <div class="meta-pill">😮‍💨 <b>${fmtSec(p.rest)}</b></div>
         </div>`;
     } else {
+      const nexPill=(p.normalExCount>1)?`<div class="meta-pill">🏋️ <b>${p.normalExCount}</b> exercícios</div>`:'';
       meta=`<div class="preset-meta">
         <div class="meta-pill">🔄 <b>${p.cycles}</b> séries</div>
-        <div class="meta-pill">⏱ <b>${fmtSec(p.prep)}</b></div>
+        ${nexPill}<div class="meta-pill">⏱ <b>${fmtSec(p.prep)}</b></div>
         <div class="meta-pill">💪 <b>${fmtSec(p.action)}</b></div>
         <div class="meta-pill">😮‍💨 <b>${fmtSec(p.rest)}</b></div>
       </div>`;
@@ -895,6 +915,21 @@ function updateExerciseInputs(){
   }
 }
 function clearObs(){document.getElementById('efObs').value='';}
+function updateNormalExerciseInputs(){
+  const n=parseInt(document.getElementById('efNormalExCount').value)||1;
+  const group=document.getElementById('normalExercisesGroup');
+  const container=document.getElementById('normalExerciseInputs');
+  if(n<=1){group.style.display='none';container.innerHTML='';return;}
+  group.style.display='flex';group.style.flexDirection='column';
+  const existing=[...container.querySelectorAll('input')].map(i=>i.value);
+  container.innerHTML='';
+  for(let i=0;i<Math.min(n,6);i++){
+    const row=document.createElement('div');row.className='exercise-row';
+    row.innerHTML=`<div class="exercise-letter" style="color:${editColor}">${EX_LETTERS[i]}</div>
+      <input class="field-input" id="nfEx${i}" placeholder="${EX_LETTERS[i]} — nome" value="${existing[i]||''}">`;
+    container.appendChild(row);
+  }
+}
 
 function openEdit(id){
   editingId=id;
@@ -918,6 +953,10 @@ function openEdit(id){
     document.getElementById('efPrep').value=p?.prep??30;
     document.getElementById('efAction').value=p?.action??60;
     document.getElementById('efRest').value=p?.rest??40;
+    const nex=p?.normalExCount??1;
+    document.getElementById('efNormalExCount').value=nex>1?nex:'';
+    updateNormalExerciseInputs();
+    if(p?.normalExercises){p.normalExercises.forEach((name,i)=>{const inp=document.getElementById('nfEx'+i);if(inp)inp.value=name;});}
   }
   showScreen('edit');
 }
@@ -943,7 +982,10 @@ document.getElementById('btnSave').onclick=()=>{
     const action=parseInt(document.getElementById('efAction').value);
     const rest=parseInt(document.getElementById('efRest').value);
     if(isNaN(cycles)||isNaN(prep)||isNaN(action)||isNaN(rest)){showToast('Preencha todos os campos');return;}
-    data={name,obs,color:editColor,mode:'normal',cycles,prep,action,rest};
+    const normalExCount=Math.max(1,parseInt(document.getElementById('efNormalExCount').value)||1);
+    const normalExercises=[];
+    for(let i=0;i<normalExCount;i++){const inp=document.getElementById('nfEx'+i);normalExercises.push(inp?.value.trim()||EX_LETTERS[i]);}
+    data={name,obs,color:editColor,mode:'normal',cycles,prep,action,rest,normalExCount,normalExercises};
   }
   if(editingId){Object.assign(presets.find(x=>x.id===editingId),data);}
   else{presets.push({id:'c'+Date.now(),...data});}
@@ -990,11 +1032,18 @@ function startTimer(){
     updateCircuitExLabel();updateCircuitRoundDots();
   } else {
     tmr.cycle=1;tmr.phase='prep';tmr.seconds=p.prep;tmr.total=p.prep;
+    tmr.exIndex=0;
+    tmr.normalExCount=Math.max(1,p.normalExCount||1);
     buildDots();
     document.getElementById('dotsRow').style.display='flex';
     document.getElementById('roundDotsRow').style.display='none';
     document.getElementById('cycleBadge').innerHTML=`Série <span id="cycleNum">1</span>/<span id="cycleTotal">${p.cycles}</span>`;
-    document.getElementById('circuitExLabel').style.display='none';
+    if(tmr.normalExCount>1){
+      document.getElementById('circuitExLabel').style.display='block';
+      updateNormalExLabel();
+    } else {
+      document.getElementById('circuitExLabel').style.display='none';
+    }
   }
   updateTimerUI();showScreen('timer');
   acquireWakeLock();phaseStart();tick();
@@ -1014,10 +1063,21 @@ function tick(){
 function nextPhase(){
   const p=tmr.preset;
   if(tmr.isCircuit){nextCircuitPhase();return;}
+  const multiEx=(tmr.normalExCount>1);
   if(tmr.phase==='prep'){tmr.phase='action';tmr.seconds=p.action;tmr.total=p.action;phaseStart();}
   else if(tmr.phase==='action'){
     markDot(tmr.cycle-1,'done');
-    if(tmr.cycle>=p.cycles){clearInterval(tmr._int);setTimeout(()=>showFinish(p),600);return;}
+    if(tmr.cycle>=p.cycles){
+      if(multiEx&&tmr.exIndex<tmr.normalExCount-1){
+        tmr.exIndex++;tmr.cycle=1;
+        tmr.phase='prep';tmr.seconds=p.prep;tmr.total=p.prep;
+        buildDots();
+        document.getElementById('cycleNum').textContent=1;
+        updateNormalExLabel();
+        phaseStart();updateTimerUI();return;
+      }
+      clearInterval(tmr._int);setTimeout(()=>showFinish(p),600);return;
+    }
     tmr.phase='rest';tmr.seconds=p.rest;tmr.total=p.rest;phaseStart();
   } else {
     tmr.cycle++;tmr.phase='action';tmr.seconds=p.action;tmr.total=p.action;
@@ -1047,6 +1107,12 @@ function updateCircuitExLabel(){
   const l=EX_LETTERS[tmr.exIndex],name=p.exercises?.[tmr.exIndex]||l;
   document.getElementById('circuitExLabel').textContent=`${l} · ${name}`;
 }
+function updateNormalExLabel(){
+  const p=tmr.preset;
+  const l=EX_LETTERS[tmr.exIndex];
+  const name=p.normalExercises?.[tmr.exIndex]||l;
+  document.getElementById('circuitExLabel').textContent=`${l} · ${name}`;
+}
 function buildCircuitUI(){
   const p=tmr.preset;
   const row=document.getElementById('roundDotsRow');row.innerHTML='';
@@ -1069,7 +1135,7 @@ function phaseStart(){
   fl.style.background=c;fl.classList.add('on');setTimeout(()=>fl.classList.remove('on'),150);
   vibrate([80,30,80]);
   if(tmr.phase==='prep')speak('Prepare-se. Concentre-se.');
-  if(tmr.phase==='action')speak(tmr.isCircuit?('Exercício '+EX_LETTERS[tmr.exIndex]):'Borá!');
+  if(tmr.phase==='action')speak(tmr.isCircuit?('Exercício '+EX_LETTERS[tmr.exIndex]):(tmr.normalExCount>1?('Exercício '+EX_LETTERS[tmr.exIndex]):'Borá!'));
   if(tmr.phase==='rest')speak('Descanse.');
   beep(tmr.phase==='action'?1200:800,.15,.6);
 }
@@ -1103,9 +1169,30 @@ document.getElementById('btnSkip').onclick=()=>{clearInterval(tmr._int);tmr.seco
 document.getElementById('btnTimerBack').onclick=()=>{clearInterval(tmr._int);tmr.running=false;releaseWakeLock();applyAccent('#00E676');showScreen('home');};
 
 
+const BRAVO_PHRASES_PLAIN=[
+  'Boa.','Feito ✔','Treino concluído.','Hoje foi.','Muito bom.',
+  'Mais um feito.','Presença registrada.','Treino entregue.',
+  'Excelente.','Bom trabalho.','Valeu o esforço.','Missão cumprida.'
+];
+const BRAVO_PHRASES_NAME=[
+  'Boa, {n}.','Muito bom, {n}.','Treino concluído, {n}.',
+  'Bom trabalho, {n}.','Hoje foi, {n}.','Mais um feito, {n}.',
+  'Excelente, {n}.','Valeu, {n}.','Feito, {n} ✔','Bravo, {n}.'
+];
+function getBravoPhrase(){
+  const userData=JSON.parse(localStorage.getItem('bravo_user')||'null');
+  const name=userData?.name?.trim();
+  if(name&&Math.random()<0.4){
+    const tmpl=BRAVO_PHRASES_NAME[Math.floor(Math.random()*BRAVO_PHRASES_NAME.length)];
+    return tmpl.replace('{n}',name);
+  }
+  return BRAVO_PHRASES_PLAIN[Math.floor(Math.random()*BRAVO_PHRASES_PLAIN.length)];
+}
+
 function showBravoFixed(sub){
   const el=document.getElementById('bravoFixed');
   document.getElementById('bravoFixedSub').textContent=sub||'';
+  document.getElementById('bravoPhrase').textContent=getBravoPhrase();
   el.style.display='flex';
 }
 function hideBravoFixed(){
@@ -1508,21 +1595,38 @@ function updateAutoRestUI(){
 
 // Skip-rest helpers used from rest screen buttons
 function autoSkipRestNextSerie(){
-  clearInterval(auto._int);
-  auto.serieNum++;
-  startAutoExecDirect(); // no prep, goes straight to execution
+  if(auto.restSecs<=0){
+    clearInterval(auto._int);
+    auto.serieNum++;
+    startAutoExecDirect();
+    return;
+  }
+  const s=Math.max(0,Math.ceil(auto.restSecs));
+  document.getElementById('earlyRestSubtext').textContent=`Restam ${s}s de recuperação.`;
+  document.getElementById('earlyRestModal').classList.add('open');
 }
 function autoSkipRestNewExercise(){
   clearInterval(auto._int);
   auto.exIndex++;auto.serieNum=1;
-  showAutoPrep(); // new exercise gets prep time
+  showAutoPrep();
 }
 function autoSkipRestFinish(){
   clearInterval(auto._int);
   autoFinishWorkout();
 }
 
-document.getElementById('btnAutoStartEarly').onclick=()=>{}; // handled by inline onclick in HTML
+document.getElementById('btnEarlyRestContinue').onclick=()=>{
+  document.getElementById('earlyRestModal').classList.remove('open');
+  clearInterval(auto._int);
+  auto.serieNum++;
+  startAutoExecDirect();
+};
+document.getElementById('btnEarlyRestWait').onclick=()=>{
+  document.getElementById('earlyRestModal').classList.remove('open');
+};
+document.getElementById('earlyRestModal').onclick=e=>{
+  if(e.target.id==='earlyRestModal')document.getElementById('earlyRestModal').classList.remove('open');
+};
 
 function onAutoRestDone(){
   beep(880,.15,.6,'sine',0);beep(1100,.15,.6,'sine',.2);vibrate([80,30,80]);
