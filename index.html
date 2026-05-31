@@ -1135,7 +1135,7 @@ function phaseStart(){
   fl.style.background=c;fl.classList.add('on');setTimeout(()=>fl.classList.remove('on'),150);
   vibrate([80,30,80]);
   if(tmr.phase==='prep')speak('Prepare-se. Concentre-se.');
-  if(tmr.phase==='action')speak(tmr.isCircuit?('Exercício '+EX_LETTERS[tmr.exIndex]):(tmr.normalExCount>1?('Exercício '+EX_LETTERS[tmr.exIndex]):'Borá!'));
+  if(tmr.phase==='action')speak(tmr.isCircuit?('Exercício '+EX_LETTERS[tmr.exIndex]):(tmr.normalExCount>1?('Exercício '+EX_LETTERS[tmr.exIndex]):'Vamos!'));
   if(tmr.phase==='rest')speak('Descanse.');
   beep(tmr.phase==='action'?1200:800,.15,.6);
 }
@@ -1465,7 +1465,7 @@ function startAutoExec(){
   ring.style.stroke='#B47FFF';
   document.getElementById('autoExecOverflowLabel').style.opacity='0';
   showScreen('autoExec');
-  speak('Borá!');beep(1200,.15,.6);vibrate([80,30,80]);
+  speak('Vamos!');beep(1200,.15,.6);vibrate([80,30,80]);
   const fl=document.getElementById('flash');fl.style.background='#B47FFF';fl.classList.add('on');setTimeout(()=>fl.classList.remove('on'),150);
   clearInterval(auto._int);
   auto._int=setInterval(()=>{
@@ -1630,7 +1630,7 @@ document.getElementById('earlyRestModal').onclick=e=>{
 
 function onAutoRestDone(){
   beep(880,.15,.6,'sine',0);beep(1100,.15,.6,'sine',.2);vibrate([80,30,80]);
-  speak('Pronto. O que deseja fazer?');
+  speak('Pronto pra continuar?');
   document.getElementById('autoContinueSerieNum').textContent=auto.serieNum;
   document.getElementById('autoContinueExName').textContent=autoExName();
   showScreen('autoContinue');
@@ -1647,7 +1647,7 @@ function startAutoExecDirect(){
   ring.style.strokeDasharray=AUTO_CIRC;ring.style.stroke='#B47FFF';
   document.getElementById('autoExecOverflowLabel').style.opacity='0';
   showScreen('autoExec');
-  speak('Borá!');beep(1200,.15,.6);vibrate([80,30,80]);
+  speak('Vamos!');beep(1200,.15,.6);vibrate([80,30,80]);
   const fl=document.getElementById('flash');fl.style.background='#B47FFF';fl.classList.add('on');setTimeout(()=>fl.classList.remove('on'),150);
   clearInterval(auto._int);
   auto._int=setInterval(()=>{
