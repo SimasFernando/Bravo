@@ -62,36 +62,48 @@
   .yt-embed-wrap iframe{width:100%;height:100%;border:none;display:block;}
   /* Landscape two-column layout when video is present */
   @media (orientation:landscape){
+    /* 50/50: cronômetro à esquerda, vídeo à direita */
     .exec-with-video.has-video{
       flex-direction:row!important;
-      align-items:center!important;
-      justify-content:center!important;
-      gap:16px;
-      padding:6px 16px!important;
-      overflow:visible!important;
+      align-items:stretch!important;
+      justify-content:stretch!important;
+      gap:0!important;
+      padding:0!important;
+      overflow:hidden!important;
     }
     .exec-with-video.has-video .exec-main-col{
-      flex:0 0 auto;
+      flex:0 0 50%!important;
+      width:50%!important;
       display:flex;
       flex-direction:column;
       align-items:center;
       justify-content:center;
+      padding:8px 12px;
+      box-sizing:border-box;
       min-width:0;
     }
     .exec-with-video.has-video .yt-embed-wrap{
-      flex:1 1 auto;
-      max-width:none;
-      margin-top:0;
-      align-self:center;
+      flex:0 0 50%!important;
+      width:50%!important;
+      max-width:none!important;
+      height:100%!important;
+      margin:0!important;
+      border-radius:0!important;
+      align-self:stretch!important;
       min-width:0;
-      height:auto;
+      aspect-ratio:unset!important;
+      display:block!important;
     }
-    /* Shrink ring in landscape so it fits alongside video */
-    .exec-with-video.has-video .ring-wrap{width:140px;height:140px;}
-    .exec-with-video.has-video .time-display{font-size:48px;}
-    .exec-with-video.has-video .btn-playpause{width:48px;height:48px;font-size:18px;}
+    .exec-with-video.has-video .yt-embed-wrap iframe{
+      height:100%!important;
+    }
+    /* Shrink ring em landscape */
+    .exec-with-video.has-video .ring-wrap{width:130px;height:130px;}
+    .exec-with-video.has-video .time-display{font-size:44px;}
+    .exec-with-video.has-video .btn-playpause{width:46px;height:46px;font-size:18px;}
     .exec-with-video.has-video .btn-ctrl{width:40px;height:40px;font-size:16px;}
-    .exec-with-video.has-video .btn-auto-done{font-size:14px;padding:10px 20px;}
+    .exec-with-video.has-video .btn-auto-done{font-size:13px;padding:8px 16px;height:auto;}
+    .exec-with-video.has-video .timer-top{width:100%;}
   }
   .exercise-letter{font-family:'Bebas Neue',sans-serif;font-size:22px;width:28px;text-align:center;}
   .color-picker{display:flex;gap:10px;flex-wrap:wrap;padding:4px 0;}
@@ -1152,10 +1164,9 @@ document.getElementById('btnRegSave').onclick=async()=>{
   btn.textContent='SALVANDO...';btn.disabled=true;
   const params=new URLSearchParams(data).toString();
   const url='https://script.google.com/macros/s/AKfycbzTDMoxP_m6z0ArFqLsaTsIwQcjoH4ebWNIZP7IDoBGRMtwPVIsfTI8iFKCjcfWyMqJ/exec?'+params;
-  const img=new Image();
-  img.src=url;
-  img.onload=img.onerror=()=>{};
-  await new Promise(r=>setTimeout(r,1500));
+  // fetch no-cors funciona em todos os browsers incluindo Safari/iOS
+  try{await fetch(url,{method:'GET',mode:'no-cors'});}catch(e){}
+  await new Promise(r=>setTimeout(r,800));
   localStorage.setItem('bravo_user',JSON.stringify(data));
   localStorage.setItem('bravo_reg_done','1');
   btn.textContent='SALVAR E CONTINUAR TREINANDO';btn.disabled=false;
@@ -1221,12 +1232,14 @@ function showYtEmbed(wrapId,videoId,containerId){
   const container=containerId?document.getElementById(containerId):wrap.parentElement;
   if(!videoId){
     wrap.classList.remove('visible');
+    wrap.style.display='none';
     if(container)container.classList.remove('has-video');
     wrap.innerHTML='';
     return;
   }
   wrap.innerHTML=`<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0&modestbranding=1" allowfullscreen allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>`;
   wrap.classList.add('visible');
+  wrap.style.display='block';
   if(container)container.classList.add('has-video');
 }
 let ytModalTarget={field:'',index:0};
