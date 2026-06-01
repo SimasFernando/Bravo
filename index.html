@@ -16,7 +16,7 @@
   :root{--bg:#0A0A0A;--surface:#141414;--surface2:#1E1E1E;--text:#F0F0F0;--muted:#555;--radius:16px;--accent:#00E676;}
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow:hidden;}
-  .screen{position:absolute;inset:0;display:flex;flex-direction:column;transition:opacity .3s,transform .3s;}
+  .screen{position:absolute;inset:0;display:flex;flex-direction:column;transition:opacity .3s,transform .3s;background:var(--bg);}
   .screen.hidden{opacity:0;pointer-events:none;transform:translateY(20px);}
   #home{padding:24px 20px 100px;gap:16px;overflow-y:auto;}
   .home-header{display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
@@ -230,17 +230,20 @@
       <button class="btn-icon" id="btnMenu">☰</button>
     </div>
   </div>
-  <div>
-    <div class="section-label">Modo Guiado</div>
-    <div id="autoCard" class="preset-card selected" style="--c:#B47FFF;cursor:pointer;margin-bottom:6px" onclick="selectAutoMode()">
-      <div class="preset-mode-badge" style="background:rgba(180,127,255,.15);color:#B47FFF;border-color:rgba(180,127,255,.3)">♾️ AUTOMÁTICO</div>
-      <div class="preset-meta">
-        <div class="preset-name" style="color:#B47FFF;margin-top:0">Siga seu treino</div>
+  <div id="homeWelcome" style="display:none;margin-top:2px;margin-bottom:4px;font-size:14px;color:#aaa;letter-spacing:.3px"></div>
+  <div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div class="section-label" style="margin-bottom:0">Programas</div><button class="btn-icon" id="btnNew" style="width:32px;height:32px;font-size:15px;border-radius:8px">＋</button></div>
+    <div class="preset-list" id="presetList">
+      <!-- Fluxo card fixo -->
+      <div id="autoCard" class="preset-card selected" style="--c:#B47FFF;cursor:pointer" onclick="selectAutoMode()">
+        <div class="preset-mode-badge" style="background:rgba(180,127,255,.15);color:#B47FFF;border-color:rgba(180,127,255,.3)">♾️ FLUXO</div>
+        <div class="preset-meta">
+          <div class="preset-name" style="color:#B47FFF;margin-top:0">Siga seu treino</div>
+        </div>
+        <div class="preset-obs">Descanso calculado pelo esforço. Sem distrações. Um toque para começar.</div>
       </div>
-      <div class="preset-obs">Descanso calculado pelo esforço. Sem distrações. Um toque para começar.</div>
     </div>
+    <div id="userPresetList" style="display:flex;flex-direction:column;gap:10px;margin-top:10px"></div>
   </div>
-  <div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div class="section-label" style="margin-bottom:0">Programas</div><button class="btn-icon" id="btnNew" style="width:32px;height:32px;font-size:15px;border-radius:8px">＋</button></div><div class="preset-list" id="presetList"></div></div>
 </div>
 
 <div class="screen hidden" id="edit">
@@ -249,9 +252,10 @@
     <div class="edit-title" id="editTitle">NOVO PROGRAMA</div>
   </div>
   <div class="field-group"><div class="field-label">Modo</div>
-    <div class="mode-toggle">
+    <div class="mode-toggle" style="grid-template-columns:1fr 1fr 1fr">
       <button class="mode-btn active" id="modeNormal" onclick="setMode('normal')">⏱ Clássico</button>
       <button class="mode-btn" id="modeCircuit" onclick="setMode('circuit')">🔄 Circuito</button>
+      <button class="mode-btn" id="modeBrain" onclick="setMode('brain')">❎ Fluxo Marc.</button>
     </div>
   </div>
   <div class="field-group"><div class="field-label">Nome</div><input class="field-input" id="efName" placeholder="Ex: Carga Pesada"></div>
@@ -285,6 +289,23 @@
     </div>
     <div class="field-group"><div class="field-label">Intervalo entre exercícios (s)</div><input class="field-input" id="efCRest" type="number" min="0" placeholder="15"></div>
     <div class="field-group"><div class="field-label">Nomes dos exercícios (opcional)</div><div class="circuit-exercises" id="exerciseInputs"></div></div>
+  </div>
+  <div id="brainFields" style="display:none;flex-direction:column;gap:12px">
+    <div style="font-size:12px;color:#B47FFF;background:rgba(180,127,255,.08);border:1px solid rgba(180,127,255,.2);border-radius:10px;padding:10px 14px;line-height:1.5">
+      🧠 Descanso calculado pelo esforço, igual ao Fluxo. Mas aqui você pré-define os exercícios e séries — e o treino segue automaticamente.
+    </div>
+    <div class="row2">
+      <div class="field-group"><div class="field-label">Nº Exercícios</div><input class="field-input" id="efBrainExCount" type="number" min="1" max="9" placeholder="2"></div>
+      <div class="field-group"><div class="field-label">Séries</div><input class="field-input" id="efBrainSeries" type="number" min="1" max="20" placeholder="3"></div>
+    </div>
+    <div class="row2">
+      <div class="field-group"><div class="field-label">Execução (s)</div><input class="field-input" id="efBrainAction" type="number" min="5" placeholder="40"></div>
+      <div class="field-group"><div class="field-label">Preparação (s)</div><input class="field-input" id="efBrainPrep" type="number" min="5" placeholder="15"></div>
+    </div>
+    <div class="field-group" id="brainExercisesGroup" style="display:none">
+      <div class="field-label">Nomes dos exercícios (opcional)</div>
+      <div class="circuit-exercises" id="brainExerciseInputs"></div>
+    </div>
   </div>
   <div class="field-group">
     <div style="display:flex;align-items:center;justify-content:space-between">
@@ -522,6 +543,122 @@
   </div>
 </div>
 
+<!-- BRAIN: PREP SCREEN -->
+<div class="screen hidden auto-screen" id="brainPrep" style="display:flex;flex-direction:column;">
+  <div class="auto-header">
+    <div class="auto-phase-label" id="brainPrepPhaseLabel" style="color:#F5C518">PREPARE-SE</div>
+    <div class="auto-series-badge" id="brainPrepProgress">Exercício 1/2 · Série 1/3</div>
+  </div>
+  <div class="auto-center">
+    <div class="auto-prep-title" id="brainPrepExName">Exercício 1</div>
+    <div class="auto-prep-sub">Série <span id="brainPrepSerieNum">1</span></div>
+    <div class="ring-wrap">
+      <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="52"/><circle class="ring-fg" id="brainPrepRing" cx="60" cy="60" r="52" style="stroke:#F5C518"/></svg>
+      <div class="ring-center">
+        <div class="time-display" id="brainPrepTime" style="color:#F5C518">15</div>
+        <div class="time-sub">segundos</div>
+      </div>
+    </div>
+    <div class="controls" style="margin-top:16px">
+      <button class="btn-ctrl" onclick="clearInterval(brain._int);releaseWakeLock();applyAccent('#00E676');showScreen('home');">&#8592;</button>
+    </div>
+  </div>
+</div>
+
+<!-- BRAIN: EXECUTION SCREEN -->
+<div class="screen hidden auto-screen" id="brainExec" style="display:flex;flex-direction:column;">
+  <div class="auto-header">
+    <div class="auto-phase-label" id="brainExecPhaseLabel">VAMOS!</div>
+    <div class="auto-series-badge">Série <span id="brainExecSerieNum">1/3</span> · <span id="brainExecExName">Exercício 1</span></div>
+  </div>
+  <div class="auto-center">
+    <div class="ring-wrap">
+      <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="52"/><circle class="ring-fg" id="brainExecRing" cx="60" cy="60" r="52"/></svg>
+      <div class="ring-center">
+        <div class="time-display" id="brainExecTime">40</div>
+        <div class="time-sub">segundos</div>
+      </div>
+    </div>
+    <div class="auto-big-label" id="brainExecOverflowLabel" style="opacity:0;font-size:13px;letter-spacing:1px;margin-top:0;color:#aaa">Série contínua ou prolongada</div>
+    <div style="height:16px"></div>
+    <button class="btn-auto-done" id="brainExecDoneBtn" onclick="brainSerieOk()">CONCLUIR SÉRIE ›</button>
+    <div style="height:16px"></div>
+    <div class="controls">
+      <button class="btn-ctrl" onclick="clearInterval(brain._int);releaseWakeLock();applyAccent('#00E676');showScreen('home');">&#8592;</button>
+    </div>
+  </div>
+</div>
+
+<!-- BRAIN: REPS SCREEN -->
+<div class="screen hidden auto-screen" id="brainReps" style="display:flex;flex-direction:column;">
+  <div class="auto-header">
+    <div class="auto-phase-label" style="color:#F5C518">REPETIÇÕES</div>
+    <div class="auto-series-badge">Série <span id="brainRepsSerieNum">1</span></div>
+  </div>
+  <div class="auto-center">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;text-align:center;margin-bottom:16px">Quantas repetições realizou?</div>
+    <div class="reps-grid">
+      <button class="btn-reps" data-rest-key="1-3" onclick="selectBrainReps(this)">
+        <div class="reps-icon">🏋️</div><div><div class="reps-range">1 – 3</div><div class="reps-desc">Carga muito alta</div></div>
+      </button>
+      <button class="btn-reps" data-rest-key="4-7" onclick="selectBrainReps(this)">
+        <div class="reps-icon">💪</div><div><div class="reps-range">4 – 7</div><div class="reps-desc">Carga alta</div></div>
+      </button>
+      <button class="btn-reps" data-rest-key="8-10" onclick="selectBrainReps(this)">
+        <div class="reps-icon">⚡</div><div><div class="reps-range">8 – 10</div><div class="reps-desc">Carga moderada</div></div>
+      </button>
+      <button class="btn-reps" data-rest-key="11-15" onclick="selectBrainReps(this)">
+        <div class="reps-icon">🔥</div><div><div class="reps-range">11 – 15</div><div class="reps-desc">Carga média</div></div>
+      </button>
+      <button class="btn-reps" data-rest-key="15-30" onclick="selectBrainReps(this)">
+        <div class="reps-icon">♾️</div><div><div class="reps-range">15 – 30</div><div class="reps-desc">Resistência muscular</div></div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- BRAIN: INTENSITY SCREEN -->
+<div class="screen hidden auto-screen" id="brainIntensity" style="display:flex;flex-direction:column;">
+  <div class="auto-header">
+    <div class="auto-phase-label" style="color:#F5C518">INTENSIDADE</div>
+    <div class="auto-series-badge">Série <span id="brainIntSerieNum">1</span></div>
+  </div>
+  <div class="auto-center">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;text-align:center;margin-bottom:16px">Como foi essa série?</div>
+    <div class="intensity-grid">
+      <button class="btn-intensity" data-int="0" onclick="selectBrainIntensity(this)"><div class="int-icon">😌</div><div class="int-label">Muito leve</div></button>
+      <button class="btn-intensity" data-int="1" onclick="selectBrainIntensity(this)"><div class="int-icon">🙂</div><div class="int-label">Leve</div></button>
+      <button class="btn-intensity" data-int="2" onclick="selectBrainIntensity(this)"><div class="int-icon">😤</div><div class="int-label">Boa intensidade</div></button>
+      <button class="btn-intensity" data-int="3" onclick="selectBrainIntensity(this)"><div class="int-icon">🥵</div><div class="int-label">Pesada</div></button>
+      <button class="btn-intensity" data-int="4" onclick="selectBrainIntensity(this)"><div class="int-icon">☠️</div><div class="int-label">Muito intensa</div></button>
+    </div>
+  </div>
+</div>
+
+<!-- BRAIN: REST SCREEN -->
+<div class="screen hidden auto-screen" id="brainRest" style="display:flex;flex-direction:column;">
+  <div class="auto-header">
+    <div class="auto-phase-label" id="brainRestPhaseLabel" style="color:#2979FF">RECUPERAÇÃO</div>
+    <div class="auto-series-badge">Série <span id="brainRestSerieNum">1</span></div>
+  </div>
+  <div class="auto-center">
+    <div class="ring-wrap">
+      <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="52"/><circle class="ring-fg" id="brainRestRing" cx="60" cy="60" r="52" style="stroke:#2979FF"/></svg>
+      <div class="ring-center">
+        <div class="time-display" id="brainRestTime" style="color:#2979FF">01:00</div>
+        <div class="time-sub">recuperação</div>
+      </div>
+    </div>
+    <div style="margin-top:20px;width:100%;max-width:320px">
+      <button class="btn-auto-done" style="background:transparent;border:1px solid #333;color:#aaa;font-size:13px;" onclick="brainSkipRest()">Avançar agora ›</button>
+    </div>
+    <div style="height:16px"></div>
+    <div class="controls">
+      <button class="btn-ctrl" onclick="clearInterval(brain._int);releaseWakeLock();applyAccent('#00E676');showScreen('home');">&#8592;</button>
+    </div>
+  </div>
+</div>
+
 <!-- CALENDAR SCREEN -->
 <div class="screen hidden" id="calendarScreen" style="flex-direction:column;">
   <div class="cal-header">
@@ -706,10 +843,13 @@ const FACTORY_DEFAULTS=[
   {id:'circuito',name:'Circuito',color:'#4CC9F0',mode:'circuit',rounds:3,exCount:3,prep:30,action:30,rest:15,
    exercises:['Exercício A','Exercício B','Exercício C'],
    obs:'Circuito 3 rodadas · A → B → C · 30s execução · 15s intervalo · Preparação a cada rodada.'},
+  {id:'mental',name:'Fluxo Marcado',color:'#4361EE',mode:'brain',brainExCount:2,brainSeries:3,brainAction:40,brainPrep:15,
+   brainExercises:['Exercício 1','Exercício 2'],
+   obs:'Descanso calculado pelo esforço. Pré-defina exercícios e séries — o resto o Bravo calcula.'},
 ];
 
 function loadPresets(){
-  const VER='bravo-v3';
+  const VER='bravo-v5';
   if(localStorage.getItem('nt_ver')!==VER){localStorage.removeItem('nt_presets');localStorage.setItem('nt_ver',VER);}
   const s=localStorage.getItem('nt_presets');
   return s?JSON.parse(s):JSON.parse(JSON.stringify(FACTORY_DEFAULTS));
@@ -767,26 +907,51 @@ function hexToRgb(hex){
   return `${r},${g},${b}`;
 }
 function renderHome(){
-  const list=document.getElementById('presetList');list.innerHTML='';
+  // Welcome name
+  const userData=JSON.parse(localStorage.getItem('bravo_user')||'null');
+  const welcome=document.getElementById('homeWelcome');
+  if(userData?.name?.trim()){
+    welcome.style.display='block';
+    welcome.textContent='Bem-vindo, '+userData.name.trim();
+  } else {
+    welcome.style.display='none';
+  }
+
+  const list=document.getElementById('userPresetList');list.innerHTML='';
   presets.forEach(p=>{
     const c=p.color||PALETTE[0].hex;
     const card=document.createElement('div');
     card.className='preset-card'+(p.id===selectedId?' selected':'');
     card.style.setProperty('--c',c);
+    card.dataset.id=p.id;
+    // drag handle styles baked in
+    let modeBadge='';
+    if(p.mode==='circuit'){
+      modeBadge=`<div class="preset-mode-badge" style="background:rgba(${hexToRgb(c)},.12);color:${c};border-color:rgba(${hexToRgb(c)},.4)">🔄 CIRCUITO</div>`;
+    } else if(p.mode==='brain'){
+      modeBadge=`<div class="preset-mode-badge" style="background:rgba(${hexToRgb(c)},.12);color:${c};border-color:rgba(${hexToRgb(c)},.4)">❎ FLUXO MARCADO</div>`;
+    } else {
+      modeBadge=`<div class="preset-mode-badge" style="background:rgba(${hexToRgb(c)},.12);color:${c};border-color:rgba(${hexToRgb(c)},.4)">⏱ CLÁSSICO</div>`;
+    }
     let meta='';
     if(p.mode==='circuit'){
-      meta=`<div class="preset-mode-badge" style="background:rgba(${hexToRgb(c)},.12);color:${c};border-color:rgba(${hexToRgb(c)},.4)">🔄 CIRCUITO</div>
-        <div class="preset-meta">
+      meta=`${modeBadge}<div class="preset-meta">
           <div class="meta-pill">🔁 <b>${p.rounds}</b> rodadas</div>
           <div class="meta-pill">💪 <b>${p.exCount}</b> exercícios</div>
           <div class="meta-pill">⏱ <b>${fmtSec(p.prep)}</b></div>
           <div class="meta-pill">▶ <b>${fmtSec(p.action)}</b></div>
           <div class="meta-pill">😮‍💨 <b>${fmtSec(p.rest)}</b></div>
         </div>`;
+    } else if(p.mode==='brain'){
+      meta=`${modeBadge}<div class="preset-meta">
+          <div class="meta-pill">🏋️ <b>${p.brainExCount||2}</b> exercícios</div>
+          <div class="meta-pill">🔄 <b>${p.brainSeries||3}</b> séries</div>
+          <div class="meta-pill">▶ <b>${fmtSec(p.brainAction||40)}</b></div>
+          <div class="meta-pill">⏱ <b>${fmtSec(p.brainPrep||15)}</b> prep</div>
+        </div>`;
     } else {
       const nexPill=(p.normalExCount>1)?`<div class="meta-pill">🏋️ <b>${p.normalExCount}</b> exercícios</div>`:'';
-      meta=`<div class="preset-mode-badge" style="background:rgba(${hexToRgb(c)},.12);color:${c};border-color:rgba(${hexToRgb(c)},.4)">⏱ CLÁSSICO</div>
-        <div class="preset-meta">
+      meta=`${modeBadge}<div class="preset-meta">
         <div class="meta-pill">🔄 <b>${p.cycles}</b> séries</div>
         ${nexPill}<div class="meta-pill">⏱ <b>${fmtSec(p.prep)}</b></div>
         <div class="meta-pill">💪 <b>${fmtSec(p.action)}</b></div>
@@ -794,7 +959,8 @@ function renderHome(){
       </div>`;
     }
     const obsHTML=p.obs?`<div class="preset-obs">${p.obs}</div>`:'';
-    card.innerHTML=`${meta}<div class="preset-name" style="color:${c}">${p.name}</div>${obsHTML}
+    card.innerHTML=`<div class="drag-handle" style="position:absolute;left:0;top:0;bottom:0;width:36px;display:flex;align-items:center;justify-content:center;color:#444;font-size:16px;cursor:grab;touch-action:none;">⠿</div>
+      <div style="padding-left:20px">${meta}<div class="preset-name" style="color:${c}">${p.name}</div>${obsHTML}</div>
       <div class="preset-actions">
         <button class="btn-small" data-edit="${p.id}">✏</button>
         <button class="btn-small" data-del="${p.id}">✕</button>
@@ -802,12 +968,15 @@ function renderHome(){
     card.addEventListener('click',e=>{
       if(e.target.dataset.edit){openEdit(e.target.dataset.edit);return;}
       if(e.target.dataset.del){deletePreset(e.target.dataset.del);return;}
+      if(e.target.closest('.drag-handle'))return;
       selectedId=p.id;autoModeSelected=false;
       document.getElementById('autoCard').classList.remove('selected');
       renderHome();
     });
     list.appendChild(card);
   });
+  initDragDrop();
+
   const sel=presets.find(p=>p.id===selectedId);
   const fc=sel?.color||'#B47FFF';
   const fab=document.getElementById('fabStart');
@@ -824,6 +993,50 @@ function renderHome(){
     fab.style.background='#B47FFF';fab.style.color='#fff';
   }
 }
+
+// ---- DRAG & DROP REORDER ----
+function initDragDrop(){
+  const list=document.getElementById('userPresetList');
+  let dragging=null,startY=0,startIndex=0,ghost=null;
+
+  list.querySelectorAll('.drag-handle').forEach(handle=>{
+    handle.addEventListener('pointerdown',e=>{
+      const card=handle.closest('.preset-card');
+      if(!card)return;
+      e.preventDefault();
+      dragging=card;
+      startY=e.clientY;
+      const cards=[...list.querySelectorAll('.preset-card')];
+      startIndex=cards.indexOf(card);
+      ghost=card.cloneNode(true);
+      ghost.style.cssText=`position:fixed;left:${card.getBoundingClientRect().left}px;top:${card.getBoundingClientRect().top}px;width:${card.offsetWidth}px;opacity:.75;pointer-events:none;z-index:999;transition:none;border:2px solid #555;`;
+      document.body.appendChild(ghost);
+      card.style.opacity='0.3';
+      handle.setPointerCapture(e.pointerId);
+    });
+    handle.addEventListener('pointermove',e=>{
+      if(!dragging||!ghost)return;
+      ghost.style.top=(parseFloat(ghost.style.top)+(e.clientY-startY))+'px';
+      startY=e.clientY;
+      const cards=[...list.querySelectorAll('.preset-card')].filter(c=>c!==dragging);
+      const after=cards.find(c=>{
+        const r=c.getBoundingClientRect();
+        return e.clientY<r.top+r.height/2;
+      });
+      if(after)list.insertBefore(dragging,after);
+      else list.appendChild(dragging);
+    });
+    handle.addEventListener('pointerup',()=>{
+      if(!dragging)return;
+      dragging.style.opacity='1';
+      ghost?.remove();ghost=null;
+      const newOrder=[...list.querySelectorAll('.preset-card')].map(c=>c.dataset.id);
+      presets.sort((a,b)=>newOrder.indexOf(a.id)-newOrder.indexOf(b.id));
+      savePresets(presets);
+      dragging=null;
+    });
+  });
+}
 function selectAutoMode(){
   autoModeSelected=true;
   selectedId=null;
@@ -835,7 +1048,15 @@ function selectAutoMode(){
   fab.classList.remove('hidden-fab');
 }
 renderHome();
-document.getElementById('fabStart').onclick=()=>{getAC();if(autoModeSelected&&!selectedId)startAutoMode();else startTimer();};
+document.getElementById('fabStart').onclick=()=>{
+  getAC();
+  if(autoModeSelected&&!selectedId) startAutoMode();
+  else {
+    const p=presets.find(x=>x.id===selectedId);
+    if(p?.mode==='brain') startBrainMode(p);
+    else startTimer();
+  }
+};
 document.getElementById('btnNew').onclick=()=>openEdit(null);
 
 // ---- MENU ----
@@ -875,6 +1096,7 @@ document.getElementById('btnRegSave').onclick=async()=>{
   localStorage.setItem('bravo_reg_done','1');
   btn.textContent='SALVAR E CONTINUAR TREINANDO';btn.disabled=false;
   showToast('Cadastro salvo! Bora treinar 💪');
+  renderHome();
   showScreen('home');
 };
 
@@ -902,10 +1124,13 @@ function setMode(m){
   editMode=m;
   document.getElementById('modeNormal').classList.toggle('active',m==='normal');
   document.getElementById('modeCircuit').classList.toggle('active',m==='circuit');
+  document.getElementById('modeBrain').classList.toggle('active',m==='brain');
   document.getElementById('normalFields').style.display=m==='normal'?'flex':'none';
   document.getElementById('circuitFields').style.display=m==='circuit'?'flex':'none';
+  document.getElementById('brainFields').style.display=m==='brain'?'flex':'none';
   if(m==='normal')document.getElementById('normalFields').style.flexDirection='column';
   if(m==='circuit')updateExerciseInputs();
+  if(m==='brain')updateBrainExerciseInputs();
 }
 function updateExerciseInputs(){
   const n=parseInt(document.getElementById('efExCount').value)||3;
@@ -920,6 +1145,21 @@ function updateExerciseInputs(){
   }
 }
 function clearObs(){document.getElementById('efObs').value='';}
+function updateBrainExerciseInputs(){
+  const n=parseInt(document.getElementById('efBrainExCount').value)||2;
+  const group=document.getElementById('brainExercisesGroup');
+  const container=document.getElementById('brainExerciseInputs');
+  group.style.display='flex';group.style.flexDirection='column';
+  const existing=[...container.querySelectorAll('input')].map(i=>i.value);
+  container.innerHTML='';
+  for(let i=0;i<Math.min(n,9);i++){
+    const row=document.createElement('div');row.className='exercise-row';
+    row.innerHTML=`<div class="exercise-letter" style="color:${editColor}">${EX_LETTERS[i]||String(i+1)}</div>
+      <input class="field-input" id="bfEx${i}" placeholder="Exercício ${i+1}" value="${existing[i]||''}">`;
+    container.appendChild(row);
+  }
+}
+document.getElementById('efBrainExCount')?.addEventListener('input',updateBrainExerciseInputs);
 function updateNormalExerciseInputs(){
   const n=parseInt(document.getElementById('efNormalExCount').value)||1;
   const group=document.getElementById('normalExercisesGroup');
@@ -953,6 +1193,13 @@ function openEdit(id){
     document.getElementById('efCRest').value=p?.rest??15;
     updateExerciseInputs();
     p?.exercises?.forEach((name,i)=>{const inp=document.getElementById('efEx'+i);if(inp)inp.value=name;});
+  } else if(mode==='brain'){
+    document.getElementById('efBrainExCount').value=p?.brainExCount??2;
+    document.getElementById('efBrainSeries').value=p?.brainSeries??3;
+    document.getElementById('efBrainAction').value=p?.brainAction??40;
+    document.getElementById('efBrainPrep').value=p?.brainPrep??15;
+    updateBrainExerciseInputs();
+    p?.brainExercises?.forEach((name,i)=>{const inp=document.getElementById('bfEx'+i);if(inp)inp.value=name;});
   } else {
     document.getElementById('efCycles').value=p?.cycles??4;
     document.getElementById('efPrep').value=p?.prep??30;
@@ -981,6 +1228,14 @@ document.getElementById('btnSave').onclick=()=>{
     const exercises=[];
     for(let i=0;i<exCount;i++){const inp=document.getElementById('efEx'+i);exercises.push(inp?.value.trim()||EX_LETTERS[i]);}
     data={name,obs,color:editColor,mode:'circuit',exCount,rounds,prep,action,rest,exercises};
+  } else if(editMode==='brain'){
+    const brainExCount=parseInt(document.getElementById('efBrainExCount').value)||2;
+    const brainSeries=parseInt(document.getElementById('efBrainSeries').value)||3;
+    const brainAction=parseInt(document.getElementById('efBrainAction').value)||40;
+    const brainPrep=parseInt(document.getElementById('efBrainPrep').value)||15;
+    const brainExercises=[];
+    for(let i=0;i<brainExCount;i++){const inp=document.getElementById('bfEx'+i);brainExercises.push(inp?.value.trim()||('Exercício '+(i+1)));}
+    data={name,obs,color:editColor,mode:'brain',brainExCount,brainSeries,brainAction,brainPrep,brainExercises};
   } else {
     const cycles=parseInt(document.getElementById('efCycles').value);
     const prep=parseInt(document.getElementById('efPrep').value);
@@ -1678,13 +1933,13 @@ function autoNewExercise(){
 
 function autoFinishWorkout(){
   clearInterval(auto._int);
-  auto.pendingMarkName='Automático ♾️';
+  auto.pendingMarkName='Fluxo ♾️';
   speak('Treino concluído. Parabéns!');
   beep(880,.15,.6,'sine',0);beep(1100,.15,.6,'sine',.2);beep(1320,.3,.7,'sine',.4);
   vibrate([100,50,100,50,200]);
-  document.getElementById('finishSub').textContent='Automático ♾️';
+  document.getElementById('finishSub').textContent='Fluxo ♾️';
   showScreen('finish');
-  showBravoFixed('Automático ♾️');
+  showBravoFixed('Fluxo ♾️');
   setTimeout(()=>{
     document.getElementById('markWorkoutName').textContent=auto.pendingMarkName;
     document.getElementById('markWorkoutObs').value='';
@@ -1743,6 +1998,218 @@ document.getElementById('markWorkoutModal').onclick=e=>{if(e.target.id==='markWo
 
 // Calendar mark flow now auto-triggers from showFinish and autoFinishWorkout
 
+
+// ============================================================
+// FLUXO MARCADO ❎ — clássico com descanso calculado pelo esforço
+// ============================================================
+let brain={
+  preset:null,exIndex:0,serieNum:1,
+  totalExercises:2,totalSeries:3,actionSecs:40,prepSecs:15,
+  execSecs:0,execTotal:0,execOverflow:false,
+  restSecs:0,restTotal:0,
+  _int:null,running:false,
+  pendingMarkName:'',_afterRest:''
+};
+
+function startBrainMode(p){
+  getAC();
+  brain.preset=p;
+  brain.totalExercises=p.brainExCount||2;
+  brain.totalSeries=p.brainSeries||3;
+  brain.actionSecs=p.brainAction||40;
+  brain.prepSecs=p.brainPrep||15;
+  brain.exIndex=0;brain.serieNum=1;
+  brain.execOverflow=false;brain.running=true;
+  brain.pendingMarkName=p.name;
+  applyAccent(p.color||'#4361EE');
+  acquireWakeLock();
+  showBrainPrep(); // prep sempre no início
+}
+
+function brainExName(){
+  const names=brain.preset?.brainExercises;
+  return (names&&names[brain.exIndex])||('Exercício '+(brain.exIndex+1));
+}
+
+function brainColor(phase){
+  // same pattern as phaseColor in classic
+  if(phase==='action') return brain.preset?.color||'#4361EE';
+  if(phase==='prep')   return '#F5C518';
+  return '#2979FF'; // rest
+}
+
+function showBrainPrep(){
+  clearInterval(brain._int);
+  const c=brainColor('prep'); // #F5C518
+  document.getElementById('brainPrepSerieNum').textContent=brain.serieNum;
+  document.getElementById('brainPrepExName').textContent=brainExName();
+  document.getElementById('brainPrepProgress').textContent=`Exercício ${brain.exIndex+1}/${brain.totalExercises} · Série ${brain.serieNum}/${brain.totalSeries}`;
+  const ring=document.getElementById('brainPrepRing');
+  ring.style.strokeDasharray=AUTO_CIRC;ring.style.strokeDashoffset=0;ring.style.stroke=c;
+  document.getElementById('brainPrepTime').style.color=c;
+  const label=document.getElementById('brainPrepPhaseLabel');
+  if(label){label.textContent='PREPARE-SE';label.style.color=c;}
+  let secs=brain.prepSecs;
+  document.getElementById('brainPrepTime').textContent=String(secs).padStart(2,'0');
+  showScreen('brainPrep');
+  speak('Prepare-se.');beep(800,.15,.5);
+  const fl=document.getElementById('flash');fl.style.background=c;fl.classList.add('on');setTimeout(()=>fl.classList.remove('on'),150);
+  brain._int=setInterval(()=>{
+    secs--;
+    const s=Math.max(0,secs);
+    document.getElementById('brainPrepTime').textContent=String(s).padStart(2,'0');
+    ring.style.strokeDashoffset=AUTO_CIRC*(1-(s/brain.prepSecs));
+    if(s===3)beepCountdown();
+    if(s<=0){clearInterval(brain._int);startBrainExec();}
+  },1000);
+}
+
+function startBrainExec(){
+  clearInterval(brain._int);
+  brain.execSecs=brain.actionSecs;brain.execTotal=brain.actionSecs;brain.execOverflow=false;
+  const c=brainColor('action');
+  const ring=document.getElementById('brainExecRing');
+  const label=document.getElementById('brainExecPhaseLabel');
+  label.textContent='VAMOS!';label.style.color=c;
+  document.getElementById('brainExecExName').textContent=brainExName();
+  document.getElementById('brainExecSerieNum').textContent=`${brain.serieNum}/${brain.totalSeries}`;
+  document.getElementById('brainExecTime').style.color=c;
+  ring.style.strokeDasharray=AUTO_CIRC;ring.style.stroke=c;
+  document.getElementById('brainExecOverflowLabel').style.opacity='0';
+  showScreen('brainExec');
+  speak('Vamos!');beep(1200,.15,.6);vibrate([80,30,80]);
+  const fl=document.getElementById('flash');fl.style.background=c;fl.classList.add('on');setTimeout(()=>fl.classList.remove('on'),150);
+  brain._int=setInterval(()=>{
+    brain.execSecs--;
+    updateBrainExecUI();
+    if(brain.execSecs===3&&!brain.execOverflow)beepCountdown();
+    if(brain.execSecs<=0&&!brain.execOverflow){
+      brain.execOverflow=true;
+      document.getElementById('brainExecOverflowLabel').style.opacity='1';
+    }
+  },1000);
+}
+
+function updateBrainExecUI(){
+  const c=brainColor('action');
+  const ring=document.getElementById('brainExecRing');
+  const timeEl=document.getElementById('brainExecTime');
+  if(!brain.execOverflow){
+    const s=Math.max(0,brain.execSecs);
+    timeEl.textContent=String(s).padStart(2,'0');
+    ring.style.strokeDashoffset=AUTO_CIRC*(1-(s/brain.execTotal));
+  } else {
+    const elapsed=Math.abs(brain.execSecs);
+    timeEl.textContent=`+${String(Math.floor(elapsed/60)).padStart(2,'0')}:${String(elapsed%60).padStart(2,'0')}`;
+    ring.style.strokeDashoffset=AUTO_CIRC;
+  }
+}
+
+function brainSerieOk(){
+  clearInterval(brain._int);
+  document.getElementById('brainRepsSerieNum').textContent=brain.serieNum;
+  showScreen('brainReps');
+}
+
+function selectBrainReps(btn){
+  brain._repsKey=btn.dataset.restKey;
+  document.getElementById('brainIntSerieNum').textContent=brain.serieNum;
+  showScreen('brainIntensity');
+}
+
+function selectBrainIntensity(btn){
+  const restSecs=REST_TABLE[brain._repsKey][parseInt(btn.dataset.int)];
+  brain.restSecs=restSecs;brain.restTotal=restSecs;
+  const isLastSerie=(brain.serieNum>=brain.totalSeries);
+  const isLastEx=(brain.exIndex>=brain.totalExercises-1);
+  if(isLastSerie&&isLastEx)       brain._afterRest='finish';
+  else if(isLastSerie)            brain._afterRest='nextEx';
+  else                            brain._afterRest='nextSerie';
+  startBrainRest();
+}
+
+function startBrainRest(){
+  clearInterval(brain._int);
+  const c=brainColor('rest'); // #2979FF
+  document.getElementById('brainRestSerieNum').textContent=brain.serieNum;
+  document.getElementById('brainRestPhaseLabel').style.color=c;
+  document.getElementById('brainRestTime').style.color=c;
+  const ring=document.getElementById('brainRestRing');
+  ring.style.strokeDasharray=AUTO_CIRC;ring.style.strokeDashoffset=0;ring.style.stroke=c;
+  updateBrainRestUI();
+  showScreen('brainRest');
+  speak('Recuperação.');beep(800,.15,.5);
+  const fl=document.getElementById('flash');fl.style.background=c;fl.classList.add('on');setTimeout(()=>fl.classList.remove('on'),150);
+  brain._int=setInterval(()=>{
+    brain.restSecs--;
+    updateBrainRestUI();
+    if(brain.restSecs===3)beepCountdown();
+    if(brain.restSecs<=0){clearInterval(brain._int);onBrainRestDone();}
+  },1000);
+}
+
+function updateBrainRestUI(){
+  const s=Math.max(0,brain.restSecs);
+  document.getElementById('brainRestTime').textContent=`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+  document.getElementById('brainRestRing').style.strokeDashoffset=AUTO_CIRC*(1-(brain.restTotal>0?s/brain.restTotal:0));
+}
+
+// "Avançar agora" — mostra modal igual ao Fluxo (earlyRestModal) com tempo restante
+function brainSkipRest(){
+  if(brain.restSecs<=0){
+    clearInterval(brain._int);onBrainRestDone();return;
+  }
+  const s=Math.max(0,Math.ceil(brain.restSecs));
+  document.getElementById('earlyRestSubtext').textContent=`Restam ${s}s de recuperação.`;
+  document.getElementById('earlyRestModal').classList.add('open');
+  // Override the continue button to advance brain mode
+  document.getElementById('btnEarlyRestContinue').onclick=()=>{
+    document.getElementById('earlyRestModal').classList.remove('open');
+    clearInterval(brain._int);
+    onBrainRestDone();
+    // Restore original Fluxo handler after use
+    document.getElementById('btnEarlyRestContinue').onclick=()=>{
+      document.getElementById('earlyRestModal').classList.remove('open');
+      clearInterval(auto._int);auto.serieNum++;startAutoExecDirect();
+    };
+  };
+}
+
+function onBrainRestDone(){
+  beep(880,.15,.6,'sine',0);beep(1100,.15,.6,'sine',.2);vibrate([80,30,80]);
+  const after=brain._afterRest;
+  if(after==='finish'){
+    brainFinishWorkout();
+  } else if(after==='nextEx'){
+    // novo exercício → mostra prep
+    brain.exIndex++;brain.serieNum=1;
+    showBrainPrep();
+  } else {
+    // próxima série → vai DIRETO para exec (sem prep)
+    brain.serieNum++;
+    speak('Próxima série.');
+    startBrainExec();
+  }
+}
+
+function brainFinishWorkout(){
+  clearInterval(brain._int);
+  releaseWakeLock();
+  speak('Treino concluído. Parabéns!');
+  beep(880,.15,.6,'sine',0);beep(1100,.15,.6,'sine',.2);beep(1320,.3,.7,'sine',.4);
+  vibrate([100,50,100,50,200]);
+  const label=brain.pendingMarkName||'Fluxo Marcado ❎';
+  auto.pendingMarkName=label;
+  document.getElementById('finishSub').textContent=label;
+  showScreen('finish');
+  showBravoFixed(label);
+  setTimeout(()=>{
+    document.getElementById('markWorkoutName').textContent=label;
+    document.getElementById('markWorkoutObs').value='';
+    resetExTypes();
+    document.getElementById('markWorkoutModal').classList.add('open');
+  },2000);
+}
 
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
