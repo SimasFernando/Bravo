@@ -57,13 +57,41 @@
   .btn-yt-link.has-video{background:rgba(255,0,0,.25);border-color:#FF4444;}
   .btn-yt-link:active{background:rgba(255,0,0,.35);}
   /* YouTube embed in exec screens */
-  .yt-embed-wrap{width:100%;max-width:360px;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#000;flex-shrink:0;margin-top:10px;}
-  .yt-embed-wrap iframe{width:100%;height:100%;border:none;}
-  /* Landscape: put video to the right */
+  .yt-embed-wrap{width:100%;max-width:380px;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#111;flex-shrink:0;margin-top:8px;display:none;}
+  .yt-embed-wrap.visible{display:block;}
+  .yt-embed-wrap iframe{width:100%;height:100%;border:none;display:block;}
+  /* Landscape two-column layout when video is present */
   @media (orientation:landscape){
-    .exec-with-video{flex-direction:row!important;align-items:flex-start;gap:12px;padding:8px 12px;}
-    .exec-with-video .exec-main-col{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;}
-    .exec-with-video .yt-embed-wrap{flex:1;max-width:none;margin-top:0;align-self:center;}
+    .exec-with-video.has-video{
+      flex-direction:row!important;
+      align-items:center!important;
+      justify-content:center!important;
+      gap:16px;
+      padding:6px 16px!important;
+      overflow:visible!important;
+    }
+    .exec-with-video.has-video .exec-main-col{
+      flex:0 0 auto;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      min-width:0;
+    }
+    .exec-with-video.has-video .yt-embed-wrap{
+      flex:1 1 auto;
+      max-width:none;
+      margin-top:0;
+      align-self:center;
+      min-width:0;
+      height:auto;
+    }
+    /* Shrink ring in landscape so it fits alongside video */
+    .exec-with-video.has-video .ring-wrap{width:140px;height:140px;}
+    .exec-with-video.has-video .time-display{font-size:48px;}
+    .exec-with-video.has-video .btn-playpause{width:48px;height:48px;font-size:18px;}
+    .exec-with-video.has-video .btn-ctrl{width:40px;height:40px;font-size:16px;}
+    .exec-with-video.has-video .btn-auto-done{font-size:14px;padding:10px 20px;}
   }
   .exercise-letter{font-family:'Bebas Neue',sans-serif;font-size:22px;width:28px;text-align:center;}
   .color-picker{display:flex;gap:10px;flex-wrap:wrap;padding:4px 0;}
@@ -71,7 +99,8 @@
   .color-swatch.selected{border-color:#fff;transform:scale(1.2);}
   .btn-save{height:52px;border-radius:26px;border:none;background:var(--accent);color:#000;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;cursor:pointer;margin-top:4px;width:100%;}
   #timer{flex-direction:column!important;align-items:stretch;padding:0;}
-  .timer-main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:24px 14px 32px;overflow:hidden;position:relative;}
+  .timer-main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:24px 14px 32px;position:relative;}
+  .timer-main .exec-main-col{display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:8px;}
   .timer-top{width:100%;display:flex;align-items:center;justify-content:space-between;}
   .phase-label{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:3px;transition:color .4s;}
   .cycle-badge{font-size:12px;color:var(--muted);background:var(--surface);padding:5px 12px;border-radius:20px;}
@@ -329,7 +358,8 @@
   <button class="btn-save" id="btnSave">SALVAR</button>
 </div>
 
-<div class="screen hidden" id="timer">    <div class="timer-main" id="timerMain">
+<div class="screen hidden" id="timer"><div class="timer-main exec-with-video" id="timerMain">
+    <div class="exec-main-col" style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:space-between;width:100%;flex:1;">
     <div class="timer-top">
       <div class="phase-label" id="phaseLabel">PREPARE-SE</div>
       <div class="cycle-badge" id="cycleBadge">Série <span id="cycleNum">1</span>/<span id="cycleTotal">4</span></div>
@@ -341,12 +371,13 @@
     </div>
     <div id="dotsRow" class="dots"></div>
     <div id="roundDotsRow" class="round-dots" style="display:none"></div>
-    <div id="timerYtWrap" class="yt-embed-wrap" style="display:none"></div>
     <div class="controls">
       <button class="btn-ctrl" id="btnTimerBack">&#8592;</button>
       <button class="btn-playpause" id="btnPlay">&#9208;</button>
       <button class="btn-ctrl" id="btnSkip">&#9197;</button>
     </div>
+    </div>
+    <div id="timerYtWrap" class="yt-embed-wrap"></div>
   </div>
 </div>
 
@@ -1184,12 +1215,19 @@ function extractYtId(url){
   const m=url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/))([A-Za-z0-9_-]{11})/);
   return m?m[1]:null;
 }
-function showYtEmbed(wrapId,videoId){
+function showYtEmbed(wrapId,videoId,containerId){
   const wrap=document.getElementById(wrapId);
   if(!wrap)return;
-  if(!videoId){wrap.style.display='none';wrap.innerHTML='';return;}
-  wrap.style.display='';
+  const container=containerId?document.getElementById(containerId):wrap.parentElement;
+  if(!videoId){
+    wrap.classList.remove('visible');
+    if(container)container.classList.remove('has-video');
+    wrap.innerHTML='';
+    return;
+  }
   wrap.innerHTML=`<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0&modestbranding=1" allowfullscreen allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>`;
+  wrap.classList.add('visible');
+  if(container)container.classList.add('has-video');
 }
 let ytModalTarget={field:'',index:0};
 function openYtModal(field,index){
@@ -1512,13 +1550,11 @@ function phaseStart(){
     const idx=tmr.exIndex||0;
     const vids=tmr.isCircuit?p?.exerciseVideos:p?.normalExerciseVideos;
     const vid=extractYtId(vids?.[idx]||'');
-    showYtEmbed('timerYtWrap',vid);
-    const main=document.getElementById('timerMain');
-    if(main)main.classList.toggle('exec-with-video',!!vid);
+    showYtEmbed('timerYtWrap',vid,'timerMain');
+    document.getElementById('timerMain').classList.toggle('exec-with-video',!!vid);
   } else {
-    showYtEmbed('timerYtWrap',null);
-    const main=document.getElementById('timerMain');
-    if(main)main.classList.remove('exec-with-video');
+    showYtEmbed('timerYtWrap',null,'timerMain');
+    document.getElementById('timerMain').classList.remove('exec-with-video');
   }
 }
 
@@ -2029,7 +2065,7 @@ function startAutoExecDirect(){
   ring.style.strokeDasharray=AUTO_CIRC;ring.style.stroke='#B47FFF';
   document.getElementById('autoExecOverflowLabel').style.opacity='0';
   // Fluxo has no per-exercise videos (single exercise mode), clear
-  showYtEmbed('autoExecYtWrap',null);
+  showYtEmbed('autoExecYtWrap',null,'autoExecCenter');
   showScreen('autoExec');
   speak('Vamos!');beep(1200,.15,.6);vibrate([80,30,80]);
   const fl=document.getElementById('flash');fl.style.background='#B47FFF';fl.classList.add('on');setTimeout(()=>fl.classList.remove('on'),150);
@@ -2202,7 +2238,7 @@ function startBrainExec(){
   document.getElementById('brainExecOverflowLabel').style.opacity='0';
   // YouTube embed for this exercise
   const vids=brain.preset?.brainExerciseVideos;
-  showYtEmbed('brainExecYtWrap',extractYtId(vids?.[brain.exIndex]||''));
+  showYtEmbed('brainExecYtWrap',extractYtId(vids?.[brain.exIndex]||''),'brainExecCenter');
   showScreen('brainExec');
   speak('Vamos!');beep(1200,.15,.6);vibrate([80,30,80]);
   const fl=document.getElementById('flash');fl.style.background=c;fl.classList.add('on');setTimeout(()=>fl.classList.remove('on'),150);
