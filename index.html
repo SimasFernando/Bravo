@@ -1073,65 +1073,63 @@ function renderHome(){
 // ---- DRAG & DROP REORDER ----
 function initDragDrop(){
   const list=document.getElementById('userPresetList');
-  let dragging=null,ghost=null,insertBeforeCard=null,placeholder=null;
+  let dragging=null,ghost=null,activePointerId=null,offsetY=0;
 
-  list.querySelectorAll('.drag-handle').forEach(handle=>{
-    handle.addEventListener('pointerdown',e=>{
-      const card=handle.closest('.preset-card');
-      if(!card)return;
-      e.preventDefault();
-      dragging=card;
-      insertBeforeCard=null;
+  list.addEventListener('pointerdown',e=>{
+    const handle=e.target.closest('.drag-handle');
+    if(!handle)return;
+    const card=handle.closest('.preset-card');
+    if(!card)return;
+    e.preventDefault();
 
-      // Card original fica translúcido no lugar (sem remover do DOM)
-      card.style.opacity='0.35';
+    dragging=card;
+    activePointerId=e.pointerId;
+    list.setPointerCapture(e.pointerId);
 
-      // Ghost visual simples que segue o dedo — construído do zero, sem ::before
-      const rect=card.getBoundingClientRect();
-      const cardColor=card.style.getPropertyValue('--c')||'#555';
-      ghost=document.createElement('div');
-      ghost.innerHTML=card.innerHTML;
-      ghost.style.cssText=`position:fixed;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;height:${rect.height}px;pointer-events:none;z-index:9999;transition:none;overflow:hidden;border-radius:var(--radius);background:var(--surface);border:2px solid ${cardColor};box-shadow:0 8px 32px rgba(0,0,0,.55);padding:14px 18px 14px 22px;box-sizing:border-box;font-family:inherit;color:var(--text);`;
-      ghost.style.setProperty('--c',cardColor);
-      // Adiciona a barrinha colorida lateral de forma controlada
-      const bar=document.createElement('div');
-      bar.style.cssText=`position:absolute;left:0;top:0;bottom:0;width:4px;background:${cardColor};border-radius:4px 0 0 4px;`;
-      ghost.appendChild(bar);
-      document.body.appendChild(ghost);
+    const rect=card.getBoundingClientRect();
+    offsetY=e.clientY-rect.top;
 
-      placeholder=null; // não usa placeholder, o card fica no lugar
+    card.style.opacity='0.3';
 
-      handle.setPointerCapture(e.pointerId);
-    });
-
-    handle.addEventListener('pointermove',e=>{
-      if(!dragging||!ghost)return;
-      // Ghost segue o dedo
-      ghost.style.top=e.clientY-ghost.offsetHeight/2+'px';
-      // Reordena o card real no DOM (está translúcido, não some)
-      const cards=[...list.querySelectorAll('.preset-card')].filter(c=>c!==dragging);
-      let target=null;
-      for(const c of cards){
-        const r=c.getBoundingClientRect();
-        if(e.clientY<r.top+r.height/2){target=c;break;}
-      }
-      if(target) list.insertBefore(dragging,target);
-      else list.appendChild(dragging);
-    });
-
-    const finishDrag=()=>{
-      if(!dragging)return;
-      dragging.style.opacity='';
-      ghost?.remove();
-      ghost=null;
-      const newOrder=[...list.querySelectorAll('.preset-card')].map(c=>c.dataset.id);
-      presets.sort((a,b)=>newOrder.indexOf(a.id)-newOrder.indexOf(b.id));
-      savePresets(presets);
-      dragging=null;
-    };
-    handle.addEventListener('pointerup',finishDrag);
-    handle.addEventListener('pointercancel',finishDrag);
+    const cardColor=card.style.getPropertyValue('--c')||'#555';
+    ghost=document.createElement('div');
+    ghost.innerHTML=card.innerHTML;
+    ghost.style.cssText=`position:fixed;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;height:${rect.height}px;pointer-events:none;z-index:9999;overflow:hidden;border-radius:var(--radius);background:var(--surface);border:2px solid ${cardColor};box-shadow:0 8px 32px rgba(0,0,0,.6);padding:14px 18px 14px 22px;box-sizing:border-box;`;
+    const bar=document.createElement('div');
+    bar.style.cssText=`position:absolute;left:0;top:0;bottom:0;width:4px;background:${cardColor};border-radius:4px 0 0 4px;`;
+    ghost.appendChild(bar);
+    document.body.appendChild(ghost);
   });
+
+  list.addEventListener('pointermove',e=>{
+    if(!dragging||e.pointerId!==activePointerId)return;
+    e.preventDefault();
+
+    ghost.style.top=e.clientY-offsetY+'px';
+
+    const cards=[...list.querySelectorAll('.preset-card')].filter(c=>c!==dragging);
+    let target=null;
+    for(const c of cards){
+      const r=c.getBoundingClientRect();
+      if(e.clientY<r.top+r.height/2){target=c;break;}
+    }
+    if(target) list.insertBefore(dragging,target);
+    else list.appendChild(dragging);
+  });
+
+  const finishDrag=e=>{
+    if(!dragging||e.pointerId!==activePointerId)return;
+    dragging.style.opacity='';
+    ghost?.remove();
+    ghost=null;
+    const newOrder=[...list.querySelectorAll('.preset-card')].map(c=>c.dataset.id);
+    presets.sort((a,b)=>newOrder.indexOf(a.id)-newOrder.indexOf(b.id));
+    savePresets(presets);
+    dragging=null;
+    activePointerId=null;
+  };
+  list.addEventListener('pointerup',finishDrag);
+  list.addEventListener('pointercancel',finishDrag);
 }
 function selectAutoMode(){
   autoModeSelected=true;
