@@ -35,10 +35,13 @@
   .preset-obs{margin-top:8px;font-size:13px;color:#888;line-height:1.5;font-style:italic;border-top:1px solid var(--surface2);padding-top:8px;}
   .preset-mode-badge{display:inline-flex;align-items:center;gap:4px;font-size:12px;padding:3px 10px;border-radius:10px;background:rgba(41,121,255,.15);color:#5C9EFF;border:1px solid rgba(41,121,255,.4);margin-bottom:5px;letter-spacing:1px;font-weight:600;}
   .preset-actions{position:absolute;right:12px;top:12px;display:flex;gap:6px;}
-  .btn-fav{flex-shrink:0;width:28px;height:28px;border-radius:50%;border:none;background:transparent;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .2s;line-height:1;color:transparent;-webkit-text-stroke:1.5px #F9C74F;text-stroke:1.5px #F9C74F;}
-  .btn-fav.active{color:#F9C74F;-webkit-text-stroke:0;text-stroke:0;}
+  .btn-fav{flex-shrink:0;width:26px;height:26px;border-radius:50%;border:none;background:transparent;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s;line-height:1;color:transparent;-webkit-text-stroke:1.5px var(--c);text-stroke:1.5px var(--c);}
+  .btn-fav.active{color:var(--c);-webkit-text-stroke:0;text-stroke:0;}
   .btn-fav:active{transform:scale(1.3);}
-  .btn-small{font-size:13px;padding:4px 10px;border-radius:8px;border:1px solid var(--surface2);background:var(--bg);color:var(--muted);cursor:pointer;}
+  .btn-edit{flex-shrink:0;width:26px;height:26px;border-radius:6px;border:1px solid rgba(var(--cr),.4);background:rgba(var(--cr),.08);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--c);transform:rotate(-15deg);transition:transform .15s;}
+  .btn-edit:active{transform:rotate(-15deg) scale(1.15);}
+  .btn-delete-edit{margin-top:8px;width:100%;padding:14px;border-radius:12px;border:1px solid rgba(255,80,80,.35);background:rgba(255,80,80,.06);color:#ff6b6b;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;cursor:pointer;transition:background .2s;}
+  .btn-delete-edit:active{background:rgba(255,80,80,.18);}
   .fab-start{position:fixed;right:0;top:50%;transform:translateY(-50%);writing-mode:vertical-rl;text-orientation:mixed;background:var(--accent);color:#000;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;padding:20px 10px;border-radius:12px 0 0 12px;border:none;cursor:pointer;box-shadow:-4px 0 20px rgba(0,0,0,.4);transition:opacity .25s,transform .25s;z-index:50;}
   .fab-start.hidden-fab{opacity:0;pointer-events:none;transform:translateY(-50%) translateX(100%);}
   #edit{padding:24px 20px 32px;gap:14px;overflow-y:auto;}
@@ -303,9 +306,10 @@
 </div>
 
 <div class="screen hidden" id="edit">
-  <div class="edit-header">
+  <div class="edit-header" style="justify-content:space-between">
     <button class="btn-icon" id="btnEditBack">←</button>
     <div class="edit-title" id="editTitle">NOVO PROGRAMA</div>
+    <button class="btn-icon" id="btnDeleteEdit" style="display:none;opacity:.45;font-size:16px" title="Excluir programa">🗑</button>
   </div>
   <div class="field-group"><div class="field-label">Modo</div>
     <div class="mode-toggle" style="grid-template-columns:1fr 1fr 1fr">
@@ -420,6 +424,18 @@
       <button class="btn-connect" id="btnYtRemove" style="flex:1;color:#FF4444;border-color:rgba(255,68,68,.4)">Remover</button>
     </div>
     <button class="btn-connect" onclick="document.getElementById('ytLinkModal').classList.remove('open')">Cancelar</button>
+  </div>
+</div>
+
+<!-- DELETE CONFIRMATION MODAL -->
+<div class="modal-overlay" id="deleteConfirmModal">
+  <div class="modal-sheet" style="gap:16px">
+    <div style="font-size:28px;text-align:center">🗑</div>
+    <div class="modal-title" style="text-align:center">EXCLUIR PROGRAMA?</div>
+    <div style="font-size:14px;color:var(--muted);text-align:center;line-height:1.5" id="deleteConfirmName"></div>
+    <div style="font-size:13px;color:var(--muted);text-align:center">Esta ação não pode ser desfeita.</div>
+    <button class="btn-save" id="btnConfirmDelete" style="background:#c0392b;border:none;margin-top:4px">EXCLUIR</button>
+    <button class="btn-connect" id="btnCancelDelete">Cancelar</button>
   </div>
 </div>
 
@@ -1014,7 +1030,7 @@ function renderHome(){
     const card=document.createElement('div');
     card.className='preset-card'+(p.id===selectedId?' selected':'');
     card.style.setProperty('--c',c);
-    card.dataset.id=p.id;
+    card.style.setProperty('--cr',hexToRgb(c));
     // drag handle styles baked in
     let modeBadge='';
     if(p.mode==='circuit'){
@@ -1055,13 +1071,11 @@ function renderHome(){
       <div style="padding-left:20px">${meta}<div class="preset-name" style="color:${c}">${p.name}</div>${obsHTML}</div>
       <div class="preset-actions">
         <button class="btn-fav ${favActive}" data-fav="${p.id}" title="Favorito">★</button>
-        <button class="btn-small" data-edit="${p.id}">✏</button>
-        <button class="btn-small" data-del="${p.id}">✕</button>
+        <button class="btn-edit" data-edit="${p.id}" title="Editar">✏</button>
       </div>`;
     card.addEventListener('click',e=>{
       if(e.target.dataset.fav){toggleFav(e.target.dataset.fav);return;}
       if(e.target.dataset.edit){openEdit(e.target.dataset.edit);return;}
-      if(e.target.dataset.del){deletePreset(e.target.dataset.del);return;}
       if(e.target.closest('.drag-handle'))return;
       selectedId=p.id;autoModeSelected=false;
       document.getElementById('autoCard').classList.remove('selected');
@@ -1402,9 +1416,23 @@ function openEdit(id){
     if(p?.normalExercises){p.normalExercises.forEach((name,i)=>{const inp=document.getElementById('nfEx'+i);if(inp)inp.value=name;});}
     setTimeout(()=>loadYtTemp('nfEx',p?.normalExerciseVideos||[]),50);
   }
+  document.getElementById('btnDeleteEdit').style.display=id?'block':'none';
   showScreen('edit');
 }
 document.getElementById('btnEditBack').onclick=()=>showScreen('home');
+document.getElementById('btnDeleteEdit').onclick=()=>{
+  if(!editingId)return;
+  const p=presets.find(x=>x.id===editingId);
+  document.getElementById('deleteConfirmName').textContent=p?.name||'';
+  document.getElementById('deleteConfirmModal').classList.add('open');
+};
+document.getElementById('btnConfirmDelete').onclick=()=>{
+  document.getElementById('deleteConfirmModal').classList.remove('open');
+  if(editingId){deletePreset(editingId);showScreen('home');}
+};
+document.getElementById('btnCancelDelete').onclick=()=>{
+  document.getElementById('deleteConfirmModal').classList.remove('open');
+};
 document.getElementById('btnSave').onclick=()=>{
   const name=document.getElementById('efName').value.trim();
   const obs=document.getElementById('efObs').value.trim();
@@ -1447,7 +1475,6 @@ document.getElementById('btnSave').onclick=()=>{
   savePresets(presets);renderHome();showScreen('home');
 };
 function deletePreset(id){
-  if(!confirm('Deletar este programa?'))return;
   presets=presets.filter(p=>p.id!==id);
   if(selectedId===id)selectedId=presets[0]?.id??null;
   savePresets(presets);renderHome();
