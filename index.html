@@ -431,6 +431,9 @@
           </div>
           <div class="card-exp-obs">Pré-defina exercícios e séries — o descanso o Bravo calcula.</div>
         </div>
+        <div class="card-exp-actions">
+          <button class="btn-dup" onclick="event.stopPropagation();duplicatePreset('_bravoMarcado')" title="Copiar para Meus Programas">⧉</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1252,11 +1255,8 @@ function renderHome(){
     const obsHTML=p.obs?`<div class="card-exp-obs">${p.obs}</div>`:'';
     const favActive=p.fav?'active':'';
     // brain mode in Meus Programas: show duplicate instead of edit
-    const isBrainUser=(p.mode==='brain');
-    const actionsHTML=isBrainUser
-      ?`<button class="btn-fav ${favActive}" data-fav="${p.id}" title="Favorito">★</button>
-         <button class="btn-dup" data-dup="${p.id}" title="Duplicar">⧉</button>`
-      :`<button class="btn-fav ${favActive}" data-fav="${p.id}" title="Favorito">★</button>
+    // All presets in Meus Programas are editable (including brain copies)
+    const actionsHTML=`<button class="btn-fav ${favActive}" data-fav="${p.id}" title="Favorito">★</button>
          <button class="btn-edit" data-edit="${p.id}" title="Editar">✏</button>`;
 
     card.innerHTML=`
