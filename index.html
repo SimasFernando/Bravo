@@ -427,7 +427,7 @@
         <div class="card-color-band"></div>
         <div class="card-collapsed-row">
           <div class="card-dot"></div>
-          <div class="card-collapsed-name">Fluxo Livre</div>
+          <div class="card-collapsed-name">Fluxo</div>
           <div class="card-collapsed-meta">♾️ SEM TIMER</div>
         </div>
         <div class="card-expanded">
@@ -661,6 +661,11 @@
         <div style="width:48px;height:48px;background:rgba(160,160,160,.1);border:1.5px solid rgba(160,160,160,.3);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px">🏃</div>
         <div style="font-size:10px;color:#999;letter-spacing:.5px;font-weight:600;text-transform:uppercase;text-align:center">CONJUGADO</div>
       </div>
+    </div>
+    <div class="controls" style="margin-top:20px">
+      <button class="btn-ctrl" id="btnAutoPrepBack"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg><span class="ctrl-label">Voltar</span></button>
+      <button class="btn-playpause" id="btnAutoPrepPlay" style="background:#B47FFF;color:#fff"><svg viewBox="0 0 24 24" id="btnAutoPrepPlayIcon"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg></button>
+      <button class="btn-ctrl" id="btnAutoPrepSkip" title="Pular preparação"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zm2-8.14L11.03 12 8 14.14V9.86zM16 6h2v12h-2z"/></svg><span class="ctrl-label">Avançar</span></button>
     </div>
   </div>
 </div>
@@ -928,12 +933,12 @@
 <!-- CALENDAR SCREEN -->
 <div class="screen hidden" id="calendarScreen" style="flex-direction:column;">
   <div class="cal-header">
+    <button class="btn-ctrl" id="btnCalBack"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg><span class="ctrl-label">Voltar</span></button>
     <div class="cal-month-nav">
       <button class="btn-icon" id="btnCalPrev">‹</button>
       <div class="cal-month-label" id="calMonthLabel">Maio 2026</div>
       <button class="btn-icon" id="btnCalNext">›</button>
     </div>
-    <button class="btn-icon" id="btnCalBack">←</button>
   </div>
   <div class="cal-hero">
     <div class="cal-hero-day" id="calHeroDay">4</div>
@@ -1041,7 +1046,7 @@
 <!-- REGISTER SCREEN -->
 <div class="screen hidden" id="registerScreen" style="flex-direction:column;">
   <div class="reg-header">
-    <button class="btn-icon" id="btnRegBack">←</button>
+    <button class="btn-ctrl" id="btnRegBack"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg><span class="ctrl-label">Voltar</span></button>
     <div class="reg-title">CADASTRO RÁPIDO</div>
   </div>
   <div style="display:flex;flex-direction:column;gap:14px;padding:0 0 8px;">
@@ -1077,7 +1082,7 @@
 <!-- ABOUT SCREEN -->
 <div class="screen hidden" id="aboutScreen" style="flex-direction:column;">
   <div class="about-header">
-    <button class="btn-icon" id="btnAboutBack">←</button>
+    <button class="btn-ctrl" id="btnAboutBack"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg><span class="ctrl-label">Voltar</span></button>
     <div class="about-title-main">SOBRE</div>
   </div>
   <div class="about-logo-big">BRAVO</div>
@@ -1409,6 +1414,7 @@ renderHome();
 document.getElementById('fabStart').onclick=()=>{
   getAC();
   if(autoModeSelected&&!selectedId) startAutoMode();
+  else if(selectedId==='_bravoMarcado') startBrainMode(BRAVO_MARCADO);
   else {
     const p=presets.find(x=>x.id===selectedId);
     if(p?.mode==='brain') startBrainMode(p);
@@ -2171,6 +2177,7 @@ function startAutoMode(){
 }
 
 function showAutoPrep(){
+  autoPrepPaused=false;
   document.getElementById('autoPrepSerieNum').textContent=auto.serieNum;
   document.getElementById('autoPrepExName').textContent=autoExName();
   applyAccent('#B47FFF');
@@ -2178,6 +2185,8 @@ function showAutoPrep(){
   const ring=document.getElementById('autoPrepRing');
   ring.style.strokeDasharray=AUTO_CIRC;
   ring.style.strokeDashoffset=0;
+  const prepBtn=document.getElementById('btnAutoPrepPlay');
+  if(prepBtn){prepBtn.querySelector('svg').innerHTML=SVG_PAUSE;prepBtn.style.background='#B47FFF';prepBtn.style.color='#fff';}
   showScreen('autoPrep');
   speak('Prepare-se. Escolha um exercício.');
   beep(800,.15,.5);
@@ -2238,6 +2247,34 @@ document.getElementById('btnAutoSerieOk').onclick=()=>{
   clearInterval(auto._int);
   document.getElementById('autoRepsSerieNum').textContent=auto.serieNum;
   showScreen('autoReps');
+};
+
+// Auto prep controls
+let autoPrepPaused=false;
+document.getElementById('btnAutoPrepBack').onclick=()=>{
+  clearInterval(auto._int);autoPrepPaused=false;
+  applyAccent('#F04E23');showScreen('home');
+};
+document.getElementById('btnAutoPrepPlay').onclick=()=>{
+  autoPrepPaused=!autoPrepPaused;
+  const btn=document.getElementById('btnAutoPrepPlay');
+  setPlayIcon(btn,!autoPrepPaused,'#B47FFF');
+  if(autoPrepPaused){
+    clearInterval(auto._int);
+  } else {
+    const ring=document.getElementById('autoPrepRing');
+    auto._int=setInterval(()=>{
+      auto.prepSecs--;
+      const s=Math.max(0,auto.prepSecs);
+      document.getElementById('autoPrepTime').textContent=String(s).padStart(2,'0');
+      ring.style.strokeDashoffset=AUTO_CIRC*(1-(s/15));
+      if(s===3)beepCountdown();
+      if(s<=0){clearInterval(auto._int);autoPrepPaused=false;startAutoExec();}
+    },1000);
+  }
+};
+document.getElementById('btnAutoPrepSkip').onclick=()=>{
+  clearInterval(auto._int);autoPrepPaused=false;startAutoExec();
 };
 
 // Auto exec controls (fix 9)
