@@ -72,6 +72,12 @@
     width:10px;height:10px;border-radius:50%;
     background:var(--c,#aaa);flex-shrink:0;
   }
+  .drag-handle{
+    font-size:18px;color:var(--muted);flex-shrink:0;cursor:grab;
+    opacity:.45;user-select:none;touch-action:none;padding:2px 0;
+    line-height:1;
+  }
+  .drag-handle:active{cursor:grabbing;opacity:.8;}
   .card-collapsed-name{
     font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;
     color:var(--text);flex:1;
@@ -421,47 +427,7 @@
   <!-- PROGRAMAS BRAVO -->
   <div style="margin-bottom:16px">
     <div class="section-label" style="margin-bottom:8px">Programas Bravo</div>
-    <div class="preset-list" id="presetList">
-      <!-- Fluxo Livre -->
-      <div id="autoCard" class="preset-card selected" style="--c:#B47FFF;cursor:pointer" onclick="selectAutoMode()">
-        <div class="card-color-band"></div>
-        <div class="card-collapsed-row">
-          <div class="card-dot"></div>
-          <div class="card-collapsed-name">Fluxo</div>
-          <div class="card-collapsed-meta">♾️ SEM TIMER</div>
-        </div>
-        <div class="card-expanded">
-          <div class="card-exp-badge">♾️ FLUXO</div>
-          <div class="card-exp-name">Siga seu treino</div>
-          <div class="card-exp-pills">
-            <div class="card-exp-pill">Descanso inteligente</div>
-            <div class="card-exp-pill">Sem distrações</div>
-          </div>
-          <div class="card-exp-obs">Descanso calculado pelo esforço. Um toque para começar.</div>
-        </div>
-      </div>
-      <!-- Fluxo Marcado (fixo, sem editar) -->
-      <div id="bravoMarcadoCard" class="preset-card" style="--c:#4361EE;cursor:pointer" onclick="selectBravoMarcado()">
-        <div class="card-color-band"></div>
-        <div class="card-collapsed-row">
-          <div class="card-dot"></div>
-          <div class="card-collapsed-name">Fluxo Marcado</div>
-          <div class="card-collapsed-meta">❎ COM TIMER</div>
-        </div>
-        <div class="card-expanded">
-          <div class="card-exp-badge">❎ FLUXO MARCADO</div>
-          <div class="card-exp-name">Descanso pelo esforço</div>
-          <div class="card-exp-pills">
-            <div class="card-exp-pill">Timer de execução</div>
-            <div class="card-exp-pill">Séries definidas</div>
-          </div>
-          <div class="card-exp-obs">Pré-defina exercícios e séries — o descanso o Bravo calcula.</div>
-        </div>
-        <div class="card-exp-actions">
-          <button class="btn-dup" onclick="event.stopPropagation();duplicatePreset('_bravoMarcado')" title="Copiar para Meus Programas">⧉</button>
-        </div>
-      </div>
-    </div>
+    <div class="preset-list" id="presetList"></div>
   </div>
 
   <!-- MEUS PROGRAMAS -->
@@ -1119,9 +1085,9 @@ const OBS_DEFAULTS={
 };
 // BRAVO_CARDS: fixed cards in 'Programas Bravo' section (not stored in presets)
 const BRAVO_CARDS=[
-  {id:'mental',name:'Fluxo Marcado',color:'#4361EE',mode:'brain',brainExCount:2,brainSeries:3,brainAction:40,brainPrep:15,
-   brainExercises:['Exercício 1','Exercício 2'],
-   obs:'Descanso calculado pelo esforço. Pré-defina exercícios e séries — o resto o Bravo calcula.',_bravo:true},
+  {id:'treinoDoDia',name:'Treino do Dia',color:'#4361EE',mode:'brain',brainExCount:5,brainSeries:3,brainAction:40,brainPrep:15,
+   brainExercises:['Polichinelo','Agachamento','Flexão de braços','Barra fixa','Abdominal'],
+   obs:'Descanso calculado pelo esforço. Exercícios e séries pré-definidos — o treino segue automaticamente.',_bravo:true},
 ];
 const FACTORY_DEFAULTS=[
   {id:'leve',name:'Carga Leve',color:'#90BE6D',mode:'normal',cycles:4,prep:30,action:60,rest:40,obs:OBS_DEFAULTS.leve},
@@ -1201,10 +1167,10 @@ function toggleFav(id){
   renderHome();
 }
 
-// Data for Fluxo Marcado bravo card (used when selected)
-const BRAVO_MARCADO={id:'_bravoMarcado',name:'Fluxo Marcado',color:'#4361EE',mode:'brain',
-  brainExCount:2,brainSeries:3,brainAction:40,brainPrep:15,
-  brainExercises:['Exercício 1','Exercício 2'],_bravo:true};
+// Data for Treino do Dia bravo card (used when selected)
+const BRAVO_MARCADO={id:'_bravoMarcado',name:'Treino do Dia',color:'#4361EE',mode:'brain',
+  brainExCount:5,brainSeries:3,brainAction:40,brainPrep:15,
+  brainExercises:['Polichinelo','Agachamento','Flexão de braços','Barra fixa','Abdominal'],_bravo:true};
 
 function selectBravoMarcado(){
   selectedId='_bravoMarcado';autoModeSelected=false;
@@ -1239,9 +1205,80 @@ function renderHome(){
     welcome.style.display='none';
   }
 
-  // Update Fluxo Marcado card selection
-  const bmCard=document.getElementById('bravoMarcadoCard');
-  if(bmCard) bmCard.classList.toggle('selected', selectedId==='_bravoMarcado');
+  // Render Programas Bravo dinamicamente (com drag & drop)
+  const bravoList=document.getElementById('presetList');
+  bravoList.innerHTML='';
+  const bravoOrder=loadBravoOrder();
+  // All bravo cards: Fluxo (auto) + BRAVO_CARDS entries
+  const allBravoCards=[
+    {id:'_autoMode',name:'Fluxo',color:'#B47FFF'},
+    ...BRAVO_CARDS.map(c=>({id:'_bravo_'+c.id,name:c.name,color:c.color,_data:c}))
+  ];
+  // Sort by persisted order
+  allBravoCards.sort((a,b)=>{
+    const ia=bravoOrder.indexOf(a.id),ib=bravoOrder.indexOf(b.id);
+    if(ia===-1&&ib===-1)return 0;
+    if(ia===-1)return 1;
+    if(ib===-1)return -1;
+    return ia-ib;
+  });
+  allBravoCards.forEach(bc=>{
+    const isAuto=bc.id==='_autoMode';
+    const cardSel=isAuto?(autoModeSelected&&!selectedId):(selectedId==='_bravoMarcado');
+    const bCard=document.createElement('div');
+    bCard.className='preset-card'+(cardSel?' selected':'');
+    bCard.style.setProperty('--c',bc.color);
+    bCard.dataset.bravoId=bc.id;
+    if(isAuto){
+      bCard.id='autoCard';
+      bCard.innerHTML=`
+        <div class="card-color-band"></div>
+        <div class="card-collapsed-row">
+          <div class="drag-handle" title="Arrastar para reordenar">⠿</div>
+          <div class="card-collapsed-name">Fluxo</div>
+          <div class="card-collapsed-meta">♾️ SEU RITMO</div>
+        </div>
+        <div class="card-expanded">
+          <div class="card-exp-badge">♾️ FLUXO</div>
+          <div class="card-exp-name">Siga seu treino</div>
+          <div class="card-exp-pills">
+            <div class="card-exp-pill">Descanso inteligente</div>
+            <div class="card-exp-pill">Sem distrações</div>
+          </div>
+          <div class="card-exp-obs">Descanso calculado pelo esforço. Siga no seu ritmo.</div>
+        </div>`;
+      bCard.addEventListener('click',e=>{if(e.target.closest('.drag-handle'))return;selectAutoMode();});
+    } else {
+      const d=bc._data;
+      bCard.id='bravoMarcadoCard';
+      bCard.innerHTML=`
+        <div class="card-color-band"></div>
+        <div class="card-collapsed-row">
+          <div class="drag-handle" title="Arrastar para reordenar">⠿</div>
+          <div class="card-collapsed-name">${d.name}</div>
+          <div class="card-collapsed-meta">🏋️ ${d.brainExCount} EX · ${d.brainSeries} SÉRIES</div>
+        </div>
+        <div class="card-expanded">
+          <div class="card-exp-badge">🏋️ ${d.name.toUpperCase()}</div>
+          <div class="card-exp-name">Treino completo</div>
+          <div class="card-exp-pills">
+            <div class="card-exp-pill">${d.brainExCount} exercícios</div>
+            <div class="card-exp-pill">${d.brainSeries} séries</div>
+            <div class="card-exp-pill">${fmtSec(d.brainAction)} execução</div>
+          </div>
+          <div class="card-exp-obs">${d.obs||''}</div>
+        </div>
+        <div class="card-exp-actions">
+          <button class="btn-dup" data-dup="_bravoMarcado" title="Copiar para Meus Programas">⧉</button>
+        </div>`;
+      bCard.addEventListener('click',e=>{
+        if(e.target.closest('.drag-handle'))return;
+        if(e.target.dataset.dup){duplicatePreset(e.target.dataset.dup);return;}
+        selectBravoMarcado();
+      });
+    }
+    bravoList.appendChild(bCard);
+  });
 
   const list=document.getElementById('userPresetList');list.innerHTML='';
   const userEmpty=document.getElementById('userPresetEmpty');
@@ -1290,10 +1327,11 @@ function renderHome(){
     const actionsHTML=`<button class="btn-fav ${favActive}" data-fav="${p.id}" title="Favorito">★</button>
          <button class="btn-edit" data-edit="${p.id}" title="Editar">✏</button>`;
 
+    card.dataset.id=p.id;
     card.innerHTML=`
       <div class="card-color-band"></div>
       <div class="card-collapsed-row">
-        <div class="card-dot"></div>
+        <div class="drag-handle" title="Arrastar para reordenar">⠿</div>
         <div class="card-collapsed-name">${p.name}</div>
         <div class="card-collapsed-meta">${collapsedMeta}</div>
       </div>
@@ -1319,8 +1357,7 @@ function renderHome(){
   });
   if(userEmpty) userEmpty.style.display=presets.length===0?'block':'none';
   initDragDrop();
-
-  initDragDrop();
+  initDragDropBravo();
 
   const sel=presets.find(p=>p.id===selectedId);
   const fc=sel?.color||'#B47FFF';
@@ -1337,6 +1374,66 @@ function renderHome(){
     fab.classList.remove('hidden-fab');
     fab.style.background='#B47FFF';fab.style.color='#fff';
   }
+}
+
+// ---- BRAVO CARDS ORDER ----
+function loadBravoOrder(){
+  const s=localStorage.getItem('bravo_cards_order');
+  return s?JSON.parse(s):['_autoMode','_bravo_treinoDoDia'];
+}
+function saveBravoOrder(order){localStorage.setItem('bravo_cards_order',JSON.stringify(order));}
+
+// ---- DRAG & DROP — PROGRAMAS BRAVO ----
+function initDragDropBravo(){
+  const list=document.getElementById('presetList');
+  let dragging=null,ghost=null,activePointerId=null,offsetY=0;
+
+  list.addEventListener('pointerdown',e=>{
+    const handle=e.target.closest('.drag-handle');
+    if(!handle)return;
+    const card=handle.closest('.preset-card');
+    if(!card)return;
+    e.preventDefault();
+    dragging=card;
+    activePointerId=e.pointerId;
+    list.setPointerCapture(e.pointerId);
+    const rect=card.getBoundingClientRect();
+    offsetY=e.clientY-rect.top;
+    card.style.opacity='0.3';
+    const cardColor=card.style.getPropertyValue('--c')||'#555';
+    ghost=document.createElement('div');
+    ghost.innerHTML=card.innerHTML;
+    ghost.style.cssText=`position:fixed;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;height:${rect.height}px;pointer-events:none;z-index:9999;overflow:hidden;border-radius:var(--radius);background:var(--surface);border:2px solid ${cardColor};box-shadow:0 8px 32px rgba(0,0,0,.6);padding:14px 18px 14px 22px;box-sizing:border-box;`;
+    const bar=document.createElement('div');
+    bar.style.cssText=`position:absolute;left:0;top:0;bottom:0;width:4px;background:${cardColor};border-radius:4px 0 0 4px;`;
+    ghost.appendChild(bar);
+    document.body.appendChild(ghost);
+  });
+
+  list.addEventListener('pointermove',e=>{
+    if(!dragging||e.pointerId!==activePointerId)return;
+    e.preventDefault();
+    ghost.style.top=e.clientY-offsetY+'px';
+    const cards=[...list.querySelectorAll('.preset-card')].filter(c=>c!==dragging);
+    let target=null;
+    for(const c of cards){
+      const r=c.getBoundingClientRect();
+      if(e.clientY<r.top+r.height/2){target=c;break;}
+    }
+    if(target) list.insertBefore(dragging,target);
+    else list.appendChild(dragging);
+  });
+
+  const finishDrag=e=>{
+    if(!dragging||e.pointerId!==activePointerId)return;
+    dragging.style.opacity='';
+    ghost?.remove();ghost=null;
+    const newOrder=[...list.querySelectorAll('.preset-card')].map(c=>c.dataset.bravoId);
+    saveBravoOrder(newOrder);
+    dragging=null;activePointerId=null;
+  };
+  list.addEventListener('pointerup',finishDrag);
+  list.addEventListener('pointercancel',finishDrag);
 }
 
 // ---- DRAG & DROP REORDER ----
@@ -1403,12 +1500,11 @@ function initDragDrop(){
 function selectAutoMode(){
   autoModeSelected=true;
   selectedId=null;
-  document.getElementById('autoCard').classList.add('selected');
-  document.querySelectorAll('#userPresetList .preset-card').forEach(c=>c.classList.remove('selected'));
   const fab=document.getElementById('fabStart');
   fab.style.background='#B47FFF';fab.style.color='#fff';
   fab.style.boxShadow='-4px 0 20px rgba(180,127,255,.5)';
   fab.classList.remove('hidden-fab');
+  renderHome();
 }
 renderHome();
 document.getElementById('fabStart').onclick=()=>{
@@ -2788,7 +2884,7 @@ function brainFinishWorkout(){
   speak('Treino concluído. Parabéns!');
   beep(880,.15,.6,'sine',0);beep(1100,.15,.6,'sine',.2);beep(1320,.3,.7,'sine',.4);
   vibrate([100,50,100,50,200]);
-  const label=brain.pendingMarkName||'Fluxo Marcado ❎';
+  const label=brain.pendingMarkName||'Treino do Dia 🏋️';
   auto.pendingMarkName=label;
   document.getElementById('finishSub').textContent=label;
   showScreen('finish');
