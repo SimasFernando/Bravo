@@ -210,6 +210,10 @@
     .exec-with-video.has-video .timer-top{width:100%;}
   }
   .exercise-letter{font-family:'Bebas Neue',sans-serif;font-size:22px;width:28px;text-align:center;}
+  .exercise-row{transition:opacity .2s;}
+  .exercise-row.dragging-ex{opacity:0.3;}
+  .ex-drag-handle{font-size:16px;color:var(--muted);flex-shrink:0;cursor:grab;opacity:.4;user-select:none;touch-action:none;padding:2px 0;line-height:1;width:20px;text-align:center;}
+  .ex-drag-handle:active{cursor:grabbing;opacity:.75;}
   .color-picker{display:flex;gap:10px;flex-wrap:wrap;padding:4px 0;}
   .color-swatch{width:34px;height:34px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:transform .15s,border-color .15s;flex-shrink:0;}
   .color-swatch.selected{border-color:#fff;transform:scale(1.2);}
@@ -443,7 +447,7 @@
 
 <div class="screen hidden" id="edit">
   <div class="edit-header" style="justify-content:space-between">
-    <button class="btn-icon" id="btnEditBack">←</button>
+    <button class="btn-ctrl" id="btnEditBack"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg><span class="ctrl-label">Voltar</span></button>
     <div class="edit-title" id="editTitle">NOVO PROGRAMA</div>
     <button class="btn-icon" id="btnDeleteEdit" style="display:none;opacity:.45;font-size:16px" title="Excluir programa">🗑</button>
   </div>
@@ -1436,6 +1440,95 @@ function initDragDropBravo(){
   list.addEventListener('pointercancel',finishDrag);
 }
 
+// ---- EXERCISE DRAG & DROP (edit screen) ----
+function relabelExRows(container,field){
+  const rows=[...container.querySelectorAll('.exercise-row')];
+  rows.forEach((row,i)=>{
+    // Update letter display
+    const letterEl=row.querySelector('.exercise-letter');
+    if(letterEl) letterEl.textContent=EX_LETTERS[i]||String(i+1);
+    // Re-ID input
+    const inp=row.querySelector('input.field-input');
+    if(inp){
+      inp.placeholder=inp.placeholder.replace(/^[A-Z] —/,`${EX_LETTERS[i]} —`);
+      inp.id=`${field}${i}`;
+    }
+    // Re-ID yt button
+    const ytb=row.querySelector('.btn-yt-link');
+    if(ytb){
+      ytb.id=`ytbtn_${field}_${i}`;
+      ytb.setAttribute('onclick',`openYtModal('${field}',${i})`);
+    }
+  });
+}
+function initExDragDrop(container,field){
+  let dragging=null,ghost=null,activePointerId=null,offsetY=0;
+  // Remove any pre-existing listeners by cloning container's listener scope via flags
+  container._exDragInit=true;
+
+  container.addEventListener('pointerdown',e=>{
+    const handle=e.target.closest('.ex-drag-handle');
+    if(!handle)return;
+    const row=handle.closest('.exercise-row');
+    if(!row)return;
+    e.preventDefault();
+    dragging=row;
+    activePointerId=e.pointerId;
+    container.setPointerCapture(e.pointerId);
+    const rect=row.getBoundingClientRect();
+    offsetY=e.clientY-rect.top;
+    row.classList.add('dragging-ex');
+    ghost=document.createElement('div');
+    ghost.innerHTML=row.innerHTML;
+    ghost.style.cssText=`position:fixed;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;height:${rect.height}px;pointer-events:none;z-index:9999;border-radius:12px;background:var(--surface);border:2px solid ${editColor};box-shadow:0 6px 24px rgba(0,0,0,.5);display:flex;align-items:center;gap:10px;padding:0 10px;box-sizing:border-box;opacity:.92;`;
+    document.body.appendChild(ghost);
+  });
+
+  container.addEventListener('pointermove',e=>{
+    if(!dragging||e.pointerId!==activePointerId)return;
+    e.preventDefault();
+    ghost.style.top=e.clientY-offsetY+'px';
+    const rows=[...container.querySelectorAll('.exercise-row')].filter(r=>r!==dragging);
+    let target=null;
+    for(const r of rows){
+      const rc=r.getBoundingClientRect();
+      if(e.clientY<rc.top+rc.height/2){target=r;break;}
+    }
+    if(target) container.insertBefore(dragging,target);
+    else container.appendChild(dragging);
+  });
+
+  const finishExDrag=e=>{
+    if(!dragging||e.pointerId!==activePointerId)return;
+    dragging.classList.remove('dragging-ex');
+    ghost?.remove();ghost=null;
+    // Capture current values and yt URLs BEFORE re-labeling
+    const rows=[...container.querySelectorAll('.exercise-row')];
+    const snapshot=rows.map(r=>{
+      const inp=r.querySelector('input.field-input');
+      const oldIdx=inp?.id?.replace(field,'')||'0';
+      return{
+        name:inp?.value||'',
+        url:window._ytTemp?.[`yt_${field}_${oldIdx}`]||''
+      };
+    });
+    relabelExRows(container,field);
+    // Re-sync values and _ytTemp with new order
+    snapshot.forEach((s,i)=>{
+      const inp=document.getElementById(`${field}${i}`);
+      if(inp) inp.value=s.name;
+      const key=`yt_${field}_${i}`;
+      if(s.url) window._ytTemp[key]=s.url;
+      else delete window._ytTemp[key];
+      const btn=document.getElementById(`ytbtn_${field}_${i}`);
+      if(btn){btn.classList.toggle('has-video',!!s.url);btn.title=s.url?'Vídeo adicionado ✓':'Adicionar vídeo';}
+    });
+    dragging=null;activePointerId=null;
+  };
+  container.addEventListener('pointerup',finishExDrag);
+  container.addEventListener('pointercancel',finishExDrag);
+}
+
 // ---- DRAG & DROP REORDER ----
 function initDragDrop(){
   const list=document.getElementById('userPresetList');
@@ -1595,14 +1688,17 @@ function updateExerciseInputs(){
   const n=parseInt(document.getElementById('efExCount').value)||3;
   const container=document.getElementById('exerciseInputs');
   const existing=[...container.querySelectorAll('input')].map(i=>i.value);
+  const existingVids=[...Array(Math.min(n,6))].map((_,i)=>window._ytTemp?.[`yt_efEx_${i}`]||'');
   container.innerHTML='';
   for(let i=0;i<Math.min(n,6);i++){
     const row=document.createElement('div');row.className='exercise-row';
-    row.innerHTML=`<div class="exercise-letter" style="color:${editColor}">${EX_LETTERS[i]}</div>
+    row.dataset.exIdx=i;
+    row.innerHTML=`<div class="ex-drag-handle" title="Arrastar">⠿</div><div class="exercise-letter" style="color:${editColor}">${EX_LETTERS[i]}</div>
       <input class="field-input" id="efEx${i}" placeholder="${EX_LETTERS[i]} — nome" value="${existing[i]||''}">
       ${ytBtn('efEx',i)}`;
     container.appendChild(row);
   }
+  initExDragDrop(container,'efEx');
 }
 // ---- YOUTUBE HELPERS ----
 function extractYtId(url){
@@ -1689,11 +1785,13 @@ function updateBrainExerciseInputs(){
   container.innerHTML='';
   for(let i=0;i<Math.min(n,9);i++){
     const row=document.createElement('div');row.className='exercise-row';
-    row.innerHTML=`<div class="exercise-letter" style="color:${editColor}">${EX_LETTERS[i]||String(i+1)}</div>
+    row.dataset.exIdx=i;
+    row.innerHTML=`<div class="ex-drag-handle" title="Arrastar">⠿</div><div class="exercise-letter" style="color:${editColor}">${EX_LETTERS[i]||String(i+1)}</div>
       <input class="field-input" id="bfEx${i}" placeholder="Exercício ${i+1}" value="${existing[i]||''}">
       ${ytBtn('bfEx',i)}`;
     container.appendChild(row);
   }
+  initExDragDrop(container,'bfEx');
 }
 document.getElementById('efBrainExCount')?.addEventListener('input',updateBrainExerciseInputs);
 function updateNormalExerciseInputs(){
@@ -1705,11 +1803,14 @@ function updateNormalExerciseInputs(){
   container.innerHTML='';
   for(let i=0;i<Math.min(n,6);i++){
     const row=document.createElement('div');row.className='exercise-row';
+    row.dataset.exIdx=i;
+    const dragHandle=n>1?`<div class="ex-drag-handle" title="Arrastar">⠿</div>`:'';
     const letterHtml=n>1?`<div class="exercise-letter" style="color:${editColor}">${EX_LETTERS[i]}</div>`:'';
-    row.innerHTML=`${letterHtml}<input class="field-input" id="nfEx${i}" placeholder="${n>1?EX_LETTERS[i]+' — nome':'Nome do exercício (opcional)'}" value="${existing[i]||''}">
+    row.innerHTML=`${dragHandle}${letterHtml}<input class="field-input" id="nfEx${i}" placeholder="${n>1?EX_LETTERS[i]+' — nome':'Nome do exercício (opcional)'}" value="${existing[i]||''}">
       ${ytBtn('nfEx',i)}`;
     container.appendChild(row);
   }
+  if(n>1) initExDragDrop(container,'nfEx');
 }
 
 function openEdit(id){
