@@ -610,26 +610,30 @@
     </div>
     <!-- Exercise type icons -->
     <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--muted);text-align:center;margin-top:20px">DEFINA SEU EXERCÍCIO</div>
-    <div style="display:flex;gap:10px;justify-content:center;margin-top:12px;width:100%;max-width:340px">
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px;width:100%;max-width:360px">
       <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1">
-        <div style="width:48px;height:48px;background:rgba(180,127,255,.15);border:1.5px solid rgba(180,127,255,.4);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px">🏋️</div>
+        <div style="width:48px;height:48px;background:rgba(180,127,255,.15);border:1.5px solid rgba(180,127,255,.4);border-radius:14px;display:flex;align-items:center;justify-content:center"><img src="ic_puxar.png" style="width:28px;height:28px;object-fit:contain"></div>
         <div style="font-size:10px;color:#9966CC;letter-spacing:.5px;font-weight:600;text-transform:uppercase;text-align:center">PUXAR</div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1">
-        <div style="width:48px;height:48px;background:rgba(249,199,79,.1);border:1.5px solid rgba(249,199,79,.35);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px">🦵</div>
-        <div style="font-size:10px;color:#C49A2A;letter-spacing:.5px;font-weight:600;text-transform:uppercase;text-align:center">AGACHAR</div>
+        <div style="width:48px;height:48px;background:rgba(249,199,79,.1);border:1.5px solid rgba(249,199,79,.35);border-radius:14px;display:flex;align-items:center;justify-content:center"><img src="ic_inferiores.png" style="width:28px;height:28px;object-fit:contain"></div>
+        <div style="font-size:10px;color:#C49A2A;letter-spacing:.5px;font-weight:600;text-transform:uppercase;text-align:center">INFERIORES</div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1">
-        <div style="width:48px;height:48px;background:rgba(41,121,255,.1);border:1.5px solid rgba(41,121,255,.35);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px">💪</div>
+        <div style="width:48px;height:48px;background:rgba(41,121,255,.1);border:1.5px solid rgba(41,121,255,.35);border-radius:14px;display:flex;align-items:center;justify-content:center"><img src="ic_empurrar.png" style="width:28px;height:28px;object-fit:contain"></div>
         <div style="font-size:10px;color:#4A8AFF;letter-spacing:.5px;font-weight:600;text-transform:uppercase;text-align:center">EMPURRAR</div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1">
-        <div style="width:48px;height:48px;background:rgba(0,230,118,.1);border:1.5px solid rgba(0,230,118,.35);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px">🔥</div>
+        <div style="width:48px;height:48px;background:rgba(0,230,118,.1);border:1.5px solid rgba(0,230,118,.35);border-radius:14px;display:flex;align-items:center;justify-content:center"><img src="ic_core.png" style="width:28px;height:28px;object-fit:contain"></div>
         <div style="font-size:10px;color:#00B860;letter-spacing:.5px;font-weight:600;text-transform:uppercase;text-align:center">CORE</div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1">
-        <div style="width:48px;height:48px;background:rgba(160,160,160,.1);border:1.5px solid rgba(160,160,160,.3);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px">🏃</div>
-        <div style="font-size:10px;color:#999;letter-spacing:.5px;font-weight:600;text-transform:uppercase;text-align:center">CONJUGADO</div>
+        <div style="width:48px;height:48px;background:rgba(160,160,160,.1);border:1.5px solid rgba(160,160,160,.3);border-radius:14px;display:flex;align-items:center;justify-content:center"><img src="ic_composto.png" style="width:28px;height:28px;object-fit:contain"></div>
+        <div style="font-size:10px;color:#999;letter-spacing:.5px;font-weight:600;text-transform:uppercase;text-align:center">COMPOSTO</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1">
+        <div style="width:48px;height:48px;background:rgba(255,80,80,.1);border:1.5px solid rgba(255,80,80,.3);border-radius:14px;display:flex;align-items:center;justify-content:center"><img src="ic_cardio.png" style="width:28px;height:28px;object-fit:contain"></div>
+        <div style="font-size:10px;color:#E05050;letter-spacing:.5px;font-weight:600;text-transform:uppercase;text-align:center">CARDIO</div>
       </div>
     </div>
     <div class="controls" style="margin-top:20px">
@@ -947,19 +951,22 @@
       <div class="field-label">Tipo de exercício realizado (opcional)</div>
       <div id="markExTypeGrid" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
         <button class="mark-extype-btn" data-type="puxar" onclick="toggleExType(this)" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 12px;border-radius:12px;border:1.5px solid rgba(180,127,255,.3);background:transparent;cursor:pointer;flex:1;min-width:52px">
-          <span style="font-size:18px">🏋️</span><span style="font-size:10px;color:#9966CC;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Puxar</span>
+          <img src="ic_puxar.png" style="width:24px;height:24px;object-fit:contain"><span style="font-size:10px;color:#9966CC;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Puxar</span>
         </button>
-        <button class="mark-extype-btn" data-type="agachar" onclick="toggleExType(this)" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 12px;border-radius:12px;border:1.5px solid rgba(249,199,79,.3);background:transparent;cursor:pointer;flex:1;min-width:52px">
-          <span style="font-size:18px">🦵</span><span style="font-size:10px;color:#C49A2A;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Agachar</span>
+        <button class="mark-extype-btn" data-type="inferiores" onclick="toggleExType(this)" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 12px;border-radius:12px;border:1.5px solid rgba(249,199,79,.3);background:transparent;cursor:pointer;flex:1;min-width:52px">
+          <img src="ic_inferiores.png" style="width:24px;height:24px;object-fit:contain"><span style="font-size:10px;color:#C49A2A;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Inferiores</span>
         </button>
         <button class="mark-extype-btn" data-type="empurrar" onclick="toggleExType(this)" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 12px;border-radius:12px;border:1.5px solid rgba(41,121,255,.3);background:transparent;cursor:pointer;flex:1;min-width:52px">
-          <span style="font-size:18px">💪</span><span style="font-size:10px;color:#4A8AFF;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Empurrar</span>
+          <img src="ic_empurrar.png" style="width:24px;height:24px;object-fit:contain"><span style="font-size:10px;color:#4A8AFF;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Empurrar</span>
         </button>
         <button class="mark-extype-btn" data-type="core" onclick="toggleExType(this)" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 12px;border-radius:12px;border:1.5px solid rgba(0,230,118,.3);background:transparent;cursor:pointer;flex:1;min-width:52px">
-          <span style="font-size:18px">🔥</span><span style="font-size:10px;color:#00B860;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Core</span>
+          <img src="ic_core.png" style="width:24px;height:24px;object-fit:contain"><span style="font-size:10px;color:#00B860;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Core</span>
         </button>
-        <button class="mark-extype-btn" data-type="conjugado" onclick="toggleExType(this)" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 12px;border-radius:12px;border:1.5px solid rgba(160,160,160,.25);background:transparent;cursor:pointer;flex:1;min-width:52px">
-          <span style="font-size:18px">🏃</span><span style="font-size:10px;color:#999;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Conjugado</span>
+        <button class="mark-extype-btn" data-type="composto" onclick="toggleExType(this)" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 12px;border-radius:12px;border:1.5px solid rgba(160,160,160,.25);background:transparent;cursor:pointer;flex:1;min-width:52px">
+          <img src="ic_composto.png" style="width:24px;height:24px;object-fit:contain"><span style="font-size:10px;color:#999;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Composto</span>
+        </button>
+        <button class="mark-extype-btn" data-type="cardio" onclick="toggleExType(this)" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 12px;border-radius:12px;border:1.5px solid rgba(255,80,80,.25);background:transparent;cursor:pointer;flex:1;min-width:52px">
+          <img src="ic_cardio.png" style="width:24px;height:24px;object-fit:contain"><span style="font-size:10px;color:#E05050;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Cardio</span>
         </button>
       </div>
     </div>
