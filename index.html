@@ -1412,20 +1412,17 @@ function loadBravoOrder(){
 }
 function saveBravoOrder(order){localStorage.setItem('bravo_cards_order',JSON.stringify(order));}
 
-// ---- DRAG & DROP — PROGRAMAS BRAVO ----
-function initDragDropBravo(){
-  const list=document.getElementById('presetList');
+// ---- DRAG & DROP GENÉRICO PARA CARDS ----
+function initCardDragDrop(listEl,onDone){
   let dragging=null,ghost=null,activePointerId=null,offsetY=0;
-
-  list.addEventListener('pointerdown',e=>{
+  listEl.addEventListener('pointerdown',e=>{
     const handle=e.target.closest('.drag-handle');
     if(!handle)return;
     const card=handle.closest('.preset-card');
     if(!card)return;
     e.preventDefault();
-    dragging=card;
-    activePointerId=e.pointerId;
-    list.setPointerCapture(e.pointerId);
+    dragging=card;activePointerId=e.pointerId;
+    listEl.setPointerCapture(e.pointerId);
     const rect=card.getBoundingClientRect();
     offsetY=e.clientY-rect.top;
     card.style.opacity='0.3';
@@ -1438,31 +1435,31 @@ function initDragDropBravo(){
     ghost.appendChild(bar);
     document.body.appendChild(ghost);
   });
-
-  list.addEventListener('pointermove',e=>{
+  listEl.addEventListener('pointermove',e=>{
     if(!dragging||e.pointerId!==activePointerId)return;
     e.preventDefault();
     ghost.style.top=e.clientY-offsetY+'px';
-    const cards=[...list.querySelectorAll('.preset-card')].filter(c=>c!==dragging);
+    const cards=[...listEl.querySelectorAll('.preset-card')].filter(c=>c!==dragging);
     let target=null;
-    for(const c of cards){
-      const r=c.getBoundingClientRect();
-      if(e.clientY<r.top+r.height/2){target=c;break;}
-    }
-    if(target) list.insertBefore(dragging,target);
-    else list.appendChild(dragging);
+    for(const c of cards){const r=c.getBoundingClientRect();if(e.clientY<r.top+r.height/2){target=c;break;}}
+    if(target)listEl.insertBefore(dragging,target);
+    else listEl.appendChild(dragging);
   });
-
   const finishDrag=e=>{
     if(!dragging||e.pointerId!==activePointerId)return;
     dragging.style.opacity='';
     ghost?.remove();ghost=null;
-    const newOrder=[...list.querySelectorAll('.preset-card')].map(c=>c.dataset.bravoId);
-    saveBravoOrder(newOrder);
+    onDone(listEl);
     dragging=null;activePointerId=null;
   };
-  list.addEventListener('pointerup',finishDrag);
-  list.addEventListener('pointercancel',finishDrag);
+  listEl.addEventListener('pointerup',finishDrag);
+  listEl.addEventListener('pointercancel',finishDrag);
+}
+function initDragDropBravo(){
+  initCardDragDrop(document.getElementById('presetList'),list=>{
+    const newOrder=[...list.querySelectorAll('.preset-card')].map(c=>c.dataset.bravoId);
+    saveBravoOrder(newOrder);
+  });
 }
 
 // ---- EXERCISE DRAG & DROP (edit screen) ----
@@ -1556,64 +1553,11 @@ function initExDragDrop(container,field){
 
 // ---- DRAG & DROP REORDER ----
 function initDragDrop(){
-  const list=document.getElementById('userPresetList');
-  let dragging=null,ghost=null,activePointerId=null,offsetY=0;
-
-  list.addEventListener('pointerdown',e=>{
-    const handle=e.target.closest('.drag-handle');
-    if(!handle)return;
-    const card=handle.closest('.preset-card');
-    if(!card)return;
-    e.preventDefault();
-
-    dragging=card;
-    activePointerId=e.pointerId;
-    list.setPointerCapture(e.pointerId);
-
-    const rect=card.getBoundingClientRect();
-    offsetY=e.clientY-rect.top;
-
-    card.style.opacity='0.3';
-
-    const cardColor=card.style.getPropertyValue('--c')||'#555';
-    ghost=document.createElement('div');
-    ghost.innerHTML=card.innerHTML;
-    ghost.style.cssText=`position:fixed;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;height:${rect.height}px;pointer-events:none;z-index:9999;overflow:hidden;border-radius:var(--radius);background:var(--surface);border:2px solid ${cardColor};box-shadow:0 8px 32px rgba(0,0,0,.6);padding:14px 18px 14px 22px;box-sizing:border-box;`;
-    const bar=document.createElement('div');
-    bar.style.cssText=`position:absolute;left:0;top:0;bottom:0;width:4px;background:${cardColor};border-radius:4px 0 0 4px;`;
-    ghost.appendChild(bar);
-    document.body.appendChild(ghost);
-  });
-
-  list.addEventListener('pointermove',e=>{
-    if(!dragging||e.pointerId!==activePointerId)return;
-    e.preventDefault();
-
-    ghost.style.top=e.clientY-offsetY+'px';
-
-    const cards=[...list.querySelectorAll('.preset-card')].filter(c=>c!==dragging);
-    let target=null;
-    for(const c of cards){
-      const r=c.getBoundingClientRect();
-      if(e.clientY<r.top+r.height/2){target=c;break;}
-    }
-    if(target) list.insertBefore(dragging,target);
-    else list.appendChild(dragging);
-  });
-
-  const finishDrag=e=>{
-    if(!dragging||e.pointerId!==activePointerId)return;
-    dragging.style.opacity='';
-    ghost?.remove();
-    ghost=null;
+  initCardDragDrop(document.getElementById('userPresetList'),list=>{
     const newOrder=[...list.querySelectorAll('.preset-card')].map(c=>c.dataset.id);
     presets.sort((a,b)=>newOrder.indexOf(a.id)-newOrder.indexOf(b.id));
     savePresets(presets);
-    dragging=null;
-    activePointerId=null;
-  };
-  list.addEventListener('pointerup',finishDrag);
-  list.addEventListener('pointercancel',finishDrag);
+  });
 }
 function selectAutoMode(){
   autoModeSelected=true;
@@ -1709,21 +1653,23 @@ function setMode(m){
   if(m==='circuit')updateExerciseInputs();
   if(m==='brain')updateBrainExerciseInputs();
 }
-function updateExerciseInputs(){
-  const n=parseInt(document.getElementById('efExCount').value)||3;
-  const container=document.getElementById('exerciseInputs');
+function buildExerciseInputs(countInputId,containerId,field,max,placeholderFn){
+  const n=parseInt(document.getElementById(countInputId).value)||3;
+  const container=document.getElementById(containerId);
   const existing=[...container.querySelectorAll('input')].map(i=>i.value);
-  const existingVids=[...Array(Math.min(n,6))].map((_,i)=>window._ytTemp?.[`yt_efEx_${i}`]||'');
   container.innerHTML='';
-  for(let i=0;i<Math.min(n,6);i++){
+  for(let i=0;i<Math.min(n,max);i++){
     const row=document.createElement('div');row.className='exercise-row';
     row.dataset.exIdx=i;
-    row.innerHTML=`<div class="ex-drag-handle" title="Arrastar">⠿</div><div class="exercise-letter" style="color:${editColor}">${EX_LETTERS[i]}</div>
-      <input class="field-input" id="efEx${i}" placeholder="${EX_LETTERS[i]} — nome" value="${existing[i]||''}">
-      ${ytBtn('efEx',i)}`;
+    row.innerHTML=`<div class="ex-drag-handle" title="Arrastar">⠿</div><div class="exercise-letter" style="color:${editColor}">${EX_LETTERS[i]||String(i+1)}</div>
+      <input class="field-input" id="${field}${i}" placeholder="${placeholderFn(i)}" value="${existing[i]||''}">
+      ${ytBtn(field,i)}`;
     container.appendChild(row);
   }
-  initExDragDrop(container,'efEx');
+  initExDragDrop(container,field);
+}
+function updateExerciseInputs(){
+  buildExerciseInputs('efExCount','exerciseInputs','efEx',6,i=>`${EX_LETTERS[i]} — nome`);
 }
 // ---- YOUTUBE HELPERS ----
 function extractYtId(url){
@@ -1758,7 +1704,6 @@ function openYtModal(field,index){
   document.getElementById('ytLinkModal').classList.add('open');
 }
 if(!window._ytTemp)window._ytTemp={};
-document.addEventListener('DOMContentLoaded',()=>{},{once:true});
 document.getElementById('btnYtSave').onclick=()=>{
   const url=document.getElementById('ytLinkInput').value.trim();
   const id=extractYtId(url);
@@ -1802,21 +1747,9 @@ function ytBtn(field,index){
 }
 function clearObs(){document.getElementById('efObs').value='';}
 function updateBrainExerciseInputs(){
-  const n=parseInt(document.getElementById('efBrainExCount').value)||2;
   const group=document.getElementById('brainExercisesGroup');
-  const container=document.getElementById('brainExerciseInputs');
   group.style.display='flex';group.style.flexDirection='column';
-  const existing=[...container.querySelectorAll('input')].map(i=>i.value);
-  container.innerHTML='';
-  for(let i=0;i<Math.min(n,9);i++){
-    const row=document.createElement('div');row.className='exercise-row';
-    row.dataset.exIdx=i;
-    row.innerHTML=`<div class="ex-drag-handle" title="Arrastar">⠿</div><div class="exercise-letter" style="color:${editColor}">${EX_LETTERS[i]||String(i+1)}</div>
-      <input class="field-input" id="bfEx${i}" placeholder="Exercício ${i+1}" value="${existing[i]||''}">
-      ${ytBtn('bfEx',i)}`;
-    container.appendChild(row);
-  }
-  initExDragDrop(container,'bfEx');
+  buildExerciseInputs('efBrainExCount','brainExerciseInputs','bfEx',9,i=>`Exercício ${i+1}`);
 }
 document.getElementById('efBrainExCount')?.addEventListener('input',updateBrainExerciseInputs);
 function updateNormalExerciseInputs(){
@@ -2185,12 +2118,12 @@ function saveCalendar(d){localStorage.setItem('nt_calendar',JSON.stringify(d));}
 
 let calYear=new Date().getFullYear(),calMonth=new Date().getMonth();
 const MONTH_NAMES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const MONTH_PT=MONTH_NAMES.map(m=>m.toUpperCase());
 
 document.getElementById('btnCalPrev').onclick=()=>{calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCalendar();};
 document.getElementById('btnCalNext').onclick=()=>{calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCalendar();};
 
 function renderCalendar(){
-  const MONTH_PT=['JANEIRO','FEVEREIRO','MARÇO','ABRIL','MAIO','JUNHO','JULHO','AGOSTO','SETEMBRO','OUTUBRO','NOVEMBRO','DEZEMBRO'];
   const WDAY_PT=['DOM','SEG','TER','QUA','QUI','SEX','SÁB'];
   const today=new Date();
   // Update hero for current real date (not nav month)
@@ -2322,30 +2255,6 @@ function showDeleteConfirm(msg, onConfirm){
   document.body.appendChild(overlay);
   overlay.querySelector('#_delCancel').onclick = ()=> overlay.remove();
   overlay.querySelector('#_delConfirm').onclick = ()=>{ overlay.remove(); onConfirm(); };
-}function confirmDeleteWorkoutAt(index){
-  if(!_calDetailDateStr) return;
-  const [y,m,d] = _calDetailDateStr.split('-');
-  if(confirm(`Deletar o treino #${index+1} do dia ${d}/${m}/${y}?`)){
-    const records = loadCalendar();
-    const dayRec = records.find(r => r.date === _calDetailDateStr);
-    if(!dayRec) return;
-    const workouts = dayRec.workouts || (dayRec.name ? [{name:dayRec.name,obs:dayRec.obs||'',exTypes:[]}] : []);
-    workouts.splice(index, 1);
-    if(workouts.length === 0){
-      const filtered = records.filter(r => r.date !== _calDetailDateStr);
-      saveCalendar(filtered);
-      document.getElementById('calDayDetail').classList.remove('open');
-      _calDetailDateStr = null;
-    } else {
-      dayRec.workouts = workouts;
-      delete dayRec.name; delete dayRec.obs;
-      saveCalendar(records);
-      // Reabrir o detalhe com os dados atualizados
-      showCalDetail(_calDetailDateStr, dayRec);
-    }
-    renderCalendar();
-    showToast('Treino deletado ✓');
-  }
 }
 
 function markCalendar(name,obs,exTypes){
