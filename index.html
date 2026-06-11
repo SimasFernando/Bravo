@@ -949,25 +949,43 @@
     <div style="font-size:13px;color:var(--muted)" id="markWorkoutName">Automático ♾️</div>
     <div class="field-group" style="margin-top:8px">
       <div class="field-label">Tipo de exercício realizado (opcional)</div>
-      <div id="markExTypeGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px">
-        <button class="mark-extype-btn" data-type="puxar" onclick="toggleExType(this)" style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 8px;border-radius:14px;border:1.5px solid rgba(180,127,255,.3);background:transparent;cursor:pointer">
-          <img src="ic_puxar.png" style="width:32px;height:32px;object-fit:contain"><span style="font-size:10px;color:#9966CC;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Puxar</span>
-        </button>
-        <button class="mark-extype-btn" data-type="inferiores" onclick="toggleExType(this)" style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 8px;border-radius:14px;border:1.5px solid rgba(249,199,79,.3);background:transparent;cursor:pointer">
-          <img src="ic_inferiores.png" style="width:32px;height:32px;object-fit:contain"><span style="font-size:10px;color:#C49A2A;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Inferiores</span>
-        </button>
-        <button class="mark-extype-btn" data-type="empurrar" onclick="toggleExType(this)" style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 8px;border-radius:14px;border:1.5px solid rgba(41,121,255,.3);background:transparent;cursor:pointer">
-          <img src="ic_empurrar.png" style="width:32px;height:32px;object-fit:contain"><span style="font-size:10px;color:#4A8AFF;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Empurrar</span>
-        </button>
-        <button class="mark-extype-btn" data-type="core" onclick="toggleExType(this)" style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 8px;border-radius:14px;border:1.5px solid rgba(0,230,118,.3);background:transparent;cursor:pointer">
-          <img src="ic_core.png" style="width:32px;height:32px;object-fit:contain"><span style="font-size:10px;color:#00B860;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Core</span>
-        </button>
-        <button class="mark-extype-btn" data-type="composto" onclick="toggleExType(this)" style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 8px;border-radius:14px;border:1.5px solid rgba(160,160,160,.25);background:transparent;cursor:pointer">
-          <img src="ic_composto.png" style="width:32px;height:32px;object-fit:contain"><span style="font-size:10px;color:#999;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Composto</span>
-        </button>
-        <button class="mark-extype-btn" data-type="cardio" onclick="toggleExType(this)" style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 8px;border-radius:14px;border:1.5px solid rgba(255,80,80,.25);background:transparent;cursor:pointer">
-          <img src="ic_cardio.png" style="width:32px;height:32px;object-fit:contain"><span style="font-size:10px;color:#E05050;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Cardio</span>
-        </button>
+      <div id="markExTypeGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:6px">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:5px">
+          <button class="mark-extype-btn" data-type="puxar" onclick="toggleExType(this)" style="width:100%;aspect-ratio:1;border-radius:14px;border:1.5px solid rgba(180,127,255,.3);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0">
+            <img src="ic_puxar.png" style="width:58%;height:58%;object-fit:contain">
+          </button>
+          <span style="font-size:10px;color:#9966CC;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Puxar</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:5px">
+          <button class="mark-extype-btn" data-type="inferiores" onclick="toggleExType(this)" style="width:100%;aspect-ratio:1;border-radius:14px;border:1.5px solid rgba(249,199,79,.3);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0">
+            <img src="ic_inferiores.png" style="width:58%;height:58%;object-fit:contain">
+          </button>
+          <span style="font-size:10px;color:#C49A2A;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Inferiores</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:5px">
+          <button class="mark-extype-btn" data-type="empurrar" onclick="toggleExType(this)" style="width:100%;aspect-ratio:1;border-radius:14px;border:1.5px solid rgba(41,121,255,.3);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0">
+            <img src="ic_empurrar.png" style="width:58%;height:58%;object-fit:contain">
+          </button>
+          <span style="font-size:10px;color:#4A8AFF;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Empurrar</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:5px">
+          <button class="mark-extype-btn" data-type="core" onclick="toggleExType(this)" style="width:100%;aspect-ratio:1;border-radius:14px;border:1.5px solid rgba(0,230,118,.3);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0">
+            <img src="ic_core.png" style="width:58%;height:58%;object-fit:contain">
+          </button>
+          <span style="font-size:10px;color:#00B860;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Core</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:5px">
+          <button class="mark-extype-btn" data-type="composto" onclick="toggleExType(this)" style="width:100%;aspect-ratio:1;border-radius:14px;border:1.5px solid rgba(160,160,160,.25);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0">
+            <img src="ic_composto.png" style="width:58%;height:58%;object-fit:contain">
+          </button>
+          <span style="font-size:10px;color:#999;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Composto</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:5px">
+          <button class="mark-extype-btn" data-type="cardio" onclick="toggleExType(this)" style="width:100%;aspect-ratio:1;border-radius:14px;border:1.5px solid rgba(255,80,80,.25);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0">
+            <img src="ic_cardio.png" style="width:58%;height:58%;object-fit:contain">
+          </button>
+          <span style="font-size:10px;color:#E05050;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Cardio</span>
+        </div>
       </div>
     </div>
     <div class="field-group" style="margin-top:4px">
@@ -2734,27 +2752,34 @@ function autoFinishWorkout(){
 }
 
 let selectedExTypes=new Set();
+const EX_TYPE_COLORS={
+  puxar:'rgba(180,127,255,.35)',
+  inferiores:'rgba(249,199,79,.45)',
+  empurrar:'rgba(41,121,255,.35)',
+  core:'rgba(0,230,118,.35)',
+  composto:'rgba(160,160,160,.35)',
+  cardio:'rgba(255,80,80,.35)'
+};
 function toggleExType(btn){
   const t=btn.dataset.type;
+  const wrap=btn.parentElement;
   if(selectedExTypes.has(t)){
     selectedExTypes.delete(t);
-    btn.style.opacity='1';
-    btn.style.transform='scale(1)';
   } else {
     selectedExTypes.add(t);
-    btn.style.opacity='1';
-    btn.style.transform='scale(1.05)';
-    btn.style.background='rgba(180,127,255,.18)';
-    btn.style.borderColor='rgba(180,127,255,.7)';
   }
-  // Update visual state
+  // Update visual state for all buttons
   document.querySelectorAll('.mark-extype-btn').forEach(b=>{
-    if(selectedExTypes.has(b.dataset.type)){
-      b.style.background='rgba(180,127,255,.18)';
-      b.style.transform='scale(1.05)';
+    const bt=b.dataset.type;
+    const w=b.parentElement;
+    if(selectedExTypes.has(bt)){
+      b.style.background=EX_TYPE_COLORS[bt]||'rgba(180,127,255,.2)';
+      b.style.borderWidth='2px';
+      w.style.transform='scale(1.06)';
     } else {
       b.style.background='transparent';
-      b.style.transform='scale(1)';
+      b.style.borderWidth='1.5px';
+      w.style.transform='scale(1)';
     }
   });
 }
@@ -2762,7 +2787,8 @@ function resetExTypes(){
   selectedExTypes=new Set();
   document.querySelectorAll('.mark-extype-btn').forEach(b=>{
     b.style.background='transparent';
-    b.style.transform='scale(1)';
+    b.style.borderWidth='1.5px';
+    b.parentElement.style.transform='scale(1)';
   });
 }
 
