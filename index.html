@@ -411,6 +411,52 @@
   .about-dev{font-size:13px;color:var(--muted);line-height:1.7;}
   .about-dev strong{color:var(--text);font-weight:500;}
   .about-badge{display:inline-block;margin-top:12px;font-size:11px;color:var(--muted);background:var(--surface2);padding:5px 14px;border-radius:20px;letter-spacing:.5px;}
+
+  /* ---- FLUXO: ícones de tipo de exercício clicáveis ---- */
+  .auto-extype-btn{
+    width:100%;aspect-ratio:1;border-radius:14px;
+    border:2px solid transparent;
+    background:transparent;
+    cursor:pointer;
+    padding:0;overflow:hidden;position:relative;
+    transition:border-color .18s,background .18s,transform .15s,opacity .18s;
+    opacity:.55;
+  }
+  .auto-extype-btn img{width:100%;height:100%;object-fit:cover;display:block;}
+  .auto-extype-btn.selected{
+    opacity:1;
+    transform:scale(1.08);
+  }
+  .auto-extype-btn.selected .extype-check-prep{display:flex;}
+  .extype-check-prep{
+    display:none;position:absolute;inset:0;align-items:center;justify-content:center;
+    font-size:26px;font-weight:900;color:#fff;
+    text-shadow:0 1px 4px rgba(0,0,0,.6);
+    pointer-events:none;background:rgba(0,0,0,.18);
+  }
+  /* Quando nenhum selecionado, todos com opacidade normal */
+  .auto-extype-grid.none-selected .auto-extype-btn{opacity:1;}
+
+  /* ---- FLUXO: ícone selecionado na tela de execução ---- */
+  #autoExecTypeDisplay{
+    display:none;
+    align-items:center;gap:10px;
+    margin-top:4px;
+    padding:8px 16px;
+    border-radius:14px;
+    background:rgba(0,0,0,.1);
+    max-width:220px;
+  }
+  #autoExecTypeDisplay.visible{display:flex;}
+  #autoExecTypeDisplay img{width:36px;height:36px;border-radius:8px;object-fit:cover;flex-shrink:0;}
+  #autoExecTypeDisplay .exec-type-label{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1.5px;}
+
+  /* Landscape: ícone ao lado do relógio */
+  @media (orientation:landscape){
+    #autoExecTypeDisplay{
+      position:absolute;bottom:12px;left:50%;transform:translateX(-50%);
+    }
+  }
 </style>
 </head>
 <body>
@@ -608,34 +654,46 @@
       <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="44"/><circle class="ring-fg" id="autoPrepRing" cx="60" cy="60" r="44" style="stroke:#F5C518"/></svg>
       <div class="ring-center"><div class="time-display" id="autoPrepTime" style="color:#F5C518">15</div><div class="time-sub">segundos</div></div>
     </div>
-    <!-- Exercise type icons -->
+    <!-- Exercise type icons — clicáveis (Fluxo only) -->
     <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--muted);text-align:center;margin-top:20px">DEFINA SEU EXERCÍCIO</div>
-    <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px;width:100%">
+    <div id="autoPrepExTypeGrid" class="auto-extype-grid none-selected" style="display:flex;flex-direction:column;gap:10px;margin-top:12px;width:100%">
       <div style="display:flex;justify-content:space-around">
         <div style="display:flex;flex-direction:column;align-items:center;gap:6px;width:28%">
-          <div style="width:100%;aspect-ratio:1;background:rgba(180,127,255,.15);border:1.5px solid rgba(180,127,255,.4);border-radius:14px;overflow:hidden"><img src="ic_puxar.png" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+          <button class="auto-extype-btn" data-type="puxar" style="border-color:rgba(180,127,255,.4);background:rgba(180,127,255,.1);" onclick="selectAutoPrepType(this)">
+            <img src="ic_puxar.png"><div class="extype-check-prep">✓</div>
+          </button>
           <div style="font-size:10px;color:#9966CC;letter-spacing:.5px;font-weight:600;text-transform:uppercase;text-align:center">PUXAR</div>
         </div>
         <div style="display:flex;flex-direction:column;align-items:center;gap:6px;width:28%">
-          <div style="width:100%;aspect-ratio:1;background:rgba(249,199,79,.1);border:1.5px solid rgba(249,199,79,.35);border-radius:14px;overflow:hidden"><img src="ic_inferiores.png" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+          <button class="auto-extype-btn" data-type="inferiores" style="border-color:rgba(249,199,79,.35);background:rgba(249,199,79,.1);" onclick="selectAutoPrepType(this)">
+            <img src="ic_inferiores.png"><div class="extype-check-prep">✓</div>
+          </button>
           <div style="font-size:10px;color:#C49A2A;letter-spacing:.5px;font-weight:600;text-transform:uppercase;text-align:center">INFERIORES</div>
         </div>
         <div style="display:flex;flex-direction:column;align-items:center;gap:6px;width:28%">
-          <div style="width:100%;aspect-ratio:1;background:rgba(41,121,255,.1);border:1.5px solid rgba(41,121,255,.35);border-radius:14px;overflow:hidden"><img src="ic_empurrar.png" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+          <button class="auto-extype-btn" data-type="empurrar" style="border-color:rgba(41,121,255,.35);background:rgba(41,121,255,.1);" onclick="selectAutoPrepType(this)">
+            <img src="ic_empurrar.png"><div class="extype-check-prep">✓</div>
+          </button>
           <div style="font-size:10px;color:#4A8AFF;letter-spacing:.5px;font-weight:600;text-transform:uppercase;text-align:center">EMPURRAR</div>
         </div>
       </div>
       <div style="display:flex;justify-content:space-around">
         <div style="display:flex;flex-direction:column;align-items:center;gap:6px;width:28%">
-          <div style="width:100%;aspect-ratio:1;background:rgba(0,230,118,.1);border:1.5px solid rgba(0,230,118,.35);border-radius:14px;overflow:hidden"><img src="ic_core.png" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+          <button class="auto-extype-btn" data-type="core" style="border-color:rgba(0,230,118,.35);background:rgba(0,230,118,.1);" onclick="selectAutoPrepType(this)">
+            <img src="ic_core.png"><div class="extype-check-prep">✓</div>
+          </button>
           <div style="font-size:10px;color:#00B860;letter-spacing:.5px;font-weight:600;text-transform:uppercase;text-align:center">CORE</div>
         </div>
         <div style="display:flex;flex-direction:column;align-items:center;gap:6px;width:28%">
-          <div style="width:100%;aspect-ratio:1;background:rgba(160,160,160,.1);border:1.5px solid rgba(160,160,160,.3);border-radius:14px;overflow:hidden"><img src="ic_composto.png" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+          <button class="auto-extype-btn" data-type="composto" style="border-color:rgba(160,160,160,.3);background:rgba(160,160,160,.1);" onclick="selectAutoPrepType(this)">
+            <img src="ic_composto.png"><div class="extype-check-prep">✓</div>
+          </button>
           <div style="font-size:10px;color:#999;letter-spacing:.5px;font-weight:600;text-transform:uppercase;text-align:center">COMPOSTO</div>
         </div>
         <div style="display:flex;flex-direction:column;align-items:center;gap:6px;width:28%">
-          <div style="width:100%;aspect-ratio:1;background:rgba(255,80,80,.1);border:1.5px solid rgba(255,80,80,.3);border-radius:14px;overflow:hidden"><img src="ic_cardio.png" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+          <button class="auto-extype-btn" data-type="cardio" style="border-color:rgba(255,80,80,.3);background:rgba(255,80,80,.1);" onclick="selectAutoPrepType(this)">
+            <img src="ic_cardio.png"><div class="extype-check-prep">✓</div>
+          </button>
           <div style="font-size:10px;color:#E05050;letter-spacing:.5px;font-weight:600;text-transform:uppercase;text-align:center">CARDIO</div>
         </div>
       </div>
@@ -664,6 +722,11 @@
         </div>
       </div>
       <div class="auto-big-label" id="autoExecOverflowLabel" style="color:#B47FFF;opacity:0;font-size:13px;letter-spacing:1px;margin-top:0">Série contínua ou prolongada</div>
+      <!-- Ícone do tipo de exercício selecionado na preparação -->
+      <div id="autoExecTypeDisplay">
+        <img id="autoExecTypeImg" src="" alt="">
+        <span id="autoExecTypeLabel" class="exec-type-label"></span>
+      </div>
       <div style="height:16px"></div>
       <button class="btn-auto-done" id="btnAutoSerieOk">CONCLUIR SÉRIE ›</button>
       <div style="height:16px"></div>
@@ -2283,8 +2346,73 @@ function markCalendar(name,obs,exTypes){
 }
 
 // ============================================================
-// MODO AUTOMÁTICO ♾️
+// FLUXO: seleção de tipo de exercício na preparação
 // ============================================================
+const EX_TYPE_INFO={
+  puxar:  {label:'PUXAR',    color:'#9966CC', border:'rgba(180,127,255,.5)', bg:'rgba(180,127,255,.22)'},
+  inferiores:{label:'INFERIORES',color:'#C49A2A',border:'rgba(249,199,79,.5)', bg:'rgba(249,199,79,.2)'},
+  empurrar:{label:'EMPURRAR', color:'#4A8AFF', border:'rgba(41,121,255,.5)',  bg:'rgba(41,121,255,.2)'},
+  core:   {label:'CORE',     color:'#00B860', border:'rgba(0,230,118,.5)',   bg:'rgba(0,230,118,.2)'},
+  composto:{label:'COMPOSTO', color:'#999',    border:'rgba(160,160,160,.5)',bg:'rgba(160,160,160,.2)'},
+  cardio: {label:'CARDIO',   color:'#E05050', border:'rgba(255,80,80,.5)',   bg:'rgba(255,80,80,.2)'},
+};
+// Tipo selecionado na preparação atual (apenas 1 por exercício)
+let autoCurrentPrepType=null;
+// Acumulado de todos os tipos selecionados durante o treino
+let autoWorkoutTypes=new Set();
+
+function selectAutoPrepType(btn){
+  const type=btn.dataset.type;
+  const grid=document.getElementById('autoPrepExTypeGrid');
+  const allBtns=grid.querySelectorAll('.auto-extype-btn');
+
+  if(autoCurrentPrepType===type){
+    // Deselecionar
+    autoCurrentPrepType=null;
+    allBtns.forEach(b=>b.classList.remove('selected'));
+    grid.classList.add('none-selected');
+  } else {
+    autoCurrentPrepType=type;
+    allBtns.forEach(b=>{
+      b.classList.toggle('selected',b.dataset.type===type);
+    });
+    grid.classList.remove('none-selected');
+  }
+}
+
+function resetAutoPrepType(){
+  autoCurrentPrepType=null;
+  const grid=document.getElementById('autoPrepExTypeGrid');
+  if(grid){
+    grid.querySelectorAll('.auto-extype-btn').forEach(b=>b.classList.remove('selected'));
+    grid.classList.add('none-selected');
+  }
+}
+
+function applyPrepTypeToExec(){
+  const display=document.getElementById('autoExecTypeDisplay');
+  if(!autoCurrentPrepType){
+    display.classList.remove('visible');
+    return;
+  }
+  const info=EX_TYPE_INFO[autoCurrentPrepType];
+  document.getElementById('autoExecTypeImg').src='ic_'+autoCurrentPrepType+'.png';
+  document.getElementById('autoExecTypeImg').alt=info.label;
+  document.getElementById('autoExecTypeLabel').textContent=info.label;
+  document.getElementById('autoExecTypeLabel').style.color=info.color;
+  display.style.background='rgba(0,0,0,.12)';
+  display.style.border='1.5px solid '+info.border;
+  display.classList.add('visible');
+  // Acumula no conjunto do treino
+  autoWorkoutTypes.add(autoCurrentPrepType);
+}
+
+function startAutoWorkout(){
+  autoWorkoutTypes=new Set();
+  resetAutoPrepType();
+}
+
+
 const REST_TABLE={
   '1-3':[240,270,300,330,360],
   '4-7':[90,105,120,150,180],
@@ -2312,6 +2440,7 @@ function startAutoMode(){
   auto.execSecs=60;auto.execTotal=60;auto.execOverflow=false;
   auto.prepSecs=15;
   auto.running=true;
+  startAutoWorkout(); // reset tipo de exercício acumulado
   showAutoPrep();
 }
 
@@ -2321,6 +2450,7 @@ function showAutoPrep(){
   document.getElementById('autoPrepExName').textContent=autoExName();
   applyAccent('#B47FFF');
   auto.prepSecs=15;
+  resetAutoPrepType(); // limpa seleção para o novo exercício
   const ring=document.getElementById('autoPrepRing');
   ring.style.strokeDasharray=AUTO_CIRC;
   ring.style.strokeDashoffset=0;
@@ -2350,6 +2480,7 @@ function startAutoExec(){
   ring.style.strokeDasharray=AUTO_CIRC;
   ring.style.stroke='#B47FFF';
   document.getElementById('autoExecOverflowLabel').style.opacity='0';
+  applyPrepTypeToExec(); // mostra o ícone do tipo selecionado na preparação
   showScreen('autoExec');
   speak('Vamos!');beep(1200,.15,.6);vibrate([80,30,80]);
   const fl=document.getElementById('flash');fl.style.background='#B47FFF';fl.classList.add('on');setTimeout(()=>fl.classList.remove('on'),150);
@@ -2626,6 +2757,7 @@ function startAutoExecDirect(){
   document.getElementById('autoExecOverflowLabel').style.opacity='0';
   // Fluxo has no per-exercise videos (single exercise mode), clear
   showYtEmbed('autoExecYtWrap',null,'autoExecCenter');
+  applyPrepTypeToExec(); // mostra o ícone do tipo selecionado
   showScreen('autoExec');
   speak('Vamos!');beep(1200,.15,.6);vibrate([80,30,80]);
   const fl=document.getElementById('flash');fl.style.background='#B47FFF';fl.classList.add('on');setTimeout(()=>fl.classList.remove('on'),150);
@@ -2663,7 +2795,12 @@ function autoFinishWorkout(){
   setTimeout(()=>{
     document.getElementById('markWorkoutName').textContent=auto.pendingMarkName;
     document.getElementById('markWorkoutObs').value='';
+    // Pré-seleciona os tipos acumulados durante o treino
     resetExTypes();
+    autoWorkoutTypes.forEach(t=>{
+      const btn=document.querySelector(`.mark-extype-btn[data-type="${t}"]`);
+      if(btn) toggleExType(btn);
+    });
     document.getElementById('markWorkoutModal').classList.add('open');
   },2000);
 }
