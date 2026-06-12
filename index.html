@@ -440,17 +440,72 @@
   /* ---- FLUXO: ícone selecionado na tela de execução ---- */
   #autoExecTypeDisplay{
     display:none;
-    align-items:center;gap:10px;
-    margin-top:4px;
-    padding:8px 14px 8px 10px;
-    border-radius:14px;
-    background:rgba(0,0,0,.1);
-    width:fit-content;
-    align-self:center;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
   }
-  #autoExecTypeDisplay.visible{display:flex;}
-  #autoExecTypeDisplay img{width:34px;height:34px;border-radius:8px;object-fit:cover;flex-shrink:0;}
-  #autoExecTypeDisplay .exec-type-label{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1.5px;white-space:nowrap;}
+  #autoExecTypeDisplay.visible{ display:flex; }
+
+  /* chip inline (portrait) */
+  #autoExecTypeChip{
+    display:flex;align-items:center;gap:10px;
+    padding:7px 16px 7px 10px;
+    border-radius:14px;
+    width:fit-content;
+  }
+  #autoExecTypeChip img{ width:34px;height:34px;border-radius:8px;object-fit:cover;flex-shrink:0; }
+  #autoExecTypeChip .exec-type-label{
+    font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:1.5px;white-space:nowrap;
+  }
+
+  /* landscape: painel direito ocupa 50% */
+  @media (orientation:landscape){
+    #autoExecCenter.auto-center{
+      flex-direction:row !important;
+      align-items:stretch;
+    }
+    #autoExecCenter .exec-main-col{
+      flex:0 0 50%;
+      max-width:50%;
+    }
+    /* painel lateral direito */
+    #autoExecTypeSide{
+      flex:0 0 50%;
+      max-width:50%;
+      padding:16px;
+    }
+    #autoExecTypeSide.visible{ display:flex !important; }
+    /* no landscape, esconde o chip inline */
+    #autoExecTypeChip{ display:none !important; }
+    /* painel lateral: ícone grande + label */
+    #autoExecTypePanelLandscape{ display:flex !important; }
+  }
+  @media (orientation:portrait){
+    #autoExecTypePanelLandscape{ display:none !important; }
+    #autoExecTypeSide{ display:none !important; }
+  }
+  #autoExecTypeSide{
+    display:none;
+    flex-direction:column;
+    align-items:center;justify-content:center;
+  }
+  #autoExecTypePanelLandscape{
+    display:none;
+    flex-direction:column;
+    align-items:center;justify-content:center;
+    gap:14px;width:100%;height:100%;
+  }
+  #autoExecTypePanelLandscape img{
+    width:min(120px,18vw);height:min(120px,18vw);
+    border-radius:20px;object-fit:cover;
+  }
+  #autoExecTypePanelLandscape .exec-type-label-lg{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:clamp(22px,4vw,34px);
+    letter-spacing:2px;
+    text-align:center;
+  }
 </style>
 </head>
 <body>
@@ -707,7 +762,7 @@
     <div class="auto-series-badge">Série <span id="autoExecSerieNum">1</span> · <span id="autoExecExName">Exercício 1</span></div>
   </div>
   <div class="auto-center exec-with-video" id="autoExecCenter">
-    <div class="exec-main-col" style="width:100%;align-items:center;">
+    <div class="exec-main-col" style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;">
       <div class="ring-wrap">
         <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="44"/><circle class="ring-fg" id="autoExecRing" cx="60" cy="60" r="44"/></svg>
         <div class="ring-center">
@@ -716,10 +771,12 @@
         </div>
       </div>
       <div class="auto-big-label" id="autoExecOverflowLabel" style="color:#B47FFF;opacity:0;font-size:13px;letter-spacing:1px;margin-top:0">Série contínua ou prolongada</div>
-      <!-- Ícone do tipo de exercício selecionado na preparação -->
+      <!-- Chip portrait: ícone pequeno + nome, centralizado abaixo do ring -->
       <div id="autoExecTypeDisplay">
-        <img id="autoExecTypeImg" src="" alt="">
-        <span id="autoExecTypeLabel" class="exec-type-label"></span>
+        <div id="autoExecTypeChip">
+          <img id="autoExecTypeImg" src="" alt="">
+          <span id="autoExecTypeLabel" class="exec-type-label"></span>
+        </div>
       </div>
       <div style="height:16px"></div>
       <button class="btn-auto-done" id="btnAutoSerieOk">CONCLUIR SÉRIE ›</button>
@@ -728,6 +785,13 @@
         <button class="btn-ctrl" id="btnAutoExecBack"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg><span class="ctrl-label">Voltar</span></button>
         <button class="btn-playpause" id="btnAutoExecPlay" style="background:#B47FFF;color:#fff"><svg viewBox="0 0 24 24" id="btnAutoExecPlayIcon"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg></button>
         <button class="btn-ctrl" id="btnAutoExecSkip" title="Pular para repetições"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zm2-8.14L11.03 12 8 14.14V9.86zM16 6h2v12h-2z"/></svg><span class="ctrl-label">Avançar</span></button>
+      </div>
+    </div>
+    <!-- Painel direito landscape: ícone grande + nome -->
+    <div id="autoExecTypeSide">
+      <div id="autoExecTypePanelLandscape">
+        <img id="autoExecTypeImgLg" src="" alt="">
+        <span id="autoExecTypeLabelLg" class="exec-type-label-lg"></span>
       </div>
     </div>
     <div id="autoExecYtWrap" class="yt-embed-wrap" style="display:none"></div>
@@ -2385,18 +2449,36 @@ function resetAutoPrepType(){
 
 function applyPrepTypeToExec(){
   const display=document.getElementById('autoExecTypeDisplay');
+  const side=document.getElementById('autoExecTypeSide');
   if(!autoCurrentPrepType){
     display.classList.remove('visible');
+    if(side) side.classList.remove('visible');
     return;
   }
   const info=EX_TYPE_INFO[autoCurrentPrepType];
-  document.getElementById('autoExecTypeImg').src='ic_'+autoCurrentPrepType+'.png';
+  const imgSrc='ic_'+autoCurrentPrepType+'.png';
+
+  // Portrait chip
+  document.getElementById('autoExecTypeImg').src=imgSrc;
   document.getElementById('autoExecTypeImg').alt=info.label;
   document.getElementById('autoExecTypeLabel').textContent=info.label;
   document.getElementById('autoExecTypeLabel').style.color=info.color;
-  display.style.background='rgba(0,0,0,.12)';
-  display.style.border='1.5px solid '+info.border;
+  const chip=document.getElementById('autoExecTypeChip');
+  chip.style.background='rgba(0,0,0,.1)';
+  chip.style.border='1.5px solid '+info.border;
   display.classList.add('visible');
+
+  // Landscape panel
+  document.getElementById('autoExecTypeImgLg').src=imgSrc;
+  document.getElementById('autoExecTypeImgLg').alt=info.label;
+  document.getElementById('autoExecTypeLabelLg').textContent=info.label;
+  document.getElementById('autoExecTypeLabelLg').style.color=info.color;
+  if(side){
+    side.style.borderLeft='2px solid '+info.border;
+    side.style.background='rgba(0,0,0,.04)';
+    side.classList.add('visible');
+  }
+
   // Acumula no conjunto do treino
   autoWorkoutTypes.add(autoCurrentPrepType);
 }
