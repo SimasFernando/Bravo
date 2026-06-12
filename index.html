@@ -2670,16 +2670,23 @@ function autoFinishWorkout(){
 
 let selectedExTypes=new Set();
 const EX_TYPE_COLORS={
-  puxar:'rgba(180,127,255,.35)',
-  inferiores:'rgba(249,199,79,.45)',
-  empurrar:'rgba(41,121,255,.35)',
-  core:'rgba(0,230,118,.35)',
-  composto:'rgba(160,160,160,.35)',
-  cardio:'rgba(255,80,80,.35)'
+  puxar:'rgba(180,127,255,.25)',
+  inferiores:'rgba(249,199,79,.3)',
+  empurrar:'rgba(41,121,255,.25)',
+  core:'rgba(0,230,118,.25)',
+  composto:'rgba(160,160,160,.25)',
+  cardio:'rgba(255,80,80,.25)'
+};
+const EX_TYPE_BORDER={
+  puxar:'#9966CC',
+  inferiores:'#C49A2A',
+  empurrar:'#4A8AFF',
+  core:'#00B860',
+  composto:'#999',
+  cardio:'#E05050'
 };
 function toggleExType(btn){
   const t=btn.dataset.type;
-  const wrap=btn.parentElement;
   if(selectedExTypes.has(t)){
     selectedExTypes.delete(t);
   } else {
@@ -2689,23 +2696,47 @@ function toggleExType(btn){
   document.querySelectorAll('.mark-extype-btn').forEach(b=>{
     const bt=b.dataset.type;
     const w=b.parentElement;
+    const label=w.querySelector('span');
+    // remove existing checkmark if any
+    let ck=b.querySelector('.extype-check');
     if(selectedExTypes.has(bt)){
       b.style.background=EX_TYPE_COLORS[bt]||'rgba(180,127,255,.2)';
-      b.style.borderWidth='2px';
-      w.style.transform='scale(1.06)';
+      b.style.border='3px solid '+(EX_TYPE_BORDER[bt]||'#9966CC');
+      b.style.opacity='1';
+      w.style.transform='scale(1.08)';
+      if(label){label.style.fontWeight='700';label.style.textDecoration='underline';}
+      if(!ck){
+        ck=document.createElement('div');
+        ck.className='extype-check';
+        ck.innerHTML='✓';
+        ck.style.cssText='position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:28px;font-weight:900;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.55);pointer-events:none;';
+        b.appendChild(ck);
+      }
     } else {
       b.style.background='transparent';
-      b.style.borderWidth='1.5px';
+      b.style.border='1.5px solid '+(EX_TYPE_BORDER[bt]+'44'||'rgba(180,127,255,.3)');
+      b.style.opacity='0.55';
       w.style.transform='scale(1)';
+      if(label){label.style.fontWeight='600';label.style.textDecoration='none';}
+      if(ck) ck.remove();
     }
   });
+  // if nothing selected, reset opacity
+  if(selectedExTypes.size===0){
+    document.querySelectorAll('.mark-extype-btn').forEach(b=>{b.style.opacity='1';});
+  }
 }
 function resetExTypes(){
   selectedExTypes=new Set();
   document.querySelectorAll('.mark-extype-btn').forEach(b=>{
     b.style.background='transparent';
-    b.style.borderWidth='1.5px';
+    b.style.border='1.5px solid '+(EX_TYPE_BORDER[b.dataset.type]+'44'||'rgba(180,127,255,.3)');
+    b.style.opacity='1';
     b.parentElement.style.transform='scale(1)';
+    const label=b.parentElement.querySelector('span');
+    if(label){label.style.fontWeight='600';label.style.textDecoration='none';}
+    const ck=b.querySelector('.extype-check');
+    if(ck) ck.remove();
   });
 }
 
