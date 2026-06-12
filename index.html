@@ -2180,7 +2180,7 @@ function showCalDetail(dateStr,rec){
   document.getElementById('calDetailDate').textContent=`${d}/${m}/${y}`;
   // Support legacy and new multi-workout format
   const workouts=rec.workouts||(rec.name?[{name:rec.name,obs:rec.obs||'',exTypes:[]}]:[]);
-  const EX_TYPE_MAP={puxar:{emoji:'🏋️',label:'Puxar',color:'#9966CC'},agachar:{emoji:'🦵',label:'Agachar',color:'#C49A2A'},empurrar:{emoji:'💪',label:'Empurrar',color:'#4A8AFF'},core:{emoji:'🔥',label:'Core',color:'#00B860'},conjugado:{emoji:'🏃',label:'Conjugado',color:'#999'}};
+  const EX_TYPE_MAP={puxar:{emoji:'🏋️',label:'Puxar',color:'#9966CC'},inferiores:{emoji:'🦵',label:'Inferiores',color:'#C49A2A'},empurrar:{emoji:'💪',label:'Empurrar',color:'#4A8AFF'},core:{emoji:'🔥',label:'Core',color:'#00B860'},composto:{emoji:'⚡',label:'Composto',color:'#888'},cardio:{emoji:'🏃',label:'Cardio',color:'#E05050'}};
   let html='';
   workouts.forEach((w,i)=>{
     html+=`<div style="margin-bottom:${i<workouts.length-1?'14px':'0'}">`;
@@ -2194,7 +2194,7 @@ function showCalDetail(dateStr,rec){
     html+=`<div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:#B47FFF">${w.name||'Automático ♾️'}</div>`;
     if(w.exTypes&&w.exTypes.length){
       html+=`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">`;
-      w.exTypes.forEach(t=>{const et=EX_TYPE_MAP[t];if(et)html+=`<div style="display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:8px;background:var(--surface2);font-size:12px;color:${et.color};font-weight:600">${et.emoji} ${et.label}</div>`;});
+      w.exTypes.forEach(t=>{const et=EX_TYPE_MAP[t];if(et)html+=`<div style="display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:8px;background:var(--surface2);font-size:12px;color:${et.color};font-weight:600"><img src="ic_${t}.png" style="width:14px;height:14px;object-fit:cover;border-radius:3px;flex-shrink:0"> ${et.label}</div>`;});
       html+=`</div>`;
     }
     if(w.obs)html+=`<div style="font-size:13px;color:#888;margin-top:5px;font-style:italic">${w.obs}</div>`;
