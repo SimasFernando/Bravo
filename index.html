@@ -1420,9 +1420,10 @@ function renderHome(){
           <div class="card-exp-badge">🏋️ ${d.name.toUpperCase()}</div>
           <div class="card-exp-name">Treino completo</div>
           <div class="card-exp-pills">
-            <div class="card-exp-pill">${d.brainExCount} exercícios</div>
-            <div class="card-exp-pill">${d.brainSeries} séries</div>
-            <div class="card-exp-pill">${fmtSec(d.brainAction)} execução</div>
+            <div class="card-exp-pill">🏋️ ${d.brainExCount} ex</div>
+            <div class="card-exp-pill">🔄 ${d.brainSeries} séries</div>
+            <div class="card-exp-pill">⏱ ${fmtSec(d.brainPrep||15)}</div>
+            <div class="card-exp-pill">▶ ${fmtSec(d.brainAction)}</div>
           </div>
           <div class="card-exp-obs">${d.obs||''}</div>
         </div>
@@ -1473,7 +1474,7 @@ function renderHome(){
              <div class="card-exp-pill">⏱ ${fmtSec(p.brainPrep||15)}</div>
              <div class="card-exp-pill">▶ ${fmtSec(p.brainAction||40)}</div>`;
     } else {
-      const nexP=(p.normalExCount>1)?`<div class="card-exp-pill">🏋️ ${p.normalExCount} ex</div>`:'';
+      const nexP=`<div class="card-exp-pill">🏋️ ${p.normalExCount||1} ex</div>`;
       pills=`${nexP}<div class="card-exp-pill">🔄 ${p.cycles} séries</div>
              <div class="card-exp-pill">⏱ ${fmtSec(p.prep)}</div>
              <div class="card-exp-pill">💪 ${fmtSec(p.action)}</div>
