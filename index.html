@@ -1462,18 +1462,20 @@ function renderHome(){
 
     let pills='';
     if(p.mode==='circuit'){
-      pills=`<div class="card-exp-pill">🔁 ${p.rounds} rodadas</div>
-             <div class="card-exp-pill">💪 ${p.exCount} ex</div>
+      pills=`<div class="card-exp-pill">🏋️ ${p.exCount} ex</div>
+             <div class="card-exp-pill">🔁 ${p.rounds} rodadas</div>
+             <div class="card-exp-pill">⏱ ${fmtSec(p.prep)}</div>
              <div class="card-exp-pill">▶ ${fmtSec(p.action)}</div>
              <div class="card-exp-pill">😮‍💨 ${fmtSec(p.rest)}</div>`;
     } else if(p.mode==='brain'){
       pills=`<div class="card-exp-pill">🏋️ ${p.brainExCount||2} ex</div>
              <div class="card-exp-pill">🔄 ${p.brainSeries||3} séries</div>
+             <div class="card-exp-pill">⏱ ${fmtSec(p.brainPrep||15)}</div>
              <div class="card-exp-pill">▶ ${fmtSec(p.brainAction||40)}</div>`;
     } else {
       const nexP=(p.normalExCount>1)?`<div class="card-exp-pill">🏋️ ${p.normalExCount} ex</div>`:'';
-      pills=`<div class="card-exp-pill">🔄 ${p.cycles} séries</div>
-             ${nexP}<div class="card-exp-pill">⏱ ${fmtSec(p.prep)}</div>
+      pills=`${nexP}<div class="card-exp-pill">🔄 ${p.cycles} séries</div>
+             <div class="card-exp-pill">⏱ ${fmtSec(p.prep)}</div>
              <div class="card-exp-pill">💪 ${fmtSec(p.action)}</div>
              <div class="card-exp-pill">😮‍💨 ${fmtSec(p.rest)}</div>`;
     }
