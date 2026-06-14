@@ -52,6 +52,7 @@
   .preset-card.selected{
     padding:20px 20px 22px;
     background:var(--c, var(--surface));
+    overflow:visible;
   }
   /* Card color fill — collapsed = tinted bg, expanded = solid */
   .preset-card:not(.selected) .card-color-band{
@@ -139,8 +140,33 @@
   .preset-mode-badge{display:none;}/* replaced by card-exp-badge */
   .btn-delete-edit{margin-top:8px;width:100%;padding:14px;border-radius:12px;border:1px solid rgba(255,80,80,.35);background:rgba(255,80,80,.06);color:#ff6b6b;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;cursor:pointer;transition:background .2s;}
   .btn-delete-edit:active{background:rgba(255,80,80,.18);}
-  .fab-start{position:fixed;right:0;top:50%;transform:translateY(-50%);writing-mode:vertical-rl;text-orientation:mixed;background:var(--accent);color:#000;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;padding:20px 10px;border-radius:12px 0 0 12px;border:none;cursor:pointer;box-shadow:-4px 0 20px rgba(0,0,0,.4);transition:opacity .25s,transform .25s;z-index:50;}
-  .fab-start.hidden-fab{opacity:0;pointer-events:none;transform:translateY(-50%) translateX(100%);}
+  /* ---- BTN TREINAR (pill CTA no card expandido) ---- */
+  .btn-treinar{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:11px 22px 11px 18px;
+    border-radius:50px;
+    border:none;
+    font-family:'Bebas Neue',sans-serif;
+    font-size:17px;letter-spacing:2px;
+    cursor:pointer;
+    background:rgba(0,0,0,.18);
+    color:#fff;
+    box-shadow:4px 4px 18px rgba(0,0,0,.18);
+    transition:transform .15s,box-shadow .15s;
+    align-self:flex-end;
+    margin-right:-6px;/* overflow premium à direita */
+    opacity:0;
+    transform:translateY(8px);
+    pointer-events:none;
+  }
+  .btn-treinar.visible{
+    opacity:1;
+    transform:translateY(0);
+    pointer-events:auto;
+    transition:opacity .3s ease .18s, transform .3s cubic-bezier(.34,1.56,.64,1) .18s, box-shadow .15s;
+  }
+  .btn-treinar:active{transform:scale(.94) !important;box-shadow:2px 2px 8px rgba(0,0,0,.14);}
+  .btn-treinar svg{width:14px;height:14px;fill:currentColor;flex-shrink:0;}
   #edit{padding:24px 20px 32px;gap:14px;overflow-y:auto;}
   .edit-header{display:flex;align-items:center;gap:12px;}
   .edit-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;}
@@ -511,7 +537,7 @@
 <body>
 <div class="flash" id="flash"></div>
 <div class="toast" id="toast"></div>
-<button class="fab-start hidden-fab" id="fabStart">INICIAR</button>
+
 
 <div class="screen" id="home">
   <div class="home-header">
@@ -1520,21 +1546,8 @@ function renderHome(){
   initDragDrop();
   initDragDropBravo();
 
-  const sel=presets.find(p=>p.id===selectedId);
-  const fc=sel?.color||'#B47FFF';
-  const fab=document.getElementById('fabStart');
-  if(autoModeSelected&&!selectedId){
-    fab.style.background='#B47FFF';fab.style.color='#fff';
-    fab.style.boxShadow='-4px 0 20px rgba(180,127,255,.5)';
-    fab.classList.remove('hidden-fab');
-  } else if(selectedId){
-    fab.style.background=fc;fab.style.color=isLight(fc)?'#000':'#fff';
-    fab.style.boxShadow=`-4px 0 20px ${fc}55`;
-    fab.classList.toggle('hidden-fab',!selectedId);
-  } else {
-    fab.classList.remove('hidden-fab');
-    fab.style.background='#B47FFF';fab.style.color='#fff';
-  }
+  // Inject btn-treinar into the currently selected card
+  injectTreinarBtn();
 }
 
 // ---- BRAVO CARDS ORDER ----
@@ -1694,14 +1707,10 @@ function initDragDrop(){
 function selectAutoMode(){
   autoModeSelected=true;
   selectedId=null;
-  const fab=document.getElementById('fabStart');
-  fab.style.background='#B47FFF';fab.style.color='#fff';
-  fab.style.boxShadow='-4px 0 20px rgba(180,127,255,.5)';
-  fab.classList.remove('hidden-fab');
   renderHome();
 }
 renderHome();
-document.getElementById('fabStart').onclick=()=>{
+function startTreinar(){
   getAC();
   if(autoModeSelected&&!selectedId) startAutoMode();
   else if(selectedId==='_bravoMarcado') startBrainMode(BRAVO_MARCADO);
@@ -1710,7 +1719,55 @@ document.getElementById('fabStart').onclick=()=>{
     if(p?.mode==='brain') startBrainMode(p);
     else startTimer();
   }
-};
+}
+
+function injectTreinarBtn(){
+  // Remove any existing btn-treinar instances
+  document.querySelectorAll('.btn-treinar').forEach(b=>b.remove());
+
+  // Determine what's selected
+  let targetEl=null;
+  let color='#B47FFF';
+
+  if(selectedId==='_bravoMarcado'){
+    targetEl=document.getElementById('bravoMarcadoCard');
+    color=BRAVO_MARCADO?.color||'#B47FFF';
+  } else if(selectedId){
+    const p=presets.find(x=>x.id===selectedId);
+    color=p?.color||'#B47FFF';
+    targetEl=document.querySelector(`.preset-card[data-id="${selectedId}"]`);
+  } else if(autoModeSelected){
+    targetEl=document.getElementById('autoCard');
+    color='#B47FFF';
+  }
+
+  if(!targetEl) return;
+
+  // Determine text color for contrast
+  const textColor=isLight(color)?'#000':'#fff';
+
+  const btn=document.createElement('button');
+  btn.className='btn-treinar';
+  btn.setAttribute('aria-label','Iniciar treino');
+  btn.style.setProperty('--c',color);
+  btn.style.background=color;
+  btn.style.color=textColor;
+  btn.innerHTML=`<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>TREINAR`;
+  btn.addEventListener('click',(e)=>{e.stopPropagation();startTreinar();});
+
+  // Find the expanded details container inside the card
+  const anchor=targetEl.querySelector('.card-expanded')||targetEl;
+
+  // Wrap in a flex row aligned right
+  const row=document.createElement('div');
+  row.className='btn-treinar-row';
+  row.style.cssText='display:flex;justify-content:flex-end;padding:10px 0 2px 0;overflow:visible;';
+  row.appendChild(btn);
+  anchor.appendChild(row);
+
+  // Trigger animation on next frame
+  requestAnimationFrame(()=>requestAnimationFrame(()=>btn.classList.add('visible')));
+}
 document.getElementById('btnNew').onclick=()=>openEdit(null);
 
 // ---- MENU ----
@@ -3198,11 +3255,9 @@ function brainFinishWorkout(){
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
   document.getElementById(id).classList.remove('hidden');
-  document.getElementById('fabStart').style.display=(id==='home')?'':'none';
 }
 let toastTmr;
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTmr);toastTmr=setTimeout(()=>t.classList.remove('show'),2500);}
-document.getElementById('fabStart').style.display='';
 </script>
 </body>
 </html>
