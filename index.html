@@ -85,7 +85,10 @@
   }
   .card-collapsed-meta{
     font-size:11px;color:var(--muted);letter-spacing:.5px;
+    display:flex;align-items:center;gap:4px;flex-shrink:0;
   }
+  .meta-icon{width:13px;height:13px;object-fit:contain;opacity:.7;flex-shrink:0;}
+  .meta-sep{opacity:.35;margin:0 1px;}
 
   /* Expanded layout */
   .card-expanded{display:none;flex-direction:column;gap:6px;}
@@ -1451,7 +1454,7 @@ function renderHome(){
         <div class="card-collapsed-row">
           <div class="drag-handle" title="Arrastar para reordenar">⠿</div>
           <div class="card-collapsed-name">${d.name}</div>
-          <div class="card-collapsed-meta">🏋️ ${d.brainExCount} EX · ${d.brainSeries} SÉRIES</div>
+          <div class="card-collapsed-meta"><img class="meta-icon" src="ic_noexe.png" alt="">${d.brainExCount} ex<span class="meta-sep">·</span><img class="meta-icon" src="ic_noseries.png" alt="">${d.brainSeries} sér</div>
         </div>
         <div class="card-expanded">
           <div class="card-exp-badge">🏋️ ${d.name.toUpperCase()}</div>
@@ -1489,14 +1492,14 @@ function renderHome(){
     card.style.setProperty('--cr',hexToRgb(c));
 
     let collapsedMeta='';
-    if(p.mode==='circuit') collapsedMeta=`🔄 ${p.rounds} rodadas · ${p.exCount} ex`;
-    else if(p.mode==='brain') collapsedMeta=`❎ ${p.brainExCount||2} ex · ${p.brainSeries||3} séries`;
-    else collapsedMeta=`⏱ ${p.cycles} séries · ${fmtSec(p.action)}`;
+    if(p.mode==='circuit') collapsedMeta=`<img class="meta-icon" src="ic_norodadas.png" alt="">${p.rounds} rod<span class="meta-sep">·</span><img class="meta-icon" src="ic_noexe.png" alt="">${p.exCount} ex`;
+    else if(p.mode==='brain') collapsedMeta=`<img class="meta-icon" src="ic_noexe.png" alt="">${p.brainExCount||2} ex<span class="meta-sep">·</span><img class="meta-icon" src="ic_noseries.png" alt="">${p.brainSeries||3} sér`;
+    else collapsedMeta=`<img class="meta-icon" src="ic_noseries.png" alt="">${p.cycles} sér<span class="meta-sep">·</span><img class="meta-icon" src="ic_execucao.png" alt="">${fmtSec(p.action)}`;
 
     let badge='';
-    if(p.mode==='circuit') badge='🔄 CIRCUITO';
-    else if(p.mode==='brain') badge='❎ FLUXO MARC.';
-    else badge='⏱ CLÁSSICO';
+    if(p.mode==='circuit') badge='CIRCUITO';
+    else if(p.mode==='brain') badge='FLUXO MARC.';
+    else badge='CLÁSSICO';
 
     let pills='';
     if(p.mode==='circuit'){
