@@ -96,7 +96,7 @@
     font-size:11px;color:var(--muted);letter-spacing:.5px;
     display:flex;align-items:center;gap:4px;flex-shrink:0;
   }
-  .meta-icon{width:13px;height:13px;object-fit:contain;opacity:.7;flex-shrink:0;}
+  .meta-icon{width:20px;height:20px;object-fit:contain;opacity:.7;flex-shrink:0;}
   .meta-sep{opacity:.35;margin:0 1px;}
 
   /* Expanded layout */
@@ -451,15 +451,15 @@
 
   /* ---- PHASE ICON (timer phase label) ---- */
   .phase-label-wrap{display:flex;align-items:center;gap:7px;}
-  .phase-icon{width:22px;height:22px;object-fit:contain;flex-shrink:0;opacity:.85;filter:var(--phase-icon-filter,none);}
+  .phase-icon{width:29px;height:29px;object-fit:contain;flex-shrink:0;opacity:.85;filter:var(--phase-icon-filter,none);}
 
   /* ---- PILL ICONS (card metadata) ---- */
-  .pill-icon{width:14px;height:14px;object-fit:contain;vertical-align:middle;margin-right:3px;opacity:.8;position:relative;top:-1px;}
+  .pill-icon{width:21px;height:21px;object-fit:contain;vertical-align:middle;margin-right:4px;opacity:.8;position:relative;top:-1px;}
   .card-exp-pill img.pill-icon{filter:var(--pill-icon-filter,none);}
 
   /* Auto phase label em telas auto */
   .auto-phase-wrap{display:flex;align-items:center;gap:7px;}
-  .auto-phase-icon{width:20px;height:20px;object-fit:contain;flex-shrink:0;opacity:.85;}
+  .auto-phase-icon{width:26px;height:26px;object-fit:contain;flex-shrink:0;opacity:.85;}
 
   /* ---- FLUXO: ícones de tipo de exercício clicáveis ---- */
   .auto-extype-btn{
@@ -632,7 +632,7 @@
     <div class="field-group"><div class="field-label">Nomes dos exercícios (opcional)</div><div class="circuit-exercises" id="exerciseInputs"></div></div>
   </div>
   <div id="brainFields" style="display:none;flex-direction:column;gap:12px">
-    <div style="font-size:12px;color:#B47FFF;background:rgba(180,127,255,.08);border:1px solid rgba(180,127,255,.2);border-radius:10px;padding:10px 14px;line-height:1.5">
+    <div style="font-size:12px;color:var(--accent);background:var(--accent-subtle);border:1px solid var(--accent-glow);border-radius:10px;padding:10px 14px;line-height:1.5">
       🧠 Descanso calculado pelo esforço, igual ao Fluxo. Mas aqui você pré-define os exercícios e séries — e o treino segue automaticamente.
     </div>
     <div class="row2">
@@ -723,9 +723,9 @@
 <!-- EARLY REST SKIP MODAL -->
 <div class="modal-overlay" id="earlyRestModal">
   <div class="modal-sheet" style="gap:14px">
-    <div class="modal-title" style="color:#2979FF">PRONTO PARA A PRÓXIMA SÉRIE?</div>
+    <div class="modal-title" style="color:#F04E23">PRONTO PARA A PRÓXIMA SÉRIE?</div>
     <div style="font-size:14px;color:var(--muted)" id="earlyRestSubtext">Restam 30s de recuperação.</div>
-    <button class="btn-save" id="btnEarlyRestContinue" style="background:#2979FF;border:none;margin-top:4px">▶ CONTINUAR</button>
+    <button class="btn-save" id="btnEarlyRestContinue" style="background:var(--accent);border:none;margin-top:4px">▶ CONTINUAR</button>
     <button class="btn-connect" id="btnEarlyRestWait">Aguardar recuperação</button>
   </div>
 </div>
@@ -798,7 +798,7 @@
     </div>
     <div class="controls" style="margin-top:20px">
       <button class="btn-ctrl" id="btnAutoPrepBack"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg><span class="ctrl-label">Voltar</span></button>
-      <button class="btn-playpause" id="btnAutoPrepPlay" style="background:#B47FFF;color:#fff"><svg viewBox="0 0 24 24" id="btnAutoPrepPlayIcon"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg></button>
+      <button class="btn-playpause" id="btnAutoPrepPlay" style="background:#F04E23;color:#fff"><svg viewBox="0 0 24 24" id="btnAutoPrepPlayIcon"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg></button>
       <button class="btn-ctrl" id="btnAutoPrepSkip" title="Pular preparação"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zm2-8.14L11.03 12 8 14.14V9.86zM16 6h2v12h-2z"/></svg><span class="ctrl-label">Avançar</span></button>
     </div>
   </div>
@@ -815,11 +815,11 @@
       <div class="ring-wrap">
         <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="44"/><circle class="ring-fg" id="autoExecRing" cx="60" cy="60" r="44"/></svg>
         <div class="ring-center">
-          <div class="time-display" id="autoExecTime" style="color:#B47FFF">60</div>
+          <div class="time-display" id="autoExecTime" style="color:var(--accent)">60</div>
           <div class="time-sub" id="autoExecSub">segundos</div>
         </div>
       </div>
-      <div class="auto-big-label" id="autoExecOverflowLabel" style="color:#B47FFF;opacity:0;font-size:13px;letter-spacing:1px;margin-top:0">Série contínua ou prolongada</div>
+      <div class="auto-big-label" id="autoExecOverflowLabel" style="color:var(--accent);opacity:0;font-size:13px;letter-spacing:1px;margin-top:0">Série contínua ou prolongada</div>
       <!-- Chip portrait: ícone pequeno + nome, centralizado abaixo do ring -->
       <div id="autoExecTypeDisplay">
         <div id="autoExecTypeChip">
@@ -832,7 +832,7 @@
       <div style="height:16px"></div>
       <div class="controls">
         <button class="btn-ctrl" id="btnAutoExecBack"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg><span class="ctrl-label">Voltar</span></button>
-        <button class="btn-playpause" id="btnAutoExecPlay" style="background:#B47FFF;color:#fff"><svg viewBox="0 0 24 24" id="btnAutoExecPlayIcon"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg></button>
+        <button class="btn-playpause" id="btnAutoExecPlay" style="background:#F04E23;color:#fff"><svg viewBox="0 0 24 24" id="btnAutoExecPlayIcon"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg></button>
         <button class="btn-ctrl" id="btnAutoExecSkip" title="Pular para repetições"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zm2-8.14L11.03 12 8 14.14V9.86zM16 6h2v12h-2z"/></svg><span class="ctrl-label">Avançar</span></button>
       </div>
     </div>
@@ -910,14 +910,14 @@
 <!-- AUTO: REST SCREEN -->
 <div class="screen hidden auto-screen" id="autoRest" style="display:flex;flex-direction:column;">
   <div class="auto-header">
-    <div class="auto-rest-title"><img class="auto-phase-icon" src="ic_recuperacao.png" alt="" style="width:24px;height:24px;">RECUPERAÇÃO</div>
+    <div class="auto-rest-title"><img class="auto-phase-icon" src="ic_recuperacao.png" alt="" style="width:26px;height:26px;">RECUPERAÇÃO</div>
     <div class="auto-series-badge">Série <span id="autoRestSerieNum">1</span></div>
   </div>
   <div class="auto-center">
     <div class="ring-wrap">
-      <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="44"/><circle class="ring-fg" id="autoRestRing" cx="60" cy="60" r="44" style="stroke:#2979FF"/></svg>
+      <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="44"/><circle class="ring-fg" id="autoRestRing" cx="60" cy="60" r="44" style="stroke:#F04E23"/></svg>
       <div class="ring-center">
-        <div class="time-display" id="autoRestTime" style="color:#2979FF">60</div>
+        <div class="time-display" id="autoRestTime" style="color:#F04E23">60</div>
         <div class="time-sub">segundos</div>
       </div>
     </div>
@@ -932,7 +932,7 @@
     <div style="height:16px"></div>
     <div class="controls">
       <button class="btn-ctrl" id="btnAutoRestBack"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg><span class="ctrl-label">Voltar</span></button>
-      <button class="btn-playpause" id="btnAutoRestPlay" style="background:#2979FF;color:#fff"><svg viewBox="0 0 24 24" id="btnAutoRestPlayIcon"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg></button>
+      <button class="btn-playpause" id="btnAutoRestPlay" style="background:#F04E23;color:#fff"><svg viewBox="0 0 24 24" id="btnAutoRestPlayIcon"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg></button>
       <button class="btn-ctrl" id="btnAutoRestSkip" title="Pular recuperação"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zm2-8.14L11.03 12 8 14.14V9.86zM16 6h2v12h-2z"/></svg><span class="ctrl-label">Avançar</span></button>
     </div>
   </div>
@@ -1056,14 +1056,14 @@
 <!-- BRAIN: REST SCREEN -->
 <div class="screen hidden auto-screen" id="brainRest" style="display:flex;flex-direction:column;">
   <div class="auto-header">
-    <div class="auto-phase-label" id="brainRestPhaseLabel" style="color:#2979FF"><img class="auto-phase-icon" src="ic_recuperacao.png" alt="">RECUPERAÇÃO</div>
+    <div class="auto-phase-label" id="brainRestPhaseLabel" style="color:#F04E23"><img class="auto-phase-icon" src="ic_recuperacao.png" alt="">RECUPERAÇÃO</div>
     <div class="auto-series-badge">Série <span id="brainRestSerieNum">1</span></div>
   </div>
   <div class="auto-center">
     <div class="ring-wrap">
-      <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="44"/><circle class="ring-fg" id="brainRestRing" cx="60" cy="60" r="44" style="stroke:#2979FF"/></svg>
+      <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="44"/><circle class="ring-fg" id="brainRestRing" cx="60" cy="60" r="44" style="stroke:#F04E23"/></svg>
       <div class="ring-center">
-        <div class="time-display" id="brainRestTime" style="color:#2979FF">01:00</div>
+        <div class="time-display" id="brainRestTime" style="color:#F04E23">01:00</div>
         <div class="time-sub">recuperação</div>
       </div>
     </div>
@@ -1291,7 +1291,7 @@ const OBS_DEFAULTS={
 };
 // BRAVO_CARDS: fixed cards in 'Programas Bravo' section (not stored in presets)
 const BRAVO_CARDS=[
-  {id:'treinoDoDia',name:'Treino do Dia',color:'#4361EE',mode:'brain',brainExCount:5,brainSeries:3,brainAction:40,brainPrep:15,
+  {id:'treinoDoDia',name:'Treino do Dia',color:'#F04E23',mode:'brain',brainExCount:5,brainSeries:3,brainAction:40,brainPrep:15,
    brainExercises:['Polichinelo','Agachamento','Flexão de braços','Barra fixa','Abdominal'],
    obs:'Descanso calculado pelo esforço. Exercícios e séries pré-definidos — o treino segue automaticamente.',_bravo:true},
 ];
@@ -1374,7 +1374,7 @@ function toggleFav(id){
 }
 
 // Data for Treino do Dia bravo card (used when selected)
-const BRAVO_MARCADO={id:'_bravoMarcado',name:'Treino do Dia',color:'#4361EE',mode:'brain',
+const BRAVO_MARCADO={id:'_bravoMarcado',name:'Treino do Dia',color:'#F04E23',mode:'brain',
   brainExCount:5,brainSeries:3,brainAction:40,brainPrep:15,
   brainExercises:['Polichinelo','Agachamento','Flexão de braços','Barra fixa','Abdominal'],_bravo:true};
 
@@ -1417,7 +1417,7 @@ function renderHome(){
   const bravoOrder=loadBravoOrder();
   // All bravo cards: Fluxo (auto) + BRAVO_CARDS entries
   const allBravoCards=[
-    {id:'_autoMode',name:'Fluxo',color:'#B47FFF'},
+    {id:'_autoMode',name:'Fluxo',color:'#F04E23'},
     ...BRAVO_CARDS.map(c=>({id:'_bravo_'+c.id,name:c.name,color:c.color,_data:c}))
   ];
   // Sort by persisted order
@@ -1500,7 +1500,7 @@ function renderHome(){
     card.style.setProperty('--cr',hexToRgb(c));
 
     let collapsedMeta='';
-    if(p.mode==='circuit') collapsedMeta=`<img class="meta-icon" src="ic_norodadas.png" alt="">${p.rounds} rod<span class="meta-sep">·</span><img class="meta-icon" src="ic_noexe.png" alt="">${p.exCount} ex`;
+    if(p.mode==='circuit') collapsedMeta=`<img class="meta-icon" src="ic_noexe.png" alt="">${p.exCount} ex<span class="meta-sep">·</span><img class="meta-icon" src="ic_norodadas.png" alt="">${p.rounds} rod`;
     else if(p.mode==='brain') collapsedMeta=`<img class="meta-icon" src="ic_noexe.png" alt="">${p.brainExCount||2} ex<span class="meta-sep">·</span><img class="meta-icon" src="ic_noseries.png" alt="">${p.brainSeries||3} sér`;
     else collapsedMeta=`<img class="meta-icon" src="ic_noseries.png" alt="">${p.cycles} sér<span class="meta-sep">·</span><img class="meta-icon" src="ic_execucao.png" alt="">${fmtSec(p.action)}`;
 
@@ -1749,18 +1749,18 @@ function injectTreinarBtn(){
 
   // Determine what's selected
   let targetEl=null;
-  let color='#B47FFF';
+  let color='#F04E23';
 
   if(selectedId==='_bravoMarcado'){
     targetEl=document.getElementById('bravoMarcadoCard');
-    color=BRAVO_MARCADO?.color||'#B47FFF';
+    color=BRAVO_MARCADO?.color||'#F04E23';
   } else if(selectedId){
     const p=presets.find(x=>x.id===selectedId);
-    color=p?.color||'#B47FFF';
+    color=p?.color||'#F04E23';
     targetEl=document.querySelector(`.preset-card[data-id="${selectedId}"]`);
   } else if(autoModeSelected){
     targetEl=document.getElementById('autoCard');
-    color='#B47FFF';
+    color='#F04E23';
   }
 
   if(!targetEl) return;
@@ -2094,9 +2094,7 @@ ringFg.style.strokeDasharray=CIRC;
 let tmr={preset:null,phase:'prep',cycle:1,seconds:0,total:0,running:false,_int:null,isCircuit:false,round:1,exIndex:0,color:'#00E676'};
 
 function phaseColor(phase,base){
-  if(phase==='action')return base;
-  if(phase==='prep')return '#F04E23';
-  return '#2979FF';
+  return '#F04E23';
 }
 function applyAccent(c){document.documentElement.style.setProperty('--accent',c);}
 let wakeLock=null;
@@ -2218,10 +2216,12 @@ function phaseStart(){
   lbl.innerHTML=`<img class="phase-icon" src="${icon}" alt=""><span>${NAMES[tmr.phase]}</span>`;
   lbl.className='phase-label phase-label-wrap';
   lbl.style.color=c;
-  document.getElementById('timeDisplay').style.color=c;
+  document.getElementById('timeDisplay').style.color='#F04E23';
+  document.getElementById('timeSub').style.color=tmr.color;
+  const _cel=document.getElementById('circuitExLabel');if(_cel)_cel.style.color=tmr.color;
   const play=document.getElementById('btnPlay');
   play.style.background=c;play.style.color=isLight(c)?'#000':'#fff';
-  ringFg.style.stroke=c;
+  ringFg.style.stroke='#F04E23';
   const fl=document.getElementById('flash');
   fl.style.background=c;fl.classList.add('on');setTimeout(()=>fl.classList.remove('on'),150);
   vibrate([80,30,80]);
@@ -2399,10 +2399,10 @@ function showCalDetail(dateStr,rec){
     html+=`</div>`;
     if(workouts.length>1)html+=`<button onclick="confirmDeleteWorkoutAt(${i})" style="font-size:11px;padding:3px 10px;border-radius:8px;border:1px solid rgba(255,77,109,.35);background:transparent;color:#ff4d6d;cursor:pointer">🗑</button>`;
     html+=`</div>`;
-    html+=`<div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:#B47FFF">${w.name||'Automático ♾️'}</div>`;
+    html+=`<div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--accent)">${w.name||'Automático ♾️'}</div>`;
     if(w.exTypes&&w.exTypes.length){
       html+=`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">`;
-      w.exTypes.forEach(t=>{const et=EX_TYPE_MAP[t];if(et)html+=`<div style="display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:8px;background:var(--surface2);font-size:12px;color:${et.color};font-weight:600"><img src="ic_${t}.png" style="width:14px;height:14px;object-fit:cover;border-radius:3px;flex-shrink:0"> ${et.label}</div>`;});
+      w.exTypes.forEach(t=>{const et=EX_TYPE_MAP[t];if(et)html+=`<div style="display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:8px;background:var(--surface2);font-size:12px;color:${et.color};font-weight:600"><img src="ic_${t}.png" style="width:21px;height:21px;object-fit:cover;border-radius:3px;flex-shrink:0"> ${et.label}</div>`;});
       html+=`</div>`;
     }
     if(w.obs)html+=`<div style="font-size:13px;color:#888;margin-top:5px;font-style:italic">${w.obs}</div>`;
@@ -2610,15 +2610,15 @@ function startAutoMode(){
 function showAutoPrep(){
   autoPrepPaused=false;
   document.getElementById('autoPrepSerieNum').textContent=auto.serieNum;
-  document.getElementById('autoPrepExName').textContent=autoExName();
-  applyAccent('#B47FFF');
+  const _apn=document.getElementById('autoPrepExName');_apn.textContent=autoExName();_apn.style.color='#F04E23';
+  applyAccent('#F04E23');
   auto.prepSecs=15;
   resetAutoPrepType(); // limpa seleção para o novo exercício
   const ring=document.getElementById('autoPrepRing');
   ring.style.strokeDasharray=AUTO_CIRC;
   ring.style.strokeDashoffset=0;
   const prepBtn=document.getElementById('btnAutoPrepPlay');
-  if(prepBtn){prepBtn.querySelector('svg').innerHTML=SVG_PAUSE;prepBtn.style.background='#B47FFF';prepBtn.style.color='#fff';}
+  if(prepBtn){prepBtn.querySelector('svg').innerHTML=SVG_PAUSE;prepBtn.style.background='#F04E23';prepBtn.style.color='#fff';}
   showScreen('autoPrep');
   speak('Prepare-se. Escolha um exercício.');
   beep(800,.15,.5);
@@ -2636,17 +2636,17 @@ function showAutoPrep(){
 function startAutoExec(){
   auto.execSecs=60;auto.execTotal=60;auto.execOverflow=false;
   document.getElementById('autoExecSerieNum').textContent=auto.serieNum;
-  document.getElementById('autoExecExName').textContent=autoExName();
+  const _aen=document.getElementById('autoExecExName');_aen.textContent=autoExName();_aen.style.color='#F04E23';
   document.getElementById('autoExecPhaseLabel').textContent='VAMOS!';
-  document.getElementById('autoExecPhaseLabel').style.color='#B47FFF';
+  document.getElementById('autoExecPhaseLabel').style.color='#F04E23';
   const ring=document.getElementById('autoExecRing');
   ring.style.strokeDasharray=AUTO_CIRC;
-  ring.style.stroke='#B47FFF';
+  ring.style.stroke='#F04E23';
   document.getElementById('autoExecOverflowLabel').style.opacity='0';
   applyPrepTypeToExec(); // mostra o ícone do tipo selecionado na preparação
   showScreen('autoExec');
   speak('Vamos!');beep(1200,.15,.6);vibrate([80,30,80]);
-  const fl=document.getElementById('flash');fl.style.background='#B47FFF';fl.classList.add('on');setTimeout(()=>fl.classList.remove('on'),150);
+  const fl=document.getElementById('flash');fl.style.background='#F04E23';fl.classList.add('on');setTimeout(()=>fl.classList.remove('on'),150);
   clearInterval(auto._int);
   auto._int=setInterval(()=>{
     auto.execSecs--;
@@ -2691,7 +2691,7 @@ document.getElementById('btnAutoPrepBack').onclick=()=>{
 document.getElementById('btnAutoPrepPlay').onclick=()=>{
   autoPrepPaused=!autoPrepPaused;
   const btn=document.getElementById('btnAutoPrepPlay');
-  setPlayIcon(btn,!autoPrepPaused,'#B47FFF');
+  setPlayIcon(btn,!autoPrepPaused,'#F04E23');
   if(autoPrepPaused){
     clearInterval(auto._int);
   } else {
@@ -2726,7 +2726,7 @@ function setPlayIcon(btn,playing,bg,color){
 document.getElementById('btnAutoExecPlay').onclick=()=>{
   autoExecPaused=!autoExecPaused;
   const btn=document.getElementById('btnAutoExecPlay');
-  setPlayIcon(btn,!autoExecPaused,'#B47FFF');
+  setPlayIcon(btn,!autoExecPaused,'#F04E23');
   if(autoExecPaused){
     clearInterval(auto._int);
   } else {
@@ -2755,7 +2755,7 @@ document.getElementById('btnAutoRestBack').onclick=()=>{
 document.getElementById('btnAutoRestPlay').onclick=()=>{
   autoRestPaused=!autoRestPaused;
   const btn=document.getElementById('btnAutoRestPlay');
-  setPlayIcon(btn,!autoRestPaused,'#2979FF');
+  setPlayIcon(btn,!autoRestPaused,'#F04E23');
   if(autoRestPaused){
     clearInterval(auto._int);
   } else {
@@ -2847,7 +2847,7 @@ function startAutoRest(){
   updateAutoRestUI();
   showScreen('autoRest');
   speak('Recuperação.');beep(800,.15,.5);
-  const fl=document.getElementById('flash');fl.style.background='#2979FF';fl.classList.add('on');setTimeout(()=>fl.classList.remove('on'),150);
+  const fl=document.getElementById('flash');fl.style.background='#F04E23';fl.classList.add('on');setTimeout(()=>fl.classList.remove('on'),150);
   clearInterval(auto._int);
   auto._int=setInterval(()=>{
     auto.restSecs--;
@@ -2914,16 +2914,16 @@ function startAutoExecDirect(){
   document.getElementById('autoExecSerieNum').textContent=auto.serieNum;
   document.getElementById('autoExecExName').textContent=autoExName();
   document.getElementById('autoExecPhaseLabel').textContent='VAMOS!';
-  document.getElementById('autoExecPhaseLabel').style.color='#B47FFF';
+  document.getElementById('autoExecPhaseLabel').style.color='#F04E23';
   const ring=document.getElementById('autoExecRing');
-  ring.style.strokeDasharray=AUTO_CIRC;ring.style.stroke='#B47FFF';
+  ring.style.strokeDasharray=AUTO_CIRC;ring.style.stroke='#F04E23';
   document.getElementById('autoExecOverflowLabel').style.opacity='0';
   // Fluxo has no per-exercise videos (single exercise mode), clear
   showYtEmbed('autoExecYtWrap',null,'autoExecCenter');
   applyPrepTypeToExec(); // mostra o ícone do tipo selecionado
   showScreen('autoExec');
   speak('Vamos!');beep(1200,.15,.6);vibrate([80,30,80]);
-  const fl=document.getElementById('flash');fl.style.background='#B47FFF';fl.classList.add('on');setTimeout(()=>fl.classList.remove('on'),150);
+  const fl=document.getElementById('flash');fl.style.background='#F04E23';fl.classList.add('on');setTimeout(()=>fl.classList.remove('on'),150);
   clearInterval(auto._int);
   auto._int=setInterval(()=>{
     auto.execSecs--;
@@ -3080,7 +3080,8 @@ function startBrainMode(p){
   brain.exIndex=0;brain.serieNum=1;
   brain.execOverflow=false;brain.running=true;
   brain.pendingMarkName=p.name;
-  applyAccent(p.color||'#4361EE');
+  applyAccent('#F04E23');
+  brain._cardColor=p.color||'#F04E23';
   acquireWakeLock();
   showBrainPrep(); // prep sempre no início
 }
@@ -3091,8 +3092,8 @@ function brainExName(){
 }
 
 function brainColor(phase){
-  // same pattern as phaseColor in classic
-  if(phase==='action') return brain.preset?.color||'#4361EE';
+  // ring always orange; names use card color
+  if(phase==='action') return '#F04E23';
   if(phase==='prep')   return '#F04E23';
   return '#2979FF'; // rest
 }
@@ -3104,7 +3105,7 @@ function showBrainPrep(){
   if(prepBtn){prepBtn.querySelector('svg').innerHTML=SVG_PAUSE;prepBtn.style.background='#F04E23';prepBtn.style.color='#000';}
   const c=brainColor('prep'); // #F04E23
   document.getElementById('brainPrepSerieNum').textContent=brain.serieNum;
-  document.getElementById('brainPrepExName').textContent=brainExName();
+  const _bpn=document.getElementById('brainPrepExName');_bpn.textContent=brainExName();_bpn.style.color=brain._cardColor||'#F04E23';
   document.getElementById('brainPrepProgress').textContent=`Exercício ${brain.exIndex+1}/${brain.totalExercises} · Série ${brain.serieNum}/${brain.totalSeries}`;
   const ring=document.getElementById('brainPrepRing');
   ring.style.strokeDasharray=AUTO_CIRC;ring.style.strokeDashoffset=0;ring.style.stroke=c;
@@ -3136,7 +3137,7 @@ function startBrainExec(){
   const ring=document.getElementById('brainExecRing');
   const label=document.getElementById('brainExecPhaseLabel');
   label.textContent='VAMOS!';label.style.color=c;
-  document.getElementById('brainExecExName').textContent=brainExName();
+  const _ben=document.getElementById('brainExecExName');_ben.textContent=brainExName();_ben.style.color=brain._cardColor||'#F04E23';
   document.getElementById('brainExecSerieNum').textContent=`${brain.serieNum}/${brain.totalSeries}`;
   document.getElementById('brainExecTime').style.color=c;
   ring.style.strokeDasharray=AUTO_CIRC;ring.style.stroke=c;
