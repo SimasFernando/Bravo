@@ -59,17 +59,17 @@
   /* Expanded / selected state */
   .preset-card.selected{
     padding:20px 20px 22px;
-    background:var(--c, var(--surface));
+    background:var(--surface);
     overflow:visible;
-    box-shadow:0 8px 32px rgba(0,0,0,.45);
+    border:1px solid var(--surface2);
+    box-shadow:0 8px 32px rgba(0,0,0,.55);
   }
-  /* Card color fill — collapsed = tinted bg, expanded = solid */
-  .preset-card:not(.selected) .card-color-band{
-    position:absolute;left:0;top:0;bottom:0;width:4px;
+  /* Color band — always visible on left edge */
+  .card-color-band{
+    position:absolute;left:0;top:0;bottom:0;width:5px;
     background:var(--c,#aaa);
-    border-radius:4px 0 0 4px;
+    border-radius:5px 0 0 5px;
   }
-  .preset-card.selected .card-color-band{display:none;}
 
   /* Collapsed layout: single row */
   .card-collapsed-row{
@@ -107,27 +107,26 @@
     display:inline-flex;align-items:center;gap:4px;
     font-size:11px;font-weight:600;letter-spacing:1.5px;
     padding:3px 10px;border-radius:20px;
-    background:rgba(255,255,255,.12);color:rgba(255,255,255,.7);
+    background:var(--surface2);color:var(--muted);
     width:fit-content;margin-bottom:2px;
     text-transform:uppercase;
   }
   .card-exp-name{
     font-family:'Bebas Neue',sans-serif;
     font-size:36px;letter-spacing:1px;line-height:1;
-    color:#fff;
-    text-shadow:0 2px 12px rgba(0,0,0,.4);
+    color:var(--text);
   }
   .card-exp-pills{
     display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;
   }
   .card-exp-pill{
     font-size:12px;padding:4px 10px;border-radius:10px;
-    background:rgba(255,255,255,.12);color:rgba(255,255,255,.7);
+    background:var(--surface2);color:var(--muted);
     font-weight:500;
   }
   .card-exp-obs{
     margin-top:6px;font-size:13px;
-    color:rgba(255,255,255,.45);line-height:1.5;
+    color:var(--muted);line-height:1.5;
     font-style:italic;
   }
   .card-exp-actions{
@@ -136,19 +135,19 @@
   }
   .preset-card:not(.selected) .card-exp-actions{display:none;}
   .btn-fav{flex-shrink:0;width:28px;height:28px;border-radius:50%;border:none;
-    background:rgba(255,255,255,.12);font-size:14px;cursor:pointer;
+    background:var(--surface2);font-size:14px;cursor:pointer;
     display:flex;align-items:center;justify-content:center;
-    transition:transform .15s;color:rgba(255,255,255,.4);}
+    transition:transform .15s;color:var(--muted);}
   .btn-fav.active{color:#FFD060;}
   .btn-fav:active{transform:scale(1.3);}
   .btn-dup{flex-shrink:0;width:28px;height:28px;border-radius:8px;
-    background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.6);font-size:16px;
+    background:var(--surface2);border:none;color:var(--muted);font-size:16px;
     display:flex;align-items:center;justify-content:center;cursor:pointer;}
-  .btn-dup:active{background:rgba(255,255,255,.2);}
+  .btn-dup:active{background:#2e2e2e;}
   .btn-edit{flex-shrink:0;width:28px;height:28px;border-radius:8px;
-    border:none;background:rgba(255,255,255,.1);font-size:13px;cursor:pointer;
-    display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.5);}
-  .btn-edit:active{background:rgba(255,255,255,.2);}
+    border:none;background:var(--surface2);font-size:13px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;color:var(--muted);}
+  .btn-edit:active{background:#2e2e2e;}
   .preset-mode-badge{display:none;}/* replaced by card-exp-badge */
   .btn-delete-edit{margin-top:8px;width:100%;padding:14px;border-radius:12px;border:1px solid rgba(255,80,80,.35);background:rgba(255,80,80,.06);color:#ff6b6b;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;cursor:pointer;transition:background .2s;}
   .btn-delete-edit:active{background:rgba(255,80,80,.18);}
@@ -254,7 +253,7 @@
   .ex-drag-handle:active{cursor:grabbing;opacity:.75;}
   .color-picker{display:flex;gap:10px;flex-wrap:wrap;padding:4px 0;}
   .color-swatch{width:34px;height:34px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:transform .15s,border-color .15s;flex-shrink:0;}
-  .color-swatch.selected{border-color:#fff;transform:scale(1.2);}
+  .color-swatch.selected{border-color:var(--accent);transform:scale(1.2);box-shadow:0 0 0 1px var(--surface);}
   .btn-save{height:52px;border-radius:26px;border:none;background:var(--accent);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;cursor:pointer;margin-top:4px;width:100%;box-shadow:0 4px 20px var(--accent-glow);}
   #timer{flex-direction:column!important;align-items:stretch;padding:0;}
   .timer-main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:24px 14px 32px;position:relative;}
@@ -750,8 +749,8 @@
     <div class="auto-prep-title">SEU TREINO<br>COMEÇA EM</div>
     <div style="height:4px"></div>
     <div class="ring-wrap" style="margin-top:8px">
-      <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="44"/><circle class="ring-fg" id="autoPrepRing" cx="60" cy="60" r="44" style="stroke:#F5C518"/></svg>
-      <div class="ring-center"><div class="time-display" id="autoPrepTime" style="color:#F5C518">15</div><div class="time-sub">segundos</div></div>
+      <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="44"/><circle class="ring-fg" id="autoPrepRing" cx="60" cy="60" r="44" style="stroke:#F04E23"/></svg>
+      <div class="ring-center"><div class="time-display" id="autoPrepTime" style="color:#F04E23">15</div><div class="time-sub">segundos</div></div>
     </div>
     <!-- Exercise type icons — clicáveis (Fluxo only) -->
     <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--muted);text-align:center;margin-top:20px">DEFINA SEU EXERCÍCIO</div>
@@ -958,22 +957,22 @@
 <!-- BRAIN: PREP SCREEN -->
 <div class="screen hidden auto-screen" id="brainPrep" style="display:flex;flex-direction:column;">
   <div class="auto-header">
-    <div class="auto-phase-label" id="brainPrepPhaseLabel" style="color:#F5C518"><img class="auto-phase-icon" src="ic_preparacao.png" alt="">PREPARE-SE</div>
+    <div class="auto-phase-label" id="brainPrepPhaseLabel" style="color:#F04E23"><img class="auto-phase-icon" src="ic_preparacao.png" alt="">PREPARE-SE</div>
     <div class="auto-series-badge" id="brainPrepProgress">Exercício 1/2 · Série 1/3</div>
   </div>
   <div class="auto-center">
     <div class="auto-prep-title" id="brainPrepExName">Exercício 1</div>
     <div class="auto-prep-sub">Série <span id="brainPrepSerieNum">1</span></div>
     <div class="ring-wrap">
-      <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="44"/><circle class="ring-fg" id="brainPrepRing" cx="60" cy="60" r="44" style="stroke:#F5C518"/></svg>
+      <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="44"/><circle class="ring-fg" id="brainPrepRing" cx="60" cy="60" r="44" style="stroke:#F04E23"/></svg>
       <div class="ring-center">
-        <div class="time-display" id="brainPrepTime" style="color:#F5C518">15</div>
+        <div class="time-display" id="brainPrepTime" style="color:#F04E23">15</div>
         <div class="time-sub">segundos</div>
       </div>
     </div>
     <div class="controls" style="margin-top:16px">
       <button class="btn-ctrl" id="btnBrainPrepBack"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg><span class="ctrl-label">Voltar</span></button>
-      <button class="btn-playpause" id="btnBrainPrepPlay" style="background:#F5C518;color:#000"><svg viewBox="0 0 24 24" id="btnBrainPrepPlayIcon"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg></button>
+      <button class="btn-playpause" id="btnBrainPrepPlay" style="background:#F04E23;color:#fff"><svg viewBox="0 0 24 24" id="btnBrainPrepPlayIcon"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg></button>
       <button class="btn-ctrl" id="btnBrainPrepSkip" title="Avançar para execução"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zm2-8.14L11.03 12 8 14.14V9.86zM16 6h2v12h-2z"/></svg><span class="ctrl-label">Avançar</span></button>
     </div>
   </div>
@@ -1011,7 +1010,7 @@
 <!-- BRAIN: REPS SCREEN -->
 <div class="screen hidden auto-screen" id="brainReps" style="display:flex;flex-direction:column;">
   <div class="auto-header">
-    <div class="auto-phase-label" style="color:#F5C518">REPETIÇÕES</div>
+    <div class="auto-phase-label" style="color:#F04E23">REPETIÇÕES</div>
     <div class="auto-series-badge">Série <span id="brainRepsSerieNum">1</span></div>
   </div>
   <div class="auto-center">
@@ -1039,7 +1038,7 @@
 <!-- BRAIN: INTENSITY SCREEN -->
 <div class="screen hidden auto-screen" id="brainIntensity" style="display:flex;flex-direction:column;">
   <div class="auto-header">
-    <div class="auto-phase-label" style="color:#F5C518">INTENSIDADE</div>
+    <div class="auto-phase-label" style="color:#F04E23">INTENSIDADE</div>
     <div class="auto-series-badge">Série <span id="brainIntSerieNum">1</span></div>
   </div>
   <div class="auto-center">
@@ -1276,12 +1275,12 @@
 
 <script>
 const PALETTE=[
-  {hex:'#E63946',name:'Vermelho'},{hex:'#F4845F',name:'Laranja'},
-  {hex:'#F9C74F',name:'Amarelo'},{hex:'#90BE6D',name:'Verde Claro'},
-  {hex:'#2DC653',name:'Verde'},{hex:'#00E5FF',name:'Ciano'},
-  {hex:'#4CC9F0',name:'Azul Claro'},{hex:'#4361EE',name:'Azul'},
-  {hex:'#7B2FBE',name:'Roxo'},{hex:'#FF6B9D',name:'Rosa'},
-  {hex:'#F4A261',name:'Bege'},{hex:'#B5B5B5',name:'Prata'},
+  {hex:'#F04E23',name:'Laranja'},
+  {hex:'#FFFFFF',name:'Branco'},
+  {hex:'#2979FF',name:'Azul'},
+  {hex:'#2DC653',name:'Verde'},
+  {hex:'#B47FFF',name:'Roxo'},
+  {hex:'#FF6B9D',name:'Rosa'},
 ];
 const EX_LETTERS=['A','B','C','D','E','F'];
 const OBS_DEFAULTS={
@@ -1314,7 +1313,7 @@ function loadPresets(){
 }
 function savePresets(p){localStorage.setItem('nt_presets',JSON.stringify(p));}
 
-let presets=loadPresets(),selectedId=null,editingId=null,editMode='normal',editColor=PALETTE[3].hex;
+let presets=loadPresets(),selectedId=null,editingId=null,editMode='normal',editColor=PALETTE[0].hex;
 let autoModeSelected=true; // auto mode pre-selected by default
 
 let cfg=JSON.parse(localStorage.getItem('nt_cfg')||'{}');
@@ -1990,7 +1989,7 @@ function openEdit(id){
   document.getElementById('efName').value=p?.name??'';
   document.getElementById('efObs').value=p?.obs??'';
   clearYtTemp();
-  editColor=p?.color||PALETTE[3].hex;
+  editColor=p?.color||PALETTE[0].hex;
   buildColorPicker(editColor);
   const mode=p?.mode??'normal';setMode(mode);
   if(mode==='circuit'){
@@ -2096,7 +2095,7 @@ let tmr={preset:null,phase:'prep',cycle:1,seconds:0,total:0,running:false,_int:n
 
 function phaseColor(phase,base){
   if(phase==='action')return base;
-  if(phase==='prep')return '#F5C518';
+  if(phase==='prep')return '#F04E23';
   return '#2979FF';
 }
 function applyAccent(c){document.documentElement.style.setProperty('--accent',c);}
@@ -2779,7 +2778,7 @@ document.getElementById('btnBrainPrepBack').onclick=()=>{
 document.getElementById('btnBrainPrepPlay').onclick=()=>{
   brainPrepPaused=!brainPrepPaused;
   const btn=document.getElementById('btnBrainPrepPlay');
-  setPlayIcon(btn,!brainPrepPaused,'#F5C518','#000');
+  setPlayIcon(btn,!brainPrepPaused,'#F04E23','#fff');
   if(brainPrepPaused){
     clearInterval(brain._int);
   } else {
@@ -3094,7 +3093,7 @@ function brainExName(){
 function brainColor(phase){
   // same pattern as phaseColor in classic
   if(phase==='action') return brain.preset?.color||'#4361EE';
-  if(phase==='prep')   return '#F5C518';
+  if(phase==='prep')   return '#F04E23';
   return '#2979FF'; // rest
 }
 
@@ -3102,8 +3101,8 @@ function showBrainPrep(){
   clearInterval(brain._int);
   brainPrepPaused=false;
   const prepBtn=document.getElementById('btnBrainPrepPlay');
-  if(prepBtn){prepBtn.querySelector('svg').innerHTML=SVG_PAUSE;prepBtn.style.background='#F5C518';prepBtn.style.color='#000';}
-  const c=brainColor('prep'); // #F5C518
+  if(prepBtn){prepBtn.querySelector('svg').innerHTML=SVG_PAUSE;prepBtn.style.background='#F04E23';prepBtn.style.color='#000';}
+  const c=brainColor('prep'); // #F04E23
   document.getElementById('brainPrepSerieNum').textContent=brain.serieNum;
   document.getElementById('brainPrepExName').textContent=brainExName();
   document.getElementById('brainPrepProgress').textContent=`Exercício ${brain.exIndex+1}/${brain.totalExercises} · Série ${brain.serieNum}/${brain.totalSeries}`;
