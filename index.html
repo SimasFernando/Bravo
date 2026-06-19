@@ -38,7 +38,7 @@
   .logo span{color:var(--accent);}
   .btn-icon{width:40px;height:40px;border-radius:50%;border:1px solid var(--surface2);background:var(--surface);color:var(--text);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s;}
   .btn-icon:active{background:var(--surface2);}
-  .section-label{font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+  .section-label{font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:8px;}
   .preset-list{display:flex;flex-direction:column;gap:8px;}
   /* ---- NEW CARD DESIGN ---- */
   .preset-card{
@@ -90,10 +90,10 @@
   .drag-handle:active{cursor:grabbing;opacity:.8;}
   .card-collapsed-name{
     font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;
-    color:var(--text);flex:1;
+    color:var(--accent);flex:1;
   }
   .card-collapsed-meta{
-    font-size:11px;color:var(--muted);letter-spacing:.5px;
+    font-size:11px;color:var(--text);letter-spacing:.5px;
     display:flex;align-items:center;gap:4px;flex-shrink:0;
   }
   .meta-icon{width:20px;height:20px;object-fit:contain;opacity:.7;flex-shrink:0;}
@@ -107,26 +107,26 @@
     display:inline-flex;align-items:center;gap:4px;
     font-size:11px;font-weight:600;letter-spacing:1.5px;
     padding:3px 10px;border-radius:20px;
-    background:var(--surface2);color:var(--muted);
+    background:var(--surface2);color:var(--text);
     width:fit-content;margin-bottom:2px;
     text-transform:uppercase;
   }
   .card-exp-name{
     font-family:'Bebas Neue',sans-serif;
     font-size:36px;letter-spacing:1px;line-height:1;
-    color:var(--text);
+    color:var(--accent);
   }
   .card-exp-pills{
     display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;
   }
   .card-exp-pill{
     font-size:12px;padding:4px 10px;border-radius:10px;
-    background:var(--surface2);color:var(--muted);
+    background:var(--surface2);color:var(--text);
     font-weight:500;
   }
   .card-exp-obs{
     margin-top:6px;font-size:13px;
-    color:var(--muted);line-height:1.5;
+    color:var(--text);line-height:1.5;
     font-style:italic;
   }
   .card-exp-actions{
@@ -1442,7 +1442,7 @@ function renderHome(){
         <div class="card-collapsed-row">
           <div class="drag-handle" title="Arrastar para reordenar">⠿</div>
           <div class="card-collapsed-name">Fluxo</div>
-          <div class="card-collapsed-meta">♾️ SEU RITMO</div>
+          <div class="card-collapsed-meta">♾️ SIGA SEU TREINO</div>
         </div>
         <div class="card-expanded">
           <div class="card-exp-badge">♾️ FLUXO</div>
@@ -1465,8 +1465,8 @@ function renderHome(){
           <div class="card-collapsed-meta"><img class="meta-icon" src="ic_noexe.png?v=202506" alt="">${d.brainExCount} ex<span class="meta-sep">·</span><img class="meta-icon" src="ic_noseries.png?v=202506" alt="">${d.brainSeries} sér</div>
         </div>
         <div class="card-expanded">
-          <div class="card-exp-badge">🏋️ ${d.name.toUpperCase()}</div>
-          <div class="card-exp-name">Treino completo</div>
+          <div class="card-exp-badge">🧠 FLUXO MARCADO</div>
+          <div class="card-exp-name">Treino do Dia</div>
           <div class="card-exp-pills">
             <div class="card-exp-pill"><img class="pill-icon" src="ic_noexe.png?v=202506" alt="">${d.brainExCount} ex</div>
             <div class="card-exp-pill"><img class="pill-icon" src="ic_noseries.png?v=202506" alt="">${d.brainSeries} séries</div>
@@ -1765,15 +1765,12 @@ function injectTreinarBtn(){
 
   if(!targetEl) return;
 
-  // Determine text color for contrast
-  const textColor=isLight(color)?'#000':'#fff';
-
   const btn=document.createElement('button');
   btn.className='btn-treinar';
   btn.setAttribute('aria-label','Iniciar treino');
   btn.style.setProperty('--c',color);
-  btn.style.background=color;
-  btn.style.color=textColor;
+  btn.style.background='#F04E23';
+  btn.style.color='#fff';
   btn.innerHTML=`<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>TREINAR`;
   btn.addEventListener('click',(e)=>{e.stopPropagation();startTreinar();});
 
