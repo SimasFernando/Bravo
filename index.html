@@ -2220,14 +2220,14 @@ function startTimer(){
 
 function updateProgressChips(exTotal,exCur,serieTotal,serieCur){
   const exChip=document.getElementById('progExChip'),serieChip=document.getElementById('progSerieChip');
-  if(exTotal>1){
+  if(exTotal>=1){
     exChip.style.display='flex';
     document.getElementById('progExCur').textContent=exCur;
     document.getElementById('progExTotal').textContent=exTotal;
   } else {
     exChip.style.display='none';
   }
-  if(serieTotal>1){
+  if(serieTotal>=1){
     serieChip.style.display='flex';
     document.getElementById('progSerieCur').textContent=serieCur;
     document.getElementById('progSerieTotal').textContent=serieTotal;
