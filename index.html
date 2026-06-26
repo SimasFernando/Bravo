@@ -23,6 +23,8 @@
     --accent:#F04E23;
     --accent-glow: rgba(240,78,35,.22);
     --accent-subtle: rgba(240,78,35,.10);
+    --prog:#F04E23;
+    --bg-deep:#0B0B0B;
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow:hidden;}
@@ -263,32 +265,55 @@
   .color-swatch{width:34px;height:34px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:transform .15s,border-color .15s;flex-shrink:0;}
   .color-swatch.selected{border-color:var(--accent);transform:scale(1.2);box-shadow:0 0 0 1px var(--surface);}
   .btn-save{height:52px;border-radius:26px;border:none;background:var(--accent);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;cursor:pointer;margin-top:4px;width:100%;box-shadow:0 4px 20px var(--accent-glow);}
-  #timer{flex-direction:column!important;align-items:stretch;padding:0;}
-  .timer-main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:24px 14px 32px;position:relative;}
-  .timer-main .exec-main-col{display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:8px;}
-  .timer-top{width:100%;display:flex;align-items:center;justify-content:space-between;}
-  .phase-label{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:3px;transition:color .4s;display:flex;align-items:center;gap:8px;}
-  .cycle-badge{font-size:12px;color:var(--muted);background:var(--surface);padding:5px 12px;border-radius:20px;}
-  .cycle-badge span{color:var(--text);font-weight:500;}
-  .circuit-exercise-label{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:2px;color:var(--muted);margin-top:-6px;text-align:center;}
-  .ring-wrap{position:relative;width:min(76vw,320px);aspect-ratio:1;}
+  /* ===== TELA DE TREINO — REDESIGN ===== */
+  #timer{flex-direction:column!important;align-items:stretch;padding:0;background:var(--bg-deep);}
+  .timer-main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:22px 20px 28px;position:relative;}
+  .timer-main .exec-main-col{display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:14px;width:100%;flex:1;}
+
+  /* --- Cabeçalho de estado --- */
+  .timer-top{width:100%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .phase-label{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:3px;transition:color .35s;display:flex;align-items:center;gap:9px;}
+  .phase-label img.phase-icon{width:24px;height:24px;object-fit:contain;flex-shrink:0;opacity:.92;}
+  .cycle-badge{font-size:12px;color:var(--muted);background:var(--surface);padding:6px 13px;border-radius:20px;font-weight:500;letter-spacing:.3px;flex-shrink:0;}
+  .cycle-badge span{color:var(--text);font-weight:600;}
+
+  /* --- Identificação do exercício (cor do programa) --- */
+  .circuit-exercise-label{
+    font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:2px;
+    text-align:center;line-height:1.15;
+    transition:color .35s;
+  }
+
+  /* --- Cronômetro circular --- */
+  .ring-wrap{position:relative;width:min(72vw,300px);aspect-ratio:1;flex-shrink:0;}
   .ring-wrap svg{width:100%;height:100%;transform:rotate(-90deg);}
-  .ring-bg{fill:none;stroke:#1E1E1E;stroke-width:22;}
-  .ring-fg{fill:none;stroke-width:22;stroke-linecap:round;transition:stroke .4s,stroke-dashoffset .95s linear;}
+  .ring-bg{fill:none;stroke:#1A1A1A;stroke-width:20;}
+  .ring-fg{fill:none;stroke-width:20;stroke-linecap:round;transition:stroke .35s,stroke-dashoffset .95s linear;}
   .ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
-  .time-display{font-family:'Bebas Neue',sans-serif;font-size:clamp(52px,14vw,80px);line-height:1;letter-spacing:2px;transition:color .4s;}
-  .time-sub{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:3px;}50%{transform:scale(1.4)}}
-  .dots{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:200px;}
-  .dot{width:10px;height:10px;border-radius:50%;background:var(--surface2);transition:background .3s,transform .3s;}
+  .time-display{font-family:'Bebas Neue',sans-serif;font-size:clamp(56px,15vw,84px);line-height:1;letter-spacing:1px;transition:color .35s;font-variant-numeric:tabular-nums;}
+  .time-sub{font-size:11px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-top:4px;font-weight:500;}
+
+  /* --- Progresso do treino (somente ícones + contadores) --- */
+  .progress-row{display:flex;align-items:center;justify-content:center;gap:22px;flex-shrink:0;}
+  .progress-chip{display:flex;align-items:center;gap:8px;padding:7px 14px;border-radius:20px;background:var(--surface);}
+  .progress-chip img{width:18px;height:18px;object-fit:contain;flex-shrink:0;}
+  .progress-count{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:.5px;color:var(--text);}
+  .progress-count .pc-muted{color:var(--muted);}
+
+  /* --- Legacy dots (mantidos para compatibilidade, ocultos no novo layout) --- */
+  .dots{display:none;}
+  .round-dots{display:none;}
+  .dot{width:10px;height:10px;border-radius:50%;background:var(--surface2);}
   .dot.done{background:var(--accent);}
   .dot.active{background:var(--accent);transform:scale(1.4);}
-  .round-dots{display:flex;gap:10px;align-items:center;justify-content:center;}
-  .round-dot{width:12px;height:12px;border-radius:50%;border:2px solid var(--muted);transition:all .3s;}
+  .round-dot{width:12px;height:12px;border-radius:50%;border:2px solid var(--muted);}
   .round-dot.done{border-color:var(--accent);background:var(--accent);}
   .round-dot.active{border-color:var(--accent);background:transparent;transform:scale(1.3);}
-  .controls{display:flex;gap:12px;align-items:center;justify-content:center;width:100%;}
+
+  /* --- Navegação inferior --- */
+  .controls{display:flex;gap:14px;align-items:center;justify-content:center;width:100%;flex-shrink:0;}
   .btn-ctrl{
-    width:56px;height:56px;
+    width:54px;height:54px;
     border-radius:18px;
     border:1.5px solid var(--surface2);
     background:var(--surface);
@@ -301,21 +326,21 @@
     flex-shrink:0;
   }
   .btn-ctrl:active{background:var(--surface2);transform:scale(.93);}
-  .btn-ctrl svg{width:22px;height:22px;fill:currentColor;}
+  .btn-ctrl svg{width:21px;height:21px;fill:currentColor;}
   .btn-ctrl .ctrl-label{font-family:'DM Sans',sans-serif;font-size:9px;font-weight:500;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);line-height:1;}
   .btn-playpause{
-    width:72px;height:72px;
+    width:78px;height:78px;
     border-radius:50%;
     border:none;
     font-size:0;
     cursor:pointer;
     display:flex;align-items:center;justify-content:center;
     transition:background .2s,transform .15s,box-shadow .2s;
-    box-shadow:0 4px 20px rgba(0,0,0,.25);
+    box-shadow:0 6px 24px var(--accent-glow);
     flex-shrink:0;
   }
-  .btn-playpause:active{transform:scale(.92);box-shadow:0 2px 10px rgba(0,0,0,.2);}
-  .btn-playpause svg{width:28px;height:28px;fill:currentColor;}
+  .btn-playpause:active{transform:scale(.92);box-shadow:0 3px 14px rgba(0,0,0,.25);}
+  .btn-playpause svg{width:30px;height:30px;fill:currentColor;}
   .flash{position:fixed;inset:0;pointer-events:none;opacity:0;transition:opacity .2s;z-index:99;}
   .flash.on{opacity:.18;transition:opacity 0s;}
   #finish{align-items:center;justify-content:center;gap:18px;text-align:center;padding:32px 24px;}
@@ -331,11 +356,13 @@
   /* ---- AUTO MODE STYLES ---- */
   .auto-screen{padding:28px 20px 40px;align-items:center;justify-content:flex-start;gap:0;overflow-y:auto;}
   .auto-header{width:100%;display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-shrink:0;}
+  .auto-header.centered{justify-content:center;}
   .auto-phase-label{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:var(--accent);display:flex;align-items:center;gap:7px;}
   .auto-series-badge{font-size:12px;color:var(--muted);background:var(--surface);padding:5px 12px;border-radius:20px;}
   .auto-center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;width:100%;}
   .auto-prep-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;text-align:center;line-height:1.1;}
   .auto-prep-sub{font-size:13px;color:var(--muted);text-align:center;}
+  .auto-exercise-name{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:2px;text-align:center;}
   .auto-big-label{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:var(--muted);margin-top:6px;}
   .auto-overflow-label{font-size:12px;color:var(--muted);letter-spacing:1px;margin-top:4px;opacity:0;transition:opacity .4s;}
   .auto-overflow-label.visible{opacity:1;}
@@ -672,15 +699,25 @@
     <div class="exec-main-col" style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:space-between;width:100%;flex:1;">
     <div class="timer-top">
       <div class="phase-label" id="phaseLabel">PREPARE-SE</div>
-      <div class="cycle-badge" id="cycleBadge">Série <span id="cycleNum">1</span>/<span id="cycleTotal">4</span></div>
+      <div class="cycle-badge" id="cycleBadge" style="display:none">Série <span id="cycleNum">1</span>/<span id="cycleTotal">4</span></div>
     </div>
     <div id="circuitExLabel" class="circuit-exercise-label" style="display:none"></div>
     <div class="ring-wrap">
       <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="44"/><circle class="ring-fg" id="ringFg" cx="60" cy="60" r="44"/></svg>
-      <div class="ring-center"><div class="time-display" id="timeDisplay">00</div><div class="time-sub" id="timeSub">segundos</div></div>
+      <div class="ring-center"><div class="time-display" id="timeDisplay">00</div><div class="time-sub" id="timeSub">SEGUNDOS</div></div>
     </div>
     <div id="dotsRow" class="dots"></div>
     <div id="roundDotsRow" class="round-dots" style="display:none"></div>
+    <div class="progress-row" id="progressRow">
+      <div class="progress-chip" id="progExChip" style="display:none">
+        <img src="ic_noexe.png?v=202506" alt="">
+        <div class="progress-count"><span id="progExCur">1</span><span class="pc-muted">/<span id="progExTotal">1</span></span></div>
+      </div>
+      <div class="progress-chip" id="progSerieChip" style="display:none">
+        <img src="ic_noseries.png?v=202506" alt="">
+        <div class="progress-count"><span id="progSerieCur">1</span><span class="pc-muted">/<span id="progSerieTotal">1</span></span></div>
+      </div>
+    </div>
     <div class="controls">
       <button class="btn-ctrl" id="btnTimerBack"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg><span class="ctrl-label">Voltar</span></button>
       <button class="btn-playpause" id="btnPlay"><svg viewBox="0 0 24 24" id="btnPlayIcon"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg></button>
@@ -751,16 +788,19 @@
 
 <!-- AUTO: PREP SCREEN -->
 <div class="screen hidden auto-screen" id="autoPrep" style="display:flex;flex-direction:column;">
-  <div class="auto-header">
+  <div class="auto-header centered">
     <div class="auto-phase-label"><img class="auto-phase-icon" src="ic_preparacao.png?v=202506" alt="">PREPARAÇÃO</div>
-    <div class="auto-series-badge">Série <span id="autoPrepSerieNum">1</span> · <span id="autoPrepExName">Exercício 1</span></div>
   </div>
   <div class="auto-center">
     <div class="auto-prep-title">SEU TREINO<br>COMEÇA EM</div>
-    <div style="height:4px"></div>
+    <div style="display:none"><span id="autoPrepExName">Exercício 1</span></div>
     <div class="ring-wrap" style="margin-top:8px">
       <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="44"/><circle class="ring-fg" id="autoPrepRing" cx="60" cy="60" r="44" style="stroke:#F04E23"/></svg>
       <div class="ring-center"><div class="time-display" id="autoPrepTime" style="color:#F04E23">15</div><div class="time-sub">segundos</div></div>
+    </div>
+    <div class="progress-row">
+      <div class="progress-chip"><img src="ic_noexe.png?v=202506" alt=""><div class="progress-count" id="autoPrepExNum">1</div></div>
+      <div class="progress-chip"><img src="ic_noseries.png?v=202506" alt=""><div class="progress-count" id="autoPrepSerieNum">1</div></div>
     </div>
     <!-- Exercise type icons — clicáveis (Fluxo only) -->
     <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--muted);text-align:center;margin-top:20px">DEFINA SEU EXERCÍCIO</div>
@@ -816,18 +856,22 @@
 
 <!-- AUTO: EXECUTION SCREEN -->
 <div class="screen hidden auto-screen" id="autoExec" style="display:flex;flex-direction:column;">
-  <div class="auto-header">
+  <div class="auto-header centered">
     <div class="auto-phase-label" id="autoExecPhaseLabel"><img class="auto-phase-icon" src="ic_execucao.png?v=202506" alt="">VAMOS!</div>
-    <div class="auto-series-badge">Série <span id="autoExecSerieNum">1</span> · <span id="autoExecExName">Exercício 1</span></div>
   </div>
   <div class="auto-center exec-with-video" id="autoExecCenter">
     <div class="exec-main-col" style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;">
+      <div class="auto-exercise-name" id="autoExecExName" style="display:none"></div>
       <div class="ring-wrap">
         <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="44"/><circle class="ring-fg" id="autoExecRing" cx="60" cy="60" r="44"/></svg>
         <div class="ring-center">
           <div class="time-display" id="autoExecTime" style="color:var(--accent)">60</div>
           <div class="time-sub" id="autoExecSub">segundos</div>
         </div>
+      </div>
+      <div class="progress-row">
+        <div class="progress-chip"><img src="ic_noexe.png?v=202506" alt=""><div class="progress-count" id="autoExecExNum">1</div></div>
+        <div class="progress-chip"><img src="ic_noseries.png?v=202506" alt=""><div class="progress-count" id="autoExecSerieNum">1</div></div>
       </div>
       <div class="auto-big-label" id="autoExecOverflowLabel" style="color:var(--accent);opacity:0;font-size:13px;letter-spacing:1px;margin-top:0">Série contínua ou prolongada</div>
       <!-- Chip portrait: ícone pequeno + nome, centralizado abaixo do ring -->
@@ -861,6 +905,7 @@
 <div class="screen hidden auto-screen" id="autoReps" style="display:flex;flex-direction:column;">
   <div class="auto-header">
     <div class="auto-phase-label">REPETIÇÕES</div>
+    <span id="autoRepsSerieNum" style="display:none"></span>
   </div>
   <div class="auto-center">
     <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;text-align:center;margin-bottom:16px">Quantas repetições realizou?</div>
@@ -919,9 +964,8 @@
 
 <!-- AUTO: REST SCREEN -->
 <div class="screen hidden auto-screen" id="autoRest" style="display:flex;flex-direction:column;">
-  <div class="auto-header">
+  <div class="auto-header centered">
     <div class="auto-rest-title"><img class="auto-phase-icon" src="ic_recuperacao.png?v=202506" alt="" style="width:26px;height:26px;">RECUPERAÇÃO</div>
-    <div class="auto-series-badge">Série <span id="autoRestSerieNum">1</span></div>
   </div>
   <div class="auto-center">
     <div class="ring-wrap">
@@ -930,6 +974,10 @@
         <div class="time-display" id="autoRestTime" style="color:#F04E23">60</div>
         <div class="time-sub">segundos</div>
       </div>
+    </div>
+    <div class="progress-row">
+      <div class="progress-chip"><img src="ic_noexe.png?v=202506" alt=""><div class="progress-count" id="autoRestExNum">1</div></div>
+      <div class="progress-chip"><img src="ic_noseries.png?v=202506" alt=""><div class="progress-count" id="autoRestSerieNum">1</div></div>
     </div>
     <div style="margin-top:16px;width:100%;max-width:320px">
       <div style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:10px;letter-spacing:1px;text-transform:uppercase">O que deseja fazer?</div>
@@ -966,19 +1014,22 @@
 
 <!-- BRAIN: PREP SCREEN -->
 <div class="screen hidden auto-screen" id="brainPrep" style="display:flex;flex-direction:column;">
-  <div class="auto-header">
+  <div class="auto-header centered">
     <div class="auto-phase-label" id="brainPrepPhaseLabel" style="color:#F04E23"><img class="auto-phase-icon" src="ic_preparacao.png?v=202506" alt="">PREPARE-SE</div>
-    <div class="auto-series-badge" id="brainPrepProgress">Exercício 1/2 · Série 1/3</div>
   </div>
   <div class="auto-center">
     <div class="auto-prep-title" id="brainPrepExName">Exercício 1</div>
-    <div class="auto-prep-sub">Série <span id="brainPrepSerieNum">1</span></div>
+    <div style="display:none" id="brainPrepProgress">Exercício 1/2 · Série 1/3</div>
     <div class="ring-wrap">
       <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="44"/><circle class="ring-fg" id="brainPrepRing" cx="60" cy="60" r="44" style="stroke:#F04E23"/></svg>
       <div class="ring-center">
         <div class="time-display" id="brainPrepTime" style="color:#F04E23">15</div>
         <div class="time-sub">segundos</div>
       </div>
+    </div>
+    <div class="progress-row">
+      <div class="progress-chip"><img src="ic_noexe.png?v=202506" alt=""><div class="progress-count"><span id="brainPrepExCur">1</span><span class="pc-muted">/<span id="brainPrepExTotal">2</span></span></div></div>
+      <div class="progress-chip"><img src="ic_noseries.png?v=202506" alt=""><div class="progress-count"><span id="brainPrepSerieNum">1</span><span class="pc-muted">/<span id="brainPrepSerieTotal">3</span></span></div></div>
     </div>
     <div class="controls" style="margin-top:16px">
       <button class="btn-ctrl" id="btnBrainPrepBack"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg><span class="ctrl-label">Voltar</span></button>
@@ -990,18 +1041,22 @@
 
 <!-- BRAIN: EXECUTION SCREEN -->
 <div class="screen hidden auto-screen" id="brainExec" style="display:flex;flex-direction:column;">
-  <div class="auto-header">
+  <div class="auto-header centered">
     <div class="auto-phase-label" id="brainExecPhaseLabel"><img class="auto-phase-icon" src="ic_execucao.png?v=202506" alt="">VAMOS!</div>
-    <div class="auto-series-badge">Série <span id="brainExecSerieNum">1/3</span> · <span id="brainExecExName">Exercício 1</span></div>
   </div>
   <div class="auto-center exec-with-video" id="brainExecCenter">
     <div class="exec-main-col">
+      <div class="auto-exercise-name" id="brainExecExName" style="color:#F04E23">Exercício 1</div>
       <div class="ring-wrap">
         <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="44"/><circle class="ring-fg" id="brainExecRing" cx="60" cy="60" r="44"/></svg>
         <div class="ring-center">
           <div class="time-display" id="brainExecTime">40</div>
           <div class="time-sub">segundos</div>
         </div>
+      </div>
+      <div class="progress-row">
+        <div class="progress-chip"><img src="ic_noexe.png?v=202506" alt=""><div class="progress-count" id="brainExecExCount"><span id="brainExecExCur">1</span><span class="pc-muted">/<span id="brainExecExTotal">2</span></span></div></div>
+        <div class="progress-chip"><img src="ic_noseries.png?v=202506" alt=""><div class="progress-count"><span id="brainExecSerieCur">1</span><span class="pc-muted">/<span id="brainExecSerieTotal">3</span></span></div></div>
       </div>
       <div class="auto-big-label" id="brainExecOverflowLabel" style="opacity:0;font-size:13px;letter-spacing:1px;margin-top:0;color:#aaa">Série contínua ou prolongada</div>
       <div style="height:16px"></div>
@@ -1065,9 +1120,8 @@
 
 <!-- BRAIN: REST SCREEN -->
 <div class="screen hidden auto-screen" id="brainRest" style="display:flex;flex-direction:column;">
-  <div class="auto-header">
+  <div class="auto-header centered">
     <div class="auto-phase-label" id="brainRestPhaseLabel" style="color:#F04E23"><img class="auto-phase-icon" src="ic_recuperacao.png?v=202506" alt="">RECUPERAÇÃO</div>
-    <div class="auto-series-badge">Série <span id="brainRestSerieNum">1</span></div>
   </div>
   <div class="auto-center">
     <div class="ring-wrap">
@@ -1076,6 +1130,10 @@
         <div class="time-display" id="brainRestTime" style="color:#F04E23">01:00</div>
         <div class="time-sub">recuperação</div>
       </div>
+    </div>
+    <div class="progress-row">
+      <div class="progress-chip"><img src="ic_noexe.png?v=202506" alt=""><div class="progress-count"><span id="brainRestExCur">1</span><span class="pc-muted">/<span id="brainRestExTotal">2</span></span></div></div>
+      <div class="progress-chip"><img src="ic_noseries.png?v=202506" alt=""><div class="progress-count"><span id="brainRestSerieNum">1</span><span class="pc-muted">/<span id="brainRestSerieTotal">3</span></span></div></div>
     </div>
     <div style="margin-top:20px;width:100%;max-width:320px">
       <button class="btn-auto-done" style="background:transparent;border:1px solid #333;color:#aaa;font-size:13px;" onclick="brainSkipRest()">Avançar agora ›</button>
@@ -2123,6 +2181,7 @@ function phaseColor(phase,base){
   return '#F04E23';
 }
 function applyAccent(c){document.documentElement.style.setProperty('--accent',c);}
+function applyProgColor(c){document.documentElement.style.setProperty('--prog',c);}
 let wakeLock=null;
 async function acquireWakeLock(){if(!('wakeLock' in navigator))return;try{wakeLock=await navigator.wakeLock.request('screen');wakeLock.addEventListener('release',()=>wakeLock=null);}catch(e){}}
 function releaseWakeLock(){if(wakeLock){wakeLock.release();wakeLock=null;}}
@@ -2131,32 +2190,50 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 function startTimer(){
   const p=presets.find(x=>x.id===selectedId);if(!p)return;
   tmr.preset=p;tmr.running=true;tmr.isCircuit=(p.mode==='circuit');tmr.color=p.color||'#00E676';
-  applyAccent(tmr.color);
+  applyProgColor(tmr.color);
   if(tmr.isCircuit){
     tmr.round=1;tmr.exIndex=0;tmr.phase='prep';tmr.seconds=p.prep;tmr.total=p.prep;
     buildCircuitUI();
     document.getElementById('dotsRow').style.display='none';
-    document.getElementById('roundDotsRow').style.display='flex';
+    document.getElementById('roundDotsRow').style.display='none';
     document.getElementById('cycleBadge').innerHTML=`Rodada <span id="cycleNum">1</span>/<span id="cycleTotal">${p.rounds}</span>`;
-    document.getElementById('circuitExLabel').style.display='block';
     updateCircuitExLabel();updateCircuitRoundDots();
+    updateProgressChips(p.exCount||1,1,p.rounds,1);
   } else {
     tmr.cycle=1;tmr.phase='prep';tmr.seconds=p.prep;tmr.total=p.prep;
     tmr.exIndex=0;
     tmr.normalExCount=Math.max(1,p.normalExCount||1);
     buildDots();
-    document.getElementById('dotsRow').style.display='flex';
+    document.getElementById('dotsRow').style.display='none';
     document.getElementById('roundDotsRow').style.display='none';
     document.getElementById('cycleBadge').innerHTML=`Série <span id="cycleNum">1</span>/<span id="cycleTotal">${p.cycles}</span>`;
     if(tmr.normalExCount>1){
-      document.getElementById('circuitExLabel').style.display='block';
       updateNormalExLabel();
     } else {
       document.getElementById('circuitExLabel').style.display='none';
     }
+    updateProgressChips(tmr.normalExCount,1,p.cycles,1);
   }
   updateTimerUI();showScreen('timer');
   acquireWakeLock();phaseStart();tick();
+}
+
+function updateProgressChips(exTotal,exCur,serieTotal,serieCur){
+  const exChip=document.getElementById('progExChip'),serieChip=document.getElementById('progSerieChip');
+  if(exTotal>1){
+    exChip.style.display='flex';
+    document.getElementById('progExCur').textContent=exCur;
+    document.getElementById('progExTotal').textContent=exTotal;
+  } else {
+    exChip.style.display='none';
+  }
+  if(serieTotal>1){
+    serieChip.style.display='flex';
+    document.getElementById('progSerieCur').textContent=serieCur;
+    document.getElementById('progSerieTotal').textContent=serieTotal;
+  } else {
+    serieChip.style.display='none';
+  }
 }
 
 function tick(){
@@ -2184,6 +2261,7 @@ function nextPhase(){
         buildDots();
         document.getElementById('cycleNum').textContent=1;
         updateNormalExLabel();
+        updateProgressChips(tmr.normalExCount,tmr.exIndex+1,p.cycles,1);
         phaseStart();updateTimerUI();return;
       }
       clearInterval(tmr._int);setTimeout(()=>showFinish(p),600);return;
@@ -2194,6 +2272,7 @@ function nextPhase(){
     markDot(tmr.cycle-1,'active');phaseStart();
   }
   document.getElementById('cycleNum').textContent=tmr.cycle;
+  updateProgressChips(tmr.normalExCount,tmr.exIndex+1,p.cycles,tmr.cycle);
   updateTimerUI();
 }
 
@@ -2209,19 +2288,23 @@ function nextCircuitPhase(){
   } else {
     tmr.exIndex++;tmr.phase='action';tmr.seconds=p.action;tmr.total=p.action;phaseStart();updateCircuitExLabel();
   }
+  updateProgressChips(p.exCount||1,tmr.exIndex+1,p.rounds,tmr.round);
   updateTimerUI();
 }
 
 function updateCircuitExLabel(){
   const p=tmr.preset;
-  const l=EX_LETTERS[tmr.exIndex],name=p.exercises?.[tmr.exIndex]||l;
-  document.getElementById('circuitExLabel').textContent=`${l} · ${name}`;
+  const name=(p.exercises?.[tmr.exIndex]||'').trim();
+  const el=document.getElementById('circuitExLabel');
+  if(name){el.textContent=name;el.style.display='block';el.style.color='var(--prog)';}
+  else{el.style.display='none';}
 }
 function updateNormalExLabel(){
   const p=tmr.preset;
-  const l=EX_LETTERS[tmr.exIndex];
-  const name=p.normalExercises?.[tmr.exIndex]||l;
-  document.getElementById('circuitExLabel').textContent=`${l} · ${name}`;
+  const name=(p.normalExercises?.[tmr.exIndex]||'').trim();
+  const el=document.getElementById('circuitExLabel');
+  if(name){el.textContent=name;el.style.display='block';el.style.color='var(--prog)';}
+  else{el.style.display='none';}
 }
 function buildCircuitUI(){
   const p=tmr.preset;
@@ -2235,17 +2318,15 @@ function updateCircuitRoundDots(){
 function phaseStart(){
   const c=phaseColor(tmr.phase,tmr.color);
   const isCircuitRest=tmr.isCircuit&&tmr.phase==='rest';
-  const NAMES={prep:'PREPARAÇÃO',action:'EXECUÇÃO',rest:isCircuitRest?'TRANSIÇÃO':'RECUPERAÇÃO'};
+  const NAMES={prep:'PREPARAÇÃO',action:'EXERCÍCIO',rest:isCircuitRest?'TRANSIÇÃO':'RECUPERAÇÃO'};
   const _v='?v=202506';
   const PHASE_ICONS={prep:'ic_preparacao.png'+_v,action:'ic_execucao.png'+_v,rest:isCircuitRest?'ic_transicao.png'+_v:'ic_recuperacao.png'+_v};
   const icon=PHASE_ICONS[tmr.phase];
   const lbl=document.getElementById('phaseLabel');
-  lbl.innerHTML=`<img class="phase-icon" src="${icon}" alt=""><span>${NAMES[tmr.phase]}</span>`;
-  lbl.className='phase-label phase-label-wrap';
+  lbl.innerHTML=`<img class="phase-icon" src="${icon}" alt="">${NAMES[tmr.phase]}`;
   lbl.style.color=c;
   document.getElementById('timeDisplay').style.color='#F04E23';
-  document.getElementById('timeSub').style.color=tmr.color;
-  const _cel=document.getElementById('circuitExLabel');if(_cel)_cel.style.color=tmr.color;
+  document.getElementById('timeSub').style.color='#F04E23';
   const play=document.getElementById('btnPlay');
   play.style.background=c;play.style.color=isLight(c)?'#000':'#fff';
   ringFg.style.stroke='#F04E23';
@@ -2277,7 +2358,7 @@ function fmtTime(s){
 function updateTimerUI(){
   const s=Math.max(0,tmr.seconds);
   document.getElementById('timeDisplay').textContent=fmtTime(s);
-  document.getElementById('timeSub').textContent=s>=60?'min : seg':'segundos';
+  document.getElementById('timeSub').textContent=s>=60?'MIN : SEG':'SEGUNDOS';
   ringFg.style.strokeDashoffset=CIRC*(1-(tmr.total>0?s/tmr.total:0));
 }
 
@@ -2296,7 +2377,7 @@ document.getElementById('btnPlay').onclick=()=>{
   if(tmr.running){getAC();acquireWakeLock();tick();}else{clearInterval(tmr._int);releaseWakeLock();}
 };
 document.getElementById('btnSkip').onclick=()=>{clearInterval(tmr._int);tmr.seconds=1;nextPhase();if(tmr.running)tick();};
-document.getElementById('btnTimerBack').onclick=()=>{clearInterval(tmr._int);tmr.running=false;releaseWakeLock();applyAccent('#F04E23');showScreen('home');};
+document.getElementById('btnTimerBack').onclick=()=>{clearInterval(tmr._int);tmr.running=false;releaseWakeLock();applyProgColor('#F04E23');showScreen('home');};
 
 
 const BRAVO_PHRASES_PLAIN=[
@@ -2346,7 +2427,7 @@ function showFinish(p){
     document.getElementById('markWorkoutModal').classList.add('open');
   },2000);
 }
-document.getElementById('btnFinishHome').onclick=()=>{hideBravoFixed();applyAccent('#F04E23');showScreen('home');};
+document.getElementById('btnFinishHome').onclick=()=>{hideBravoFixed();applyProgColor('#F04E23');showScreen('home');};
 
 
 
@@ -2637,6 +2718,7 @@ function startAutoMode(){
 function showAutoPrep(){
   autoPrepPaused=false;
   document.getElementById('autoPrepSerieNum').textContent=auto.serieNum;
+  document.getElementById('autoPrepExNum').textContent=auto.exIndex;
   const _apn=document.getElementById('autoPrepExName');_apn.textContent=autoExName();_apn.style.color='#F04E23';
   applyAccent('#F04E23');
   auto.prepSecs=15;
@@ -2663,6 +2745,7 @@ function showAutoPrep(){
 function startAutoExec(){
   auto.execSecs=60;auto.execTotal=60;auto.execOverflow=false;
   document.getElementById('autoExecSerieNum').textContent=auto.serieNum;
+  document.getElementById('autoExecExNum').textContent=auto.exIndex;
   const _aen=document.getElementById('autoExecExName');_aen.textContent=autoExName();_aen.style.color='#F04E23';
   document.getElementById('autoExecPhaseLabel').textContent='VAMOS!';
   document.getElementById('autoExecPhaseLabel').style.color='#F04E23';
@@ -2869,6 +2952,7 @@ function selectIntensity(btn){
 
 function startAutoRest(){
   document.getElementById('autoRestSerieNum').textContent=auto.serieNum;
+  document.getElementById('autoRestExNum').textContent=auto.exIndex;
   const ring=document.getElementById('autoRestRing');
   ring.style.strokeDasharray=AUTO_CIRC;ring.style.strokeDashoffset=0;
   updateAutoRestUI();
@@ -2939,6 +3023,7 @@ function startAutoExecDirect(){
   // Goes straight to execution without prep countdown
   auto.execSecs=60;auto.execTotal=60;auto.execOverflow=false;
   document.getElementById('autoExecSerieNum').textContent=auto.serieNum;
+  document.getElementById('autoExecExNum').textContent=auto.exIndex;
   document.getElementById('autoExecExName').textContent=autoExName();
   document.getElementById('autoExecPhaseLabel').textContent='VAMOS!';
   document.getElementById('autoExecPhaseLabel').style.color='#F04E23';
@@ -3132,6 +3217,9 @@ function showBrainPrep(){
   if(prepBtn){prepBtn.querySelector('svg').innerHTML=SVG_PAUSE;prepBtn.style.background='#F04E23';prepBtn.style.color='#000';}
   const c=brainColor('prep'); // #F04E23
   document.getElementById('brainPrepSerieNum').textContent=brain.serieNum;
+  document.getElementById('brainPrepSerieTotal').textContent=brain.totalSeries;
+  document.getElementById('brainPrepExCur').textContent=brain.exIndex+1;
+  document.getElementById('brainPrepExTotal').textContent=brain.totalExercises;
   const _bpn=document.getElementById('brainPrepExName');_bpn.textContent=brainExName();_bpn.style.color=brain._cardColor||'#F04E23';
   document.getElementById('brainPrepProgress').textContent=`Exercício ${brain.exIndex+1}/${brain.totalExercises} · Série ${brain.serieNum}/${brain.totalSeries}`;
   const ring=document.getElementById('brainPrepRing');
@@ -3165,7 +3253,10 @@ function startBrainExec(){
   const label=document.getElementById('brainExecPhaseLabel');
   label.textContent='VAMOS!';label.style.color=c;
   const _ben=document.getElementById('brainExecExName');_ben.textContent=brainExName();_ben.style.color=brain._cardColor||'#F04E23';
-  document.getElementById('brainExecSerieNum').textContent=`${brain.serieNum}/${brain.totalSeries}`;
+  document.getElementById('brainExecSerieCur').textContent=brain.serieNum;
+  document.getElementById('brainExecSerieTotal').textContent=brain.totalSeries;
+  document.getElementById('brainExecExCur').textContent=brain.exIndex+1;
+  document.getElementById('brainExecExTotal').textContent=brain.totalExercises;
   document.getElementById('brainExecTime').style.color=c;
   ring.style.strokeDasharray=AUTO_CIRC;ring.style.stroke=c;
   document.getElementById('brainExecOverflowLabel').style.opacity='0';
@@ -3228,6 +3319,9 @@ function startBrainRest(){
   clearInterval(brain._int);
   const c=brainColor('rest'); // #2979FF
   document.getElementById('brainRestSerieNum').textContent=brain.serieNum;
+  document.getElementById('brainRestSerieTotal').textContent=brain.totalSeries;
+  document.getElementById('brainRestExCur').textContent=brain.exIndex+1;
+  document.getElementById('brainRestExTotal').textContent=brain.totalExercises;
   document.getElementById('brainRestPhaseLabel').style.color=c;
   document.getElementById('brainRestTime').style.color=c;
   const ring=document.getElementById('brainRestRing');
