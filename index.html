@@ -26,7 +26,7 @@
     --prog:#F04E23;
     --bg-deep:#0B0B0B;
     --phase-prep:#F2B33D;
-    --phase-exec:#6FAE5C;
+    --phase-exec:#F04E23;
     --phase-rest:#D9483D;
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
@@ -808,7 +808,7 @@
     <div style="display:none"><span id="autoPrepExName">Exercício 1</span></div>
     <div class="ring-wrap" style="margin-top:8px">
       <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="44"/><circle class="ring-fg" id="autoPrepRing" cx="60" cy="60" r="44" style="stroke:var(--phase-prep)"/></svg>
-      <div class="ring-center"><div class="time-display" id="autoPrepTime" style="color:var(--phase-prep)">15</div><div class="time-sub">segundos</div></div>
+      <div class="ring-center"><div class="time-display" id="autoPrepTime" style="color:var(--accent)">15</div><div class="time-sub">segundos</div></div>
     </div>
     <div class="progress-row">
       <div class="progress-chip"><img src="ic_noexe.png?v=202506" alt=""><div class="progress-count" id="autoPrepExNum">1</div></div>
@@ -915,16 +915,12 @@
 
 <!-- AUTO: REPS SCREEN -->
 <div class="screen hidden auto-screen" id="autoReps" style="display:flex;flex-direction:column;">
-  <div class="auto-header centered" style="flex-direction:column;gap:10px;">
-    <div class="auto-phase-label">REPETIÇÕES</div>
-    <div class="progress-row">
-      <div class="progress-chip"><img src="ic_noexe.png?v=202506" alt=""><div class="progress-count" id="autoRepsExNum">1</div></div>
-      <div class="progress-chip"><img src="ic_noseries.png?v=202506" alt=""><div class="progress-count" id="autoRepsSerieNumVis">1</div></div>
-    </div>
+  <div class="auto-header centered">
+    <div class="auto-phase-label">VOLUME</div>
     <span id="autoRepsSerieNum" style="display:none"></span>
   </div>
   <div class="auto-center">
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;text-align:center;margin-bottom:16px;text-transform:uppercase;">Quantas repetições realizou?</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;text-align:center;margin-bottom:16px;text-transform:uppercase;">Quantas repetições você realizou?</div>
     <div class="reps-grid">
       <button class="btn-reps" data-reps="1-3" data-rest-key="1-3" onclick="selectReps(this)">
         <div class="reps-icon"><div class="bar on"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
@@ -947,17 +943,17 @@
         <div><div class="reps-range">15 – 30</div></div>
       </button>
     </div>
+    <div class="progress-row" style="margin-top:8px">
+      <div class="progress-chip"><img src="ic_noexe.png?v=202506" alt=""><div class="progress-count" id="autoRepsExNum">1</div></div>
+      <div class="progress-chip"><img src="ic_noseries.png?v=202506" alt=""><div class="progress-count" id="autoRepsSerieNumVis">1</div></div>
+    </div>
   </div>
 </div>
 
 <!-- AUTO: INTENSITY SCREEN -->
 <div class="screen hidden auto-screen" id="autoIntensity" style="display:flex;flex-direction:column;">
-  <div class="auto-header centered" style="flex-direction:column;gap:10px;">
+  <div class="auto-header centered">
     <div class="auto-phase-label">INTENSIDADE</div>
-    <div class="progress-row">
-      <div class="progress-chip"><img src="ic_noexe.png?v=202506" alt=""><div class="progress-count" id="autoIntExNum">1</div></div>
-      <div class="progress-chip"><img src="ic_noseries.png?v=202506" alt=""><div class="progress-count" id="autoIntSerieNumVis">1</div></div>
-    </div>
     <span id="autoIntSerieNum" style="display:none">1</span>
   </div>
   <div class="auto-center">
@@ -979,6 +975,10 @@
         <div class="int-icon"><div class="bar on"></div><div class="bar on"></div><div class="bar on"></div><div class="bar on"></div><div class="bar on"></div></div><div class="int-label">Limite</div>
       </button>
     </div>
+    <div class="progress-row" style="margin-top:8px">
+      <div class="progress-chip"><img src="ic_noexe.png?v=202506" alt=""><div class="progress-count" id="autoIntExNum">1</div></div>
+      <div class="progress-chip"><img src="ic_noseries.png?v=202506" alt=""><div class="progress-count" id="autoIntSerieNumVis">1</div></div>
+    </div>
   </div>
 </div>
 
@@ -991,7 +991,7 @@
     <div class="ring-wrap">
       <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="44"/><circle class="ring-fg" id="autoRestRing" cx="60" cy="60" r="44" style="stroke:var(--phase-rest)"/></svg>
       <div class="ring-center">
-        <div class="time-display" id="autoRestTime" style="color:var(--phase-rest)">60</div>
+        <div class="time-display" id="autoRestTime" style="color:var(--accent)">60</div>
         <div class="time-sub">segundos</div>
       </div>
     </div>
@@ -1043,7 +1043,7 @@
     <div class="ring-wrap">
       <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="44"/><circle class="ring-fg" id="brainPrepRing" cx="60" cy="60" r="44" style="stroke:var(--phase-prep)"/></svg>
       <div class="ring-center">
-        <div class="time-display" id="brainPrepTime" style="color:var(--phase-prep)">15</div>
+        <div class="time-display" id="brainPrepTime" style="color:var(--accent)">15</div>
         <div class="time-sub">segundos</div>
       </div>
     </div>
@@ -1094,16 +1094,12 @@
 
 <!-- BRAIN: REPS SCREEN -->
 <div class="screen hidden auto-screen" id="brainReps" style="display:flex;flex-direction:column;">
-  <div class="auto-header centered" style="flex-direction:column;gap:10px;">
-    <div class="auto-phase-label" style="color:#F04E23">REPETIÇÕES</div>
-    <div class="progress-row">
-      <div class="progress-chip"><img src="ic_noexe.png?v=202506" alt=""><div class="progress-count" id="brainRepsExNum">1</div></div>
-      <div class="progress-chip"><img src="ic_noseries.png?v=202506" alt=""><div class="progress-count" id="brainRepsSerieNumVis">1</div></div>
-    </div>
+  <div class="auto-header centered">
+    <div class="auto-phase-label" style="color:#F04E23">VOLUME</div>
     <span id="brainRepsSerieNum" style="display:none">1</span>
   </div>
   <div class="auto-center">
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;text-align:center;margin-bottom:16px;text-transform:uppercase;">Quantas repetições realizou?</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;text-align:center;margin-bottom:16px;text-transform:uppercase;">Quantas repetições você realizou?</div>
     <div class="reps-grid">
       <button class="btn-reps" data-rest-key="1-3" onclick="selectBrainReps(this)">
         <div class="reps-icon"><div class="bar on"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div><div><div class="reps-range">1 – 3</div></div>
@@ -1121,17 +1117,17 @@
         <div class="reps-icon"><div class="bar on"></div><div class="bar on"></div><div class="bar on"></div><div class="bar on"></div><div class="bar on"></div></div><div><div class="reps-range">15 – 30</div></div>
       </button>
     </div>
+    <div class="progress-row" style="margin-top:8px">
+      <div class="progress-chip"><img src="ic_noexe.png?v=202506" alt=""><div class="progress-count" id="brainRepsExNum">1</div></div>
+      <div class="progress-chip"><img src="ic_noseries.png?v=202506" alt=""><div class="progress-count" id="brainRepsSerieNumVis">1</div></div>
+    </div>
   </div>
 </div>
 
 <!-- BRAIN: INTENSITY SCREEN -->
 <div class="screen hidden auto-screen" id="brainIntensity" style="display:flex;flex-direction:column;">
-  <div class="auto-header centered" style="flex-direction:column;gap:10px;">
+  <div class="auto-header centered">
     <div class="auto-phase-label" style="color:#F04E23">INTENSIDADE</div>
-    <div class="progress-row">
-      <div class="progress-chip"><img src="ic_noexe.png?v=202506" alt=""><div class="progress-count" id="brainIntExNum">1</div></div>
-      <div class="progress-chip"><img src="ic_noseries.png?v=202506" alt=""><div class="progress-count" id="brainIntSerieNumVis">1</div></div>
-    </div>
     <span id="brainIntSerieNum" style="display:none">1</span>
   </div>
   <div class="auto-center">
@@ -1142,6 +1138,10 @@
       <button class="btn-intensity" data-int="2" onclick="selectBrainIntensity(this)"><div class="int-icon"><div class="bar on"></div><div class="bar on"></div><div class="bar on"></div><div class="bar"></div><div class="bar"></div></div><div class="int-label">Desafiadora</div></button>
       <button class="btn-intensity" data-int="3" onclick="selectBrainIntensity(this)"><div class="int-icon"><div class="bar on"></div><div class="bar on"></div><div class="bar on"></div><div class="bar on"></div><div class="bar"></div></div><div class="int-label">Difícil</div></button>
       <button class="btn-intensity" data-int="4" onclick="selectBrainIntensity(this)"><div class="int-icon"><div class="bar on"></div><div class="bar on"></div><div class="bar on"></div><div class="bar on"></div><div class="bar on"></div></div><div class="int-label">Limite</div></button>
+    </div>
+    <div class="progress-row" style="margin-top:8px">
+      <div class="progress-chip"><img src="ic_noexe.png?v=202506" alt=""><div class="progress-count" id="brainIntExNum">1</div></div>
+      <div class="progress-chip"><img src="ic_noseries.png?v=202506" alt=""><div class="progress-count" id="brainIntSerieNumVis">1</div></div>
     </div>
   </div>
 </div>
@@ -1155,7 +1155,7 @@
     <div class="ring-wrap">
       <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="44"/><circle class="ring-fg" id="brainRestRing" cx="60" cy="60" r="44" style="stroke:var(--phase-rest)"/></svg>
       <div class="ring-center">
-        <div class="time-display" id="brainRestTime" style="color:var(--phase-rest)">01:00</div>
+        <div class="time-display" id="brainRestTime" style="color:var(--accent)">01:00</div>
         <div class="time-sub">recuperação</div>
       </div>
     </div>
@@ -2210,7 +2210,7 @@ function phaseColor(phase,base){
 }
 function ringPhaseColorClassic(phase){
   if(phase==='prep')   return '#F2B33D'; // amarelo
-  if(phase==='action') return '#6FAE5C'; // verde
+  if(phase==='action') return '#F04E23'; // execução: laranja
   return '#D9483D'; // recuperação/transição: vermelho
 }
 function applyAccent(c){document.documentElement.style.setProperty('--accent',c);}
@@ -2359,8 +2359,8 @@ function phaseStart(){
   const lbl=document.getElementById('phaseLabel');
   lbl.innerHTML=`<img class="phase-icon" src="${icon}" alt="">${NAMES[tmr.phase]}`;
   lbl.style.color=c;
-  document.getElementById('timeDisplay').style.color=rc;
-  document.getElementById('timeSub').style.color=rc;
+  document.getElementById('timeDisplay').style.color=c;
+  document.getElementById('timeSub').style.color=c;
   const play=document.getElementById('btnPlay');
   play.style.background=c;play.style.color=isLight(c)?'#000':'#fff';
   ringFg.style.stroke=rc;
@@ -2785,11 +2785,8 @@ function startAutoExec(){
   document.getElementById('autoExecPhaseLabel').style.color='#F04E23';
   const ring=document.getElementById('autoExecRing');
   ring.style.strokeDasharray=AUTO_CIRC;
-  ring.style.stroke='#6FAE5C';
-  document.getElementById('autoExecTime').style.color='#6FAE5C';
-  document.getElementById('autoExecOverflowLabel').style.opacity='0';
-  applyPrepTypeToExec(); // mostra o ícone do tipo selecionado na preparação
-  showScreen('autoExec');
+  ring.style.stroke='#F04E23';
+  document.getElementById('autoExecTime').style.color='#F04E23';
   speak('Vamos!');beep(1200,.15,.6);vibrate([80,30,80]);
   const fl=document.getElementById('flash');fl.style.background='#F04E23';fl.classList.add('on');setTimeout(()=>fl.classList.remove('on'),150);
   clearInterval(auto._int);
@@ -3071,8 +3068,8 @@ function startAutoExecDirect(){
   document.getElementById('autoExecPhaseLabel').textContent='VAMOS!';
   document.getElementById('autoExecPhaseLabel').style.color='#F04E23';
   const ring=document.getElementById('autoExecRing');
-  ring.style.strokeDasharray=AUTO_CIRC;ring.style.stroke='#6FAE5C';
-  document.getElementById('autoExecTime').style.color='#6FAE5C';
+  ring.style.strokeDasharray=AUTO_CIRC;ring.style.stroke='#F04E23';
+  document.getElementById('autoExecTime').style.color='#F04E23';
   document.getElementById('autoExecOverflowLabel').style.opacity='0';
   // Fluxo has no per-exercise videos (single exercise mode), clear
   showYtEmbed('autoExecYtWrap',null,'autoExecCenter');
@@ -3254,7 +3251,7 @@ function brainColor(phase){
 function ringPhaseColor(phase){
   // used only for the ring + time digits inside it
   if(phase==='prep')   return '#F2B33D'; // amarelo
-  if(phase==='action') return '#6FAE5C'; // verde
+  if(phase==='action') return '#F04E23'; // execução: laranja
   return '#D9483D'; // recuperação: vermelho
 }
 
@@ -3273,7 +3270,7 @@ function showBrainPrep(){
   document.getElementById('brainPrepProgress').textContent=`Exercício ${brain.exIndex+1}/${brain.totalExercises} · Série ${brain.serieNum}/${brain.totalSeries}`;
   const ring=document.getElementById('brainPrepRing');
   ring.style.strokeDasharray=AUTO_CIRC;ring.style.strokeDashoffset=0;ring.style.stroke=rc;
-  document.getElementById('brainPrepTime').style.color=rc;
+  document.getElementById('brainPrepTime').style.color=c;
   const label=document.getElementById('brainPrepPhaseLabel');
   if(label){label.textContent='PREPARE-SE';label.style.color=c;}
   let secs=brain.prepSecs;
@@ -3307,7 +3304,7 @@ function startBrainExec(){
   document.getElementById('brainExecSerieTotal').textContent=brain.totalSeries;
   document.getElementById('brainExecExCur').textContent=brain.exIndex+1;
   document.getElementById('brainExecExTotal').textContent=brain.totalExercises;
-  document.getElementById('brainExecTime').style.color=rc;
+  document.getElementById('brainExecTime').style.color=c;
   ring.style.strokeDasharray=AUTO_CIRC;ring.style.stroke=rc;
   document.getElementById('brainExecOverflowLabel').style.opacity='0';
   // YouTube embed for this exercise
@@ -3378,7 +3375,7 @@ function startBrainRest(){
   document.getElementById('brainRestExCur').textContent=brain.exIndex+1;
   document.getElementById('brainRestExTotal').textContent=brain.totalExercises;
   document.getElementById('brainRestPhaseLabel').style.color=c;
-  document.getElementById('brainRestTime').style.color=rc;
+  document.getElementById('brainRestTime').style.color=c;
   const ring=document.getElementById('brainRestRing');
   ring.style.strokeDasharray=AUTO_CIRC;ring.style.strokeDashoffset=0;ring.style.stroke=rc;
   updateBrainRestUI();
