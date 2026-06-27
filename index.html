@@ -2787,6 +2787,11 @@ function startAutoExec(){
   ring.style.strokeDasharray=AUTO_CIRC;
   ring.style.stroke='#F04E23';
   document.getElementById('autoExecTime').style.color='#F04E23';
+  document.getElementById('autoExecOverflowLabel').style.opacity='0';
+  // Fluxo has no per-exercise videos (single exercise mode), clear
+  showYtEmbed('autoExecYtWrap',null,'autoExecCenter');
+  applyPrepTypeToExec(); // mostra o ícone do tipo selecionado na preparação
+  showScreen('autoExec');
   speak('Vamos!');beep(1200,.15,.6);vibrate([80,30,80]);
   const fl=document.getElementById('flash');fl.style.background='#F04E23';fl.classList.add('on');setTimeout(()=>fl.classList.remove('on'),150);
   clearInterval(auto._int);
