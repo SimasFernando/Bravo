@@ -1094,12 +1094,9 @@
 
 <!-- BRAIN: REPS SCREEN -->
 <div class="screen hidden auto-screen" id="brainReps" style="display:flex;flex-direction:column;">
-  <div class="auto-header centered">
-    <div class="auto-phase-label" style="color:#F04E23">VOLUME</div>
-    <span id="brainRepsSerieNum" style="display:none">1</span>
-  </div>
-  <div class="auto-center">
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;text-align:center;margin-bottom:16px;text-transform:uppercase;">Quantas repetições você realizou?</div>
+  <span id="brainRepsSerieNum" style="display:none">1</span>
+  <div class="auto-center" style="justify-content:flex-start;padding-top:48px">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;text-align:center;margin-bottom:24px;text-transform:uppercase;">Quantas repetições você realizou?</div>
     <div class="reps-grid">
       <button class="btn-reps" data-rest-key="1-3" onclick="selectBrainReps(this)">
         <div class="reps-icon"><div class="bar on"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div><div><div class="reps-range">1 – 3</div></div>
@@ -1126,12 +1123,9 @@
 
 <!-- BRAIN: INTENSITY SCREEN -->
 <div class="screen hidden auto-screen" id="brainIntensity" style="display:flex;flex-direction:column;">
-  <div class="auto-header centered">
-    <div class="auto-phase-label" style="color:#F04E23">INTENSIDADE</div>
-    <span id="brainIntSerieNum" style="display:none">1</span>
-  </div>
-  <div class="auto-center">
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;text-align:center;margin-bottom:16px;text-transform:uppercase;">Como foi sua série?</div>
+  <span id="brainIntSerieNum" style="display:none">1</span>
+  <div class="auto-center" style="justify-content:flex-start;padding-top:48px">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;text-align:center;margin-bottom:24px;text-transform:uppercase;">Como foi sua série?</div>
     <div class="intensity-grid">
       <button class="btn-intensity" data-int="0" onclick="selectBrainIntensity(this)"><div class="int-icon"><div class="bar on"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div><div class="int-label">Muito fácil</div></button>
       <button class="btn-intensity" data-int="1" onclick="selectBrainIntensity(this)"><div class="int-icon"><div class="bar on"></div><div class="bar on"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div><div class="int-label">Fácil</div></button>
@@ -2967,7 +2961,8 @@ document.getElementById('btnBrainExecPlay').onclick=()=>{
       if(brain.execSecs===3&&!brain.execOverflow)beepCountdown();
       if(brain.execSecs<=0&&!brain.execOverflow){
         brain.execOverflow=true;
-        document.getElementById('brainExecOverflowLabel').style.opacity='1';
+        clearInterval(brain._int);
+        brainSerieOk();
       }
     },1000);
   }
@@ -3324,7 +3319,8 @@ function startBrainExec(){
     if(brain.execSecs===3&&!brain.execOverflow)beepCountdown();
     if(brain.execSecs<=0&&!brain.execOverflow){
       brain.execOverflow=true;
-      document.getElementById('brainExecOverflowLabel').style.opacity='1';
+      clearInterval(brain._int);
+      brainSerieOk();
     }
   },1000);
 }
