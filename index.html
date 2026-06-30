@@ -1380,6 +1380,16 @@
       </div>
     </div>
     <button class="btn-save" id="btnRegSave">SALVAR E CONTINUAR TREINANDO</button>
+    <div style="display:flex;align-items:center;gap:10px;margin:4px 0;">
+      <div style="flex:1;height:1px;background:var(--surface2)"></div>
+      <div style="font-size:11px;color:var(--muted)">ou</div>
+      <div style="flex:1;height:1px;background:var(--surface2)"></div>
+    </div>
+    <button class="btn-connect" id="btnGoogleSignIn">
+      <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84c-.21 1.13-.84 2.09-1.8 2.73v2.27h2.91c1.7-1.57 2.69-3.88 2.69-6.64z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.91-2.27c-.81.54-1.84.86-3.05.86-2.34 0-4.33-1.58-5.04-3.71H.96v2.34C2.44 15.98 5.48 18 9 18z"/><path fill="#FBBC05" d="M3.96 10.7c-.18-.54-.28-1.11-.28-1.7s.1-1.16.28-1.7V4.96H.96A8.996 8.996 0 0 0 0 9c0 1.45.35 2.83.96 4.04l3-2.34z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0 5.48 0 2.44 2.02.96 4.96l3 2.34C4.67 5.16 6.66 3.58 9 3.58z"/></svg>
+      <span id="googleSignInLabel">Entrar com Google</span>
+    </button>
+    <div id="googleSignInStatus" style="font-size:12px;color:var(--muted);text-align:center;min-height:16px;"></div>
     <div class="reg-disclaimer">Sem spam. O Bravo é simples e continuará assim.</div>
   </div>
 </div>
@@ -1411,7 +1421,7 @@
 // FIREBASE — inicialização e camada de sincronização
 // ============================================================
 import { initializeApp }           from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getAuth, signInAnonymously, onAuthStateChanged }
+import { getAuth, signInAnonymously, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, linkWithPopup, signOut }
                                     from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { getFirestore, doc, getDoc, setDoc }
                                     from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
@@ -1502,12 +1512,124 @@ window._fbSaveCalendar = _fbSaveCalendar;
 onAuthStateChanged(_fbAuth, async user => {
   if (user) {
     window._fbUid = user.uid;
+    window._fbIsAnonymous = user.isAnonymous;
     localStorage.setItem('bravo_fb_uid', user.uid);
     await _fbLoadAll();
+    _updateGoogleUI(user);
   } else {
     try { await signInAnonymously(_fbAuth); } catch(e) { console.warn('fbAnonymousLogin', e); }
   }
 });
+
+function _updateGoogleUI(user) {
+  const label = document.getElementById('googleSignInLabel');
+  const status = document.getElementById('googleSignInStatus');
+  const btn = document.getElementById('btnGoogleSignIn');
+  if (!label || !status || !btn) return;
+  if (user && !user.isAnonymous) {
+    label.textContent = 'Conectado: ' + (user.email || user.displayName || '');
+    status.textContent = 'Seus dados estão salvos na nuvem com esta conta.';
+    btn.disabled = true;
+    btn.style.opacity = '.6';
+  } else {
+    label.textContent = 'Entrar com Google';
+    status.textContent = '';
+    btn.disabled = false;
+    btn.style.opacity = '1';
+  }
+}
+
+async function _fbGoogleSignIn() {
+  const status = document.getElementById('googleSignInStatus');
+  const btn = document.getElementById('btnGoogleSignIn');
+  if (btn) btn.disabled = true;
+  if (status) status.textContent = 'Conectando...';
+  const provider = new GoogleAuthProvider();
+  try {
+    const currentUser = _fbAuth.currentUser;
+    if (currentUser && currentUser.isAnonymous) {
+      // Tenta vincular a conta Google ao usuário anônimo atual, preservando todos os dados já salvos
+      try {
+        const result = await linkWithPopup(currentUser, provider);
+        window._fbUid = result.user.uid;
+        localStorage.setItem('bravo_fb_uid', result.user.uid);
+        if (status) status.textContent = 'Conta vinculada com sucesso!';
+        _updateGoogleUI(result.user);
+        showToast('Conectado com Google! Seus dados estão seguros 💪');
+        return;
+      } catch (linkErr) {
+        // Se já existe uma conta Google com este e-mail (credential-already-in-use),
+        // faz login nessa conta e migra os dados do UID anônimo para ela
+        if (linkErr.code === 'auth/credential-already-in-use' || linkErr.code === 'auth/email-already-in-use') {
+          const anonUid = currentUser.uid;
+          const result = await signInWithPopup(_fbAuth, provider);
+          await _fbMigrateAnonData(anonUid, result.user.uid);
+          window._fbUid = result.user.uid;
+          localStorage.setItem('bravo_fb_uid', result.user.uid);
+          if (status) status.textContent = 'Conta encontrada — dados sincronizados!';
+          _updateGoogleUI(result.user);
+          showToast('Conectado com Google! Seus dados estão seguros 💪');
+          return;
+        }
+        throw linkErr;
+      }
+    } else {
+      const result = await signInWithPopup(_fbAuth, provider);
+      window._fbUid = result.user.uid;
+      localStorage.setItem('bravo_fb_uid', result.user.uid);
+      if (status) status.textContent = 'Conectado com sucesso!';
+      _updateGoogleUI(result.user);
+      showToast('Conectado com Google! Seus dados estão seguros 💪');
+    }
+  } catch (e) {
+    console.warn('fbGoogleSignIn', e);
+    if (status) status.textContent = 'Não foi possível conectar. Tente novamente.';
+    if (btn) btn.disabled = false;
+  }
+}
+
+// Migra documentos do UID anônimo antigo para o novo UID autenticado por Google,
+// fazendo merge: se o destino já tiver dados, mantém o que tiver mais informação.
+async function _fbMigrateAnonData(anonUid, newUid) {
+  try {
+    const anonUserDoc    = doc(_fbDb, 'users',     anonUid);
+    const anonPresetsDoc = doc(_fbDb, 'presets',   anonUid);
+    const anonCalDoc     = doc(_fbDb, 'calendars', anonUid);
+    const newUserDoc    = doc(_fbDb, 'users',     newUid);
+    const newPresetsDoc = doc(_fbDb, 'presets',   newUid);
+    const newCalDoc     = doc(_fbDb, 'calendars', newUid);
+
+    const [aU, aP, aC, nU, nP, nC] = await Promise.all([
+      getDoc(anonUserDoc), getDoc(anonPresetsDoc), getDoc(anonCalDoc),
+      getDoc(newUserDoc),  getDoc(newPresetsDoc),  getDoc(newCalDoc)
+    ]);
+
+    if (aU.exists() && !nU.exists()) {
+      await setDoc(newUserDoc, aU.data(), { merge: true });
+    }
+    if (aP.exists()) {
+      const anonPresets = aP.data().presets || [];
+      const newPresets = nP.exists() ? (nP.data().presets || []) : [];
+      if (anonPresets.length > newPresets.length) {
+        await setDoc(newPresetsDoc, { presets: anonPresets });
+      }
+    }
+    if (aC.exists()) {
+      const anonRec = aC.data().records || [];
+      const newRec = nC.exists() ? (nC.data().records || []) : [];
+      const merged = [...newRec];
+      anonRec.forEach(r => { if (!merged.find(m => m.date === r.date)) merged.push(r); });
+      merged.sort((a, b) => a.date.localeCompare(b.date));
+      if (merged.length !== newRec.length) {
+        await setDoc(newCalDoc, { records: merged });
+      }
+    }
+  } catch (e) { console.warn('fbMigrateAnonData', e); }
+}
+
+window._fbGoogleSignIn = _fbGoogleSignIn;
+window._fbSignOut = async () => { try { await signOut(_fbAuth); } catch(e) { console.warn(e); } };
+
 </script>
 
 <script>
@@ -2051,13 +2173,27 @@ function closeMenu(e){if(e.target===document.getElementById('menuOverlay'))docum
 function closeMenuForce(){document.getElementById('menuOverlay').classList.remove('open');}
 function openSettingsFromMenu(){closeMenuForce();document.getElementById('settingsModal').classList.add('open');}
 function openAbout(){closeMenuForce();showScreen('aboutScreen');}
-function openRegisterFromMenu(){closeMenuForce();showScreen('registerScreen');}
+function openRegisterFromMenu(){closeMenuForce();showScreen('registerScreen');if(window._fbAuthCurrentUser)_refreshGoogleUIIfPossible();}
+function _refreshGoogleUIIfPossible(){
+  const label=document.getElementById('googleSignInLabel');
+  if(!label)return;
+  const uid=localStorage.getItem('bravo_fb_uid');
+  if(uid&&window._fbUid&&!window._fbIsAnonymous){
+    label.textContent='Conectado ✓';
+    const btn=document.getElementById('btnGoogleSignIn');
+    if(btn){btn.disabled=true;btn.style.opacity='.6';}
+  }
+}
 
 // ---- ABOUT ----
 document.getElementById('btnAboutBack').onclick=()=>showScreen('home');
 
 // ---- REGISTER ----
 document.getElementById('btnRegBack').onclick=()=>showScreen('home');
+const btnGoogleSignIn=document.getElementById('btnGoogleSignIn');
+if(btnGoogleSignIn){
+  btnGoogleSignIn.onclick=()=>{ if(window._fbGoogleSignIn) window._fbGoogleSignIn(); };
+}
 let selectedGender='';
 function selectGender(btn){
   selectedGender=btn.dataset.g;
@@ -2103,6 +2239,7 @@ function dismissRegPrompt(){
 function openRegisterScreen(){
   document.getElementById('regPromptOverlay').classList.remove('open');
   showScreen('registerScreen');
+  _refreshGoogleUIIfPossible();
 }
 
 function setMode(m){
