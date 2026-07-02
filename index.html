@@ -539,6 +539,43 @@
   .about-dev strong{color:var(--text);font-weight:500;}
   .about-badge{display:inline-block;margin-top:12px;font-size:11px;color:var(--muted);background:var(--surface2);padding:5px 14px;border-radius:20px;letter-spacing:.5px;}
 
+  /* ---- PROGRAMA PREMIUM ---- */
+  #premiumIntro{padding:0 24px;align-items:flex-start;justify-content:center;gap:18px;}
+  .prem-star{font-size:34px;line-height:1;margin-bottom:4px;}
+  .prem-intro-title{font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:2px;color:var(--text);}
+  .prem-intro-text{font-size:15px;color:var(--muted);line-height:1.75;}
+  .prem-intro-actions{width:100%;display:flex;flex-direction:column;gap:12px;margin-top:8px;}
+
+  #premiumQuestion{padding:20px 20px 28px;}
+  .prem-header{display:flex;align-items:center;gap:12px;flex-shrink:0;}
+  .prem-progress-txt{margin-left:auto;font-size:11px;color:var(--muted);letter-spacing:1px;font-variant-numeric:tabular-nums;}
+  .prem-progress-track{height:3px;border-radius:2px;background:var(--surface2);margin-top:16px;flex-shrink:0;overflow:hidden;}
+  .prem-progress-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .35s ease;}
+  .prem-body{flex:1;display:flex;flex-direction:column;justify-content:center;gap:22px;overflow-y:auto;padding:36px 0;opacity:0;transform:translateY(10px);transition:opacity .28s ease,transform .28s ease;}
+  .prem-body.in{opacity:1;transform:translateY(0);}
+  .prem-q-title{font-family:'Bebas Neue',sans-serif;font-size:23px;letter-spacing:1px;line-height:1.25;color:var(--text);}
+  .prem-q-subtitle{font-size:14px;color:var(--muted);line-height:1.6;margin-top:6px;}
+  .prem-input{background:var(--surface);border:1px solid var(--surface2);border-radius:12px;padding:13px 16px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--text);width:100%;}
+  .prem-input:focus{outline:none;border-color:var(--accent);}
+  .prem-textarea{background:var(--surface);border:1px solid var(--surface2);border-radius:14px;padding:16px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--text);width:100%;resize:none;min-height:120px;line-height:1.6;}
+  .prem-textarea:focus{outline:none;border-color:var(--accent);}
+  .prem-unit-wrap{position:relative;}
+  .prem-unit-wrap .prem-input{padding-right:48px;}
+  .prem-unit-label{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--muted);pointer-events:none;}
+  .prem-options{display:flex;flex-direction:column;gap:10px;}
+  .prem-opt-btn{width:100%;padding:15px 18px;border-radius:14px;border:1px solid var(--surface2);background:var(--surface);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;text-align:left;cursor:pointer;transition:all .2s;}
+  .prem-opt-btn.selected{border-color:var(--accent);color:var(--accent);background:rgba(240,78,35,.06);}
+  .prem-dual{display:flex;flex-direction:column;gap:16px;}
+  .prem-dual-field{display:flex;flex-direction:column;gap:6px;}
+  .prem-footer{flex-shrink:0;display:flex;flex-direction:column;gap:10px;}
+  .prem-skip{background:transparent;border:none;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;text-align:center;padding:4px;}
+
+  #premiumDone{padding:0 28px;align-items:flex-start;justify-content:center;gap:16px;}
+  .prem-done-emoji{font-size:38px;}
+  .prem-done-title{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:2px;color:var(--accent);}
+  .prem-done-text{font-size:15px;color:var(--muted);line-height:1.75;}
+  .prem-done-actions{width:100%;margin-top:8px;}
+
   /* ---- PHASE ICON (timer phase label) ---- */
   .phase-label-wrap{display:flex;align-items:center;gap:7px;}
   .phase-icon{width:29px;height:29px;object-fit:contain;flex-shrink:0;opacity:.85;filter:var(--phase-icon-filter,none);}
@@ -1318,6 +1355,9 @@
       <button class="menu-item" onclick="openRegisterFromMenu()">
         <span class="menu-item-icon">👤</span> Cadastro rápido
       </button>
+      <button class="menu-item" onclick="openPremiumFromMenu()">
+        <span class="menu-item-icon">⭐</span> Programa Premium
+      </button>
       <hr class="menu-divider">
       <div class="menu-section-label">Treinos</div>
       <button class="menu-item" style="opacity:.5;cursor:default">
@@ -1416,6 +1456,43 @@
   </div>
 </div>
 
+<!-- PREMIUM PROGRAM — INTRO -->
+<div class="screen hidden" id="premiumIntro" style="flex-direction:column;">
+  <div class="reg-header" style="margin-bottom:0;padding-top:20px;padding-left:24px;padding-right:24px;">
+    <button class="btn-ctrl" id="btnPremiumIntroBack"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg><span class="ctrl-label">Voltar</span></button>
+  </div>
+  <div class="prem-star">⭐</div>
+  <div class="prem-intro-title">Programa<br>Premium</div>
+  <div class="prem-intro-text">Quero conhecer você antes de pensar no seu treino.<br><br>Cada pessoa tem objetivos, desafios e uma rotina diferente. Para criar um programa personalizado, preciso entender quem você é e como o treino pode fazer parte da sua vida.</div>
+  <div class="prem-intro-actions">
+    <button class="btn-save" id="btnPremiumStart">INICIAR ENTREVISTA</button>
+  </div>
+</div>
+
+<!-- PREMIUM PROGRAM — QUESTIONNAIRE -->
+<div class="screen hidden" id="premiumQuestion" style="flex-direction:column;">
+  <div class="prem-header">
+    <button class="btn-ctrl" id="btnPremiumBack"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg><span class="ctrl-label">Voltar</span></button>
+    <div class="prem-progress-txt" id="premProgressTxt">1 / 13</div>
+  </div>
+  <div class="prem-progress-track"><div class="prem-progress-fill" id="premProgressFill" style="width:0%"></div></div>
+  <div class="prem-body" id="premBody"></div>
+  <div class="prem-footer">
+    <button class="btn-save" id="btnPremiumNext">CONTINUAR</button>
+    <button class="prem-skip" id="btnPremiumSkip" style="display:none;">Prefiro não responder agora</button>
+  </div>
+</div>
+
+<!-- PREMIUM PROGRAM — DONE -->
+<div class="screen hidden" id="premiumDone" style="flex-direction:column;">
+  <div class="prem-done-emoji">🙏</div>
+  <div class="prem-done-title">Entrevista concluída</div>
+  <div class="prem-done-text">Obrigado por compartilhar um pouco da sua história.<br><br>Suas respostas foram recebidas com sucesso.<br><br>Quando houver disponibilidade para novos programas personalizados, sua entrevista poderá ser analisada.</div>
+  <div class="prem-done-actions">
+    <button class="btn-save" id="btnPremiumDoneBack">VOLTAR AO INÍCIO</button>
+  </div>
+</div>
+
 <script type="module">
 // ============================================================
 // FIREBASE — inicialização e camada de sincronização
@@ -1423,7 +1500,7 @@
 import { initializeApp }           from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, signInAnonymously, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, linkWithPopup, signOut }
                                     from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { getFirestore, doc, getDoc, setDoc }
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp }
                                     from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 const _fbConfig = {
@@ -1444,10 +1521,26 @@ window._fbUid = null;
 function _userDoc()   { return doc(_fbDb, 'users',     window._fbUid); }
 function _calDoc()    { return doc(_fbDb, 'calendars', window._fbUid); }
 function _presetsDoc(){ return doc(_fbDb, 'presets',   window._fbUid); }
+function _premiumDoc(){ return doc(_fbDb, 'premiumApplications', window._fbUid); }
 
 async function _fbSaveUser(data) {
   if (!window._fbUid) return;
   try { await setDoc(_userDoc(), data, { merge: true }); } catch(e) { console.warn('fbSaveUser', e); }
+}
+async function _fbSavePremiumApplication(answers) {
+  if (!window._fbUid) return false;
+  try {
+    const existing = await getDoc(_premiumDoc());
+    const payload = {
+      uid: window._fbUid,
+      updatedAt: serverTimestamp(),
+      status: 'aguardando análise',
+      answers
+    };
+    if (!existing.exists()) payload.createdAt = serverTimestamp();
+    await setDoc(_premiumDoc(), payload, { merge: true });
+    return true;
+  } catch(e) { console.warn('fbSavePremiumApplication', e); return false; }
 }
 async function _fbSavePresets(arr) {
   if (!window._fbUid) return;
@@ -1508,6 +1601,7 @@ async function _fbLoadAll() {
 window._fbSaveUser     = _fbSaveUser;
 window._fbSavePresets  = _fbSavePresets;
 window._fbSaveCalendar = _fbSaveCalendar;
+window._fbSavePremiumApplication = _fbSavePremiumApplication;
 
 onAuthStateChanged(_fbAuth, async user => {
   if (user) {
@@ -2174,6 +2268,18 @@ function closeMenuForce(){document.getElementById('menuOverlay').classList.remov
 function openSettingsFromMenu(){closeMenuForce();document.getElementById('settingsModal').classList.add('open');}
 function openAbout(){closeMenuForce();showScreen('aboutScreen');}
 function openRegisterFromMenu(){closeMenuForce();showScreen('registerScreen');if(window._fbAuthCurrentUser)_refreshGoogleUIIfPossible();}
+
+// ---- PROGRAMA PREMIUM ----
+function openPremiumFromMenu(){
+  closeMenuForce();
+  if(!localStorage.getItem('bravo_reg_done')){
+    localStorage.setItem('bravo_premium_pending','1');
+    showScreen('registerScreen');
+    if(window._fbAuthCurrentUser)_refreshGoogleUIIfPossible();
+    return;
+  }
+  showScreen('premiumIntro');
+}
 function _refreshGoogleUIIfPossible(){
   const label=document.getElementById('googleSignInLabel');
   if(!label)return;
@@ -2189,7 +2295,7 @@ function _refreshGoogleUIIfPossible(){
 document.getElementById('btnAboutBack').onclick=()=>showScreen('home');
 
 // ---- REGISTER ----
-document.getElementById('btnRegBack').onclick=()=>showScreen('home');
+document.getElementById('btnRegBack').onclick=()=>{localStorage.removeItem('bravo_premium_pending');showScreen('home');};
 const btnGoogleSignIn=document.getElementById('btnGoogleSignIn');
 if(btnGoogleSignIn){
   btnGoogleSignIn.onclick=()=>{ if(window._fbGoogleSignIn) window._fbGoogleSignIn(); };
@@ -2216,9 +2322,15 @@ document.getElementById('btnRegSave').onclick=async()=>{
   localStorage.setItem('bravo_user',JSON.stringify(data));
   localStorage.setItem('bravo_reg_done','1');
   if(window._fbSaveUser)window._fbSaveUser(data);btn.disabled=false;
-  showToast('Cadastro salvo! Bora treinar 💪');
   renderHome();
-  showScreen('home');
+  if(localStorage.getItem('bravo_premium_pending')){
+    localStorage.removeItem('bravo_premium_pending');
+    showToast('Cadastro salvo! Vamos começar 💪');
+    showScreen('premiumIntro');
+  } else {
+    showToast('Cadastro salvo! Bora treinar 💪');
+    showScreen('home');
+  }
 };
 
 // ---- REGISTRATION PROMPT (after 3 workouts) ----
@@ -3736,6 +3848,147 @@ function brainFinishWorkout(){
     resetExTypes();
     document.getElementById('markWorkoutModal').classList.add('open');
   },2000);
+}
+
+// ============================================================
+// PROGRAMA PREMIUM — questionário conversacional
+// ============================================================
+const PREMIUM_QUESTIONS=[
+  {id:'q1',type:'longtext',title:'Como você se sente hoje em relação ao seu corpo?',placeholder:'Fique à vontade para escrever com suas palavras...',required:true},
+  {id:'q2',type:'longtext',title:'Imagine que passaram três meses seguindo um plano pensado especialmente para você.',subtitle:'O que gostaria de ter conquistado?',placeholder:'Descreva como você se imagina...',required:true},
+  {id:'birthdate',type:'date',title:'Agora preciso conhecer um pouco da sua realidade.',subtitle:'Qual sua data de nascimento?',required:true},
+  {id:'gender',type:'options',title:'Gênero',options:['Feminino','Masculino','Prefiro não informar'],required:true},
+  {id:'height',type:'number',title:'Altura',placeholder:'Ex: 170',unit:'cm',required:true},
+  {id:'weight',type:'number',title:'Peso',placeholder:'Ex: 68',unit:'kg',required:true},
+  {id:'injury',type:'longtext',title:'Existe alguma lesão ou limitação que influencia seu dia a dia?',placeholder:'Se não houver, pode escrever "Não".',required:true},
+  {id:'medication',type:'longtext',title:'Você utiliza alguma medicação de uso contínuo que considera importante eu saber?',placeholder:'Se não houver, pode escrever "Não".',required:true},
+  {id:'trainLocation',type:'options',title:'Onde pretende treinar?',options:['Academia','Casa','Ar livre','Outro'],required:true},
+  {id:'homeEquipment',type:'longtext',title:'Caso vá treinar em casa:',subtitle:'Quais equipamentos você possui?',placeholder:'Ex: halteres, elástico, banco...',required:false,showIf:a=>a.trainLocation==='Casa'},
+  {id:'buyEquipment',type:'options',title:'Você estaria disposto a adquirir algum equipamento simples caso isso melhorasse bastante seu treinamento?',options:['Sim','Não','Talvez'],required:true},
+  {id:'time',type:'dual',title:'Em vez de montar o treino ideal, prefiro montar o treino que realmente funciona na sua rotina.',subtitle:'Quanto tempo você consegue dedicar ao treino?',fields:[{id:'daysPerWeek',label:'Dias por semana',placeholder:'Ex: 3'},{id:'minutesPerSession',label:'Tempo médio por treino (min)',placeholder:'Ex: 45'}],required:true},
+  {id:'extra',type:'longtext',title:'Existe alguma informação importante que você gostaria de compartilhar e que eu ainda não perguntei?',placeholder:'Opcional...',required:false}
+];
+let premiumAnswers={};
+let premiumStepIdx=0;
+
+function premVisibleQuestions(){
+  return PREMIUM_QUESTIONS.filter(q=>!q.showIf||q.showIf(premiumAnswers));
+}
+
+document.getElementById('btnPremiumIntroBack').onclick=()=>showScreen('home');
+document.getElementById('btnPremiumStart').onclick=()=>{
+  premiumAnswers={};
+  premiumStepIdx=0;
+  showScreen('premiumQuestion');
+  renderPremiumStep();
+};
+document.getElementById('btnPremiumDoneBack').onclick=()=>showScreen('home');
+document.getElementById('btnPremiumBack').onclick=()=>{
+  if(premiumStepIdx<=0){showScreen('premiumIntro');return;}
+  premiumStepIdx--;
+  renderPremiumStep();
+};
+document.getElementById('btnPremiumNext').onclick=()=>premiumAdvance();
+document.getElementById('btnPremiumSkip').onclick=()=>premiumAdvance(true);
+
+function premiumCurrentInputValue(q){
+  if(q.type==='longtext'){const el=document.getElementById('premInput_'+q.id);return el?el.value.trim():'';}
+  if(q.type==='date'||q.type==='number'){const el=document.getElementById('premInput_'+q.id);return el?el.value.trim():'';}
+  if(q.type==='options'){return premiumAnswers[q.id]||'';}
+  if(q.type==='dual'){
+    const vals={};
+    q.fields.forEach(f=>{const el=document.getElementById('premInput_'+f.id);vals[f.id]=el?el.value.trim():'';});
+    return vals;
+  }
+  return '';
+}
+
+function premiumAdvance(skip){
+  const list=premVisibleQuestions();
+  const q=list[premiumStepIdx];
+  if(!q)return;
+  const val=skip?(q.type==='dual'?{}:''):premiumCurrentInputValue(q);
+  if(q.required && !skip){
+    let empty=false;
+    if(q.type==='dual'){empty=Object.values(val).some(v=>!v);}
+    else{empty=!val;}
+    if(empty){showToast('Preencha para continuar');return;}
+  }
+  premiumAnswers[q.id]=val;
+  const newList=premVisibleQuestions();
+  const currentPos=newList.indexOf(q);
+  premiumStepIdx=(currentPos>=0?currentPos:premiumStepIdx)+1;
+  if(premiumStepIdx>=newList.length){finishPremiumQuestionnaire();return;}
+  renderPremiumStep();
+}
+
+function renderPremiumStep(){
+  const list=premVisibleQuestions();
+  const q=list[premiumStepIdx];
+  if(!q){finishPremiumQuestionnaire();return;}
+  document.getElementById('premProgressTxt').textContent=(premiumStepIdx+1)+' / '+list.length;
+  document.getElementById('premProgressFill').style.width=((premiumStepIdx)/list.length*100)+'%';
+  document.getElementById('btnPremiumSkip').style.display=q.required?'none':'block';
+  document.getElementById('btnPremiumNext').textContent=(premiumStepIdx===list.length-1)?'FINALIZAR':'CONTINUAR';
+
+  const body=document.getElementById('premBody');
+  body.classList.remove('in');
+
+  let html='<div class="prem-q-title">'+q.title+'</div>';
+  if(q.subtitle)html+='<div class="prem-q-subtitle">'+q.subtitle+'</div>';
+
+  if(q.type==='longtext'){
+    html+='<textarea class="prem-textarea" id="premInput_'+q.id+'" placeholder="'+q.placeholder+'">'+(premiumAnswers[q.id]||'')+'</textarea>';
+  } else if(q.type==='date'){
+    html+='<input class="prem-input" type="date" id="premInput_'+q.id+'" value="'+(premiumAnswers[q.id]||'')+'">';
+  } else if(q.type==='number'){
+    html+='<div class="prem-unit-wrap"><input class="prem-input" type="number" inputmode="decimal" id="premInput_'+q.id+'" placeholder="'+q.placeholder+'" value="'+(premiumAnswers[q.id]||'')+'"><span class="prem-unit-label">'+q.unit+'</span></div>';
+  } else if(q.type==='options'){
+    html+='<div class="prem-options">'+q.options.map(o=>'<button type="button" class="prem-opt-btn'+(premiumAnswers[q.id]===o?' selected':'')+'" data-val="'+o+'" onclick="premiumSelectOption(this,\''+q.id+'\')">'+o+'</button>').join('')+'</div>';
+  } else if(q.type==='dual'){
+    html+='<div class="prem-dual">'+q.fields.map(f=>{
+      const existing=(premiumAnswers[q.id]&&premiumAnswers[q.id][f.id])||'';
+      return '<div class="prem-dual-field"><div class="reg-label">'+f.label+'</div><input class="prem-input" type="number" inputmode="numeric" id="premInput_'+f.id+'" placeholder="'+f.placeholder+'" value="'+existing+'"></div>';
+    }).join('')+'</div>';
+  }
+
+  body.innerHTML=html;
+  requestAnimationFrame(()=>body.classList.add('in'));
+  const focusable=body.querySelector('textarea,input');
+  if(focusable && q.type!=='options') setTimeout(()=>focusable.focus({preventScroll:true}),50);
+}
+
+function premiumSelectOption(btn,qid){
+  premiumAnswers[qid]=btn.dataset.val;
+  btn.parentElement.querySelectorAll('.prem-opt-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+async function finishPremiumQuestionnaire(){
+  document.getElementById('premProgressFill').style.width='100%';
+  const btn=document.getElementById('btnPremiumNext');
+  btn.textContent='ENVIANDO...';btn.disabled=true;
+  const answers={
+    comoSeSente:premiumAnswers.q1||'',
+    metaTresMeses:premiumAnswers.q2||'',
+    dataNascimento:premiumAnswers.birthdate||'',
+    genero:premiumAnswers.gender||'',
+    altura:premiumAnswers.height||'',
+    peso:premiumAnswers.weight||'',
+    lesaoOuLimitacao:premiumAnswers.injury||'',
+    medicacao:premiumAnswers.medication||'',
+    localTreino:premiumAnswers.trainLocation||'',
+    equipamentosCasa:premiumAnswers.homeEquipment||'',
+    disponibilidadeComprarEquipamento:premiumAnswers.buyEquipment||'',
+    diasPorSemana:(premiumAnswers.time&&premiumAnswers.time.daysPerWeek)||'',
+    tempoMedioTreino:(premiumAnswers.time&&premiumAnswers.time.minutesPerSession)||'',
+    infoAdicional:premiumAnswers.extra||''
+  };
+  let ok=false;
+  if(window._fbSavePremiumApplication) ok=await window._fbSavePremiumApplication(answers);
+  btn.disabled=false;btn.textContent='CONTINUAR';
+  if(!ok){showToast('Não foi possível enviar agora. Tente novamente.');return;}
+  showScreen('premiumDone');
 }
 
 function showScreen(id){
