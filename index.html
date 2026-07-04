@@ -503,7 +503,9 @@
   .menu-item{display:flex;align-items:center;gap:12px;padding:13px 24px;cursor:pointer;border:none;background:transparent;width:100%;text-align:left;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;transition:background .15s;}
   .menu-item:active{background:var(--surface2);}
   .menu-item-icon{font-size:16px;width:22px;text-align:center;flex-shrink:0;}
-  .menu-item-tag{font-size:10px;color:var(--muted);background:var(--surface2);padding:2px 7px;border-radius:6px;margin-left:auto;}
+  .menu-item-icon-img{width:18px;height:18px;object-fit:contain;flex-shrink:0;}
+  .menu-item-tag{font-size:10px;color:var(--muted);background:var(--surface2);padding:2px 7px;border-radius:6px;margin-left:auto;white-space:nowrap;flex-shrink:0;}
+  .menu-item-tag-live{color:var(--accent);}
   .menu-divider{border:none;border-top:1px solid var(--surface2);margin:8px 0;}
   /* ---- REGISTRATION PROMPT ---- */
   .reg-prompt-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:flex-end;z-index:700;opacity:0;pointer-events:none;transition:opacity .25s;}
@@ -1359,9 +1361,32 @@
         <span class="menu-item-icon">⭐</span> Programa Premium
       </button>
       <hr class="menu-divider">
-      <div class="menu-section-label">Treinos</div>
+      <div class="menu-section-label">Programas Bravo</div>
+      <button class="menu-item" onclick="openBravoPlayFromMenu()">
+        <img class="menu-item-icon-img" src="ic_play.png?v=202506" alt=""> Bravo Play <span class="menu-item-tag menu-item-tag-live">Liberado</span>
+      </button>
+      <button class="menu-item" onclick="openTreinoDoDiaFromMenu()">
+        <img class="menu-item-icon-img" src="ic_play.png?v=202506" alt=""> Treino do Dia <span class="menu-item-tag menu-item-tag-live">Liberado</span>
+      </button>
       <button class="menu-item" style="opacity:.5;cursor:default">
-        <span class="menu-item-icon">🏋️</span> Em breve <span class="menu-item-tag">Em breve</span>
+        <img class="menu-item-icon-img" src="ic_play.png?v=202506" alt=""> Treinamento Suspenso Bravo <span class="menu-item-tag">Em breve</span>
+      </button>
+      <button class="menu-item" style="opacity:.5;cursor:default">
+        <img class="menu-item-icon-img" src="ic_play.png?v=202506" alt=""> Sand Bag Bravo <span class="menu-item-tag">Em breve</span>
+      </button>
+      <button class="menu-item" style="opacity:.5;cursor:default">
+        <img class="menu-item-icon-img" src="ic_play.png?v=202506" alt=""> Be Hero Bravo <span class="menu-item-tag">Em breve</span>
+      </button>
+      <hr class="menu-divider">
+      <div class="menu-section-label">Indicações Bravo</div>
+      <button class="menu-item" onclick="openIndicacoes('Equipamentos')">
+        <img class="menu-item-icon-img" src="ic_play.png?v=202506" alt=""> Equipamentos
+      </button>
+      <button class="menu-item" onclick="openIndicacoes('Gadgets')">
+        <img class="menu-item-icon-img" src="ic_play.png?v=202506" alt=""> Gadgets
+      </button>
+      <button class="menu-item" onclick="openIndicacoes('Vestuário')">
+        <img class="menu-item-icon-img" src="ic_play.png?v=202506" alt=""> Vestuário
       </button>
       <hr class="menu-divider">
       <div class="menu-section-label">Projeto Bravo</div>
@@ -1453,6 +1478,19 @@
     CREF 11360-G/SC<br>
     Especialista em Condicionamento Físico e Saúde
     <div class="about-badge">Projeto independente · Em constante evolução</div>
+  </div>
+</div>
+
+<!-- INDICAÇÕES BRAVO -->
+<div class="screen hidden" id="indicacoesScreen" style="flex-direction:column;">
+  <div class="about-header">
+    <button class="btn-ctrl" id="btnIndicacoesBack"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg><span class="ctrl-label">Voltar</span></button>
+    <div class="about-title-main">INDICAÇÕES BRAVO</div>
+  </div>
+  <div class="about-logo-big">BRAVO</div>
+  <div class="about-tagline" id="indicacoesTitle">Equipamentos</div>
+  <div class="about-body">
+    Obrigado pela confiança.<br><br>Em breve estaremos colocando nossas melhores indicações aqui.
   </div>
 </div>
 
@@ -1921,7 +1959,7 @@ function renderHome(){
           <div class="card-collapsed-meta"><img class="meta-icon" src="ic_noexe.png?v=202506" alt="">${d.brainExCount} ex<span class="meta-sep">·</span><img class="meta-icon" src="ic_noseries.png?v=202506" alt="">${d.brainSeries} sér</div>
         </div>
         <div class="card-expanded">
-          <div class="card-exp-badge">🧠 BRAVO</div>
+          <div class="card-exp-badge"><img class="meta-icon" src="ic_play.png?v=202506" alt="">BRAVO</div>
           <div class="card-exp-name">Treino do Dia</div>
           <div class="card-exp-pills">
             <div class="card-exp-pill-row">
@@ -1965,9 +2003,9 @@ function renderHome(){
     else collapsedMeta=`<img class="meta-icon" src="ic_noexe.png?v=202506" alt="">${p.normalExCount||1} ex<span class="meta-sep">·</span><img class="meta-icon" src="ic_noseries.png?v=202506" alt="">${p.cycles} sér`;
 
     let badge='';
-    if(p.mode==='circuit') badge='CIRCUITO';
-    else if(p.mode==='brain') badge='BRAVO';
-    else badge='CLÁSSICO';
+    if(p.mode==='circuit') badge='🔄 CIRCUITO';
+    else if(p.mode==='brain') badge=`<img class="meta-icon" src="ic_play.png?v=202506" alt="">BRAVO`;
+    else badge='⏱ CLÁSSICO';
 
     let pills='';
     if(p.mode==='circuit'){
@@ -2267,6 +2305,13 @@ function closeMenu(e){if(e.target===document.getElementById('menuOverlay'))docum
 function closeMenuForce(){document.getElementById('menuOverlay').classList.remove('open');}
 function openSettingsFromMenu(){closeMenuForce();document.getElementById('settingsModal').classList.add('open');}
 function openAbout(){closeMenuForce();showScreen('aboutScreen');}
+function openBravoPlayFromMenu(){closeMenuForce();showScreen('home');selectAutoMode();}
+function openTreinoDoDiaFromMenu(){closeMenuForce();showScreen('home');selectBravoMarcado();}
+function openIndicacoes(categoria){
+  closeMenuForce();
+  document.getElementById('indicacoesTitle').textContent=categoria;
+  showScreen('indicacoesScreen');
+}
 function openRegisterFromMenu(){closeMenuForce();showScreen('registerScreen');if(window._fbAuthCurrentUser)_refreshGoogleUIIfPossible();}
 
 // ---- PROGRAMA PREMIUM ----
@@ -2293,6 +2338,7 @@ function _refreshGoogleUIIfPossible(){
 
 // ---- ABOUT ----
 document.getElementById('btnAboutBack').onclick=()=>showScreen('home');
+document.getElementById('btnIndicacoesBack').onclick=()=>showScreen('home');
 
 // ---- REGISTER ----
 document.getElementById('btnRegBack').onclick=()=>{localStorage.removeItem('bravo_premium_pending');showScreen('home');};
