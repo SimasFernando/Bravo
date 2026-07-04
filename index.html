@@ -589,7 +589,7 @@
   .auto-phase-wrap{display:flex;align-items:center;gap:7px;}
   .auto-phase-icon{width:31px;height:31px;object-fit:contain;flex-shrink:0;opacity:.85;}
 
-  /* ---- FLUXO: ícones de tipo de exercício clicáveis ---- */
+  /* ---- BRAVO PLAY: ícones de tipo de exercício clicáveis ---- */
   .auto-extype-btn{
     width:100%;aspect-ratio:1;border-radius:14px;
     border:2px solid transparent;
@@ -614,7 +614,7 @@
   /* Quando nenhum selecionado, todos com opacidade normal */
   .auto-extype-grid.none-selected .auto-extype-btn{opacity:1;}
 
-  /* ---- FLUXO: ícone selecionado na tela de execução ---- */
+  /* ---- BRAVO PLAY: ícone selecionado na tela de execução ---- */
   #autoExecTypeDisplay{
     display:none;
     flex-direction:column;
@@ -728,7 +728,7 @@
     <div class="mode-toggle" style="grid-template-columns:1fr 1fr 1fr">
       <button class="mode-btn active" id="modeNormal" onclick="setMode('normal')">⏱ Clássico</button>
       <button class="mode-btn" id="modeCircuit" onclick="setMode('circuit')">🔄 Circuito</button>
-      <button class="mode-btn" id="modeBrain" onclick="setMode('brain')">❎ Fluxo Marc.</button>
+      <button class="mode-btn" id="modeBrain" onclick="setMode('brain')"><img src="ic_play.png?v=202506" alt="" style="width:15px;height:15px;vertical-align:middle;margin-right:3px;object-fit:contain"> Bravo</button>
     </div>
   </div>
   <div class="field-group"><div class="field-label">Nome</div><input class="field-input" id="efName" placeholder="Ex: Carga Pesada"></div>
@@ -762,7 +762,7 @@
   </div>
   <div id="brainFields" style="display:none;flex-direction:column;gap:12px">
     <div style="font-size:12px;color:var(--accent);background:var(--accent-subtle);border:1px solid var(--accent-glow);border-radius:10px;padding:10px 14px;line-height:1.5">
-      🧠 Descanso calculado pelo esforço, igual ao Fluxo. Mas aqui você pré-define os exercícios e séries — e o treino segue automaticamente.
+      Modo Bravo: adapta automaticamente o descanso conforme o esforço, mantendo o treino fluindo sem que você precise controlar o cronômetro.
     </div>
     <div class="row2">
       <div class="field-group"><div class="field-label">Nº Exercícios</div><input class="field-input" id="efBrainExCount" type="number" min="1" max="9" placeholder="2"></div>
@@ -894,7 +894,7 @@
       <div class="progress-chip"><img src="ic_noexe.png?v=202506" alt=""><div class="progress-count" id="autoPrepExNum">1</div></div>
       <div class="progress-chip"><img src="ic_noseries.png?v=202506" alt=""><div class="progress-count" id="autoPrepSerieNum">1</div></div>
     </div>
-    <!-- Exercise type icons — clicáveis (Fluxo only) -->
+    <!-- Exercise type icons — clicáveis (Bravo Play only) -->
     <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--muted);text-align:center;margin-top:20px">DEFINA SEU EXERCÍCIO</div>
     <div id="autoPrepExTypeGrid" class="auto-extype-grid none-selected" style="display:flex;flex-direction:column;gap:10px;margin-top:12px;width:100%">
       <div style="display:flex;justify-content:space-around">
@@ -1289,7 +1289,7 @@
 <div class="modal-overlay" id="markWorkoutModal">
   <div class="modal-sheet">
     <div class="modal-title">MARCAR TREINO</div>
-    <div style="font-size:13px;color:var(--muted);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--surface2)" id="markWorkoutName">Automático ♾️</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--surface2)" id="markWorkoutName">Bravo Play</div>
     <div class="field-group" style="margin-top:0">
       <div class="field-label">Tipo de exercício realizado (opcional)</div>
       <div id="markExTypeGrid" style="display:flex;flex-direction:column;gap:10px;margin-top:6px">
@@ -1868,9 +1868,9 @@ function renderHome(){
   const bravoList=document.getElementById('presetList');
   bravoList.innerHTML='';
   const bravoOrder=loadBravoOrder();
-  // All bravo cards: Fluxo (auto) + BRAVO_CARDS entries
+  // All bravo cards: Bravo Play (auto) + BRAVO_CARDS entries
   const allBravoCards=[
-    {id:'_autoMode',name:'Fluxo',color:'#F04E23'},
+    {id:'_autoMode',name:'Bravo Play',color:'#F04E23'},
     ...BRAVO_CARDS.map(c=>({id:'_bravo_'+c.id,name:c.name,color:c.color,_data:c}))
   ];
   // Sort by persisted order
@@ -1895,11 +1895,11 @@ function renderHome(){
         <div class="card-color-band"></div>
         <div class="card-collapsed-row">
           <div class="drag-handle" title="Arrastar para reordenar">⠿</div>
-          <div class="card-collapsed-name">Fluxo</div>
-          <div class="card-collapsed-meta">♾️ SIGA SEU TREINO</div>
+          <div class="card-collapsed-name">Bravo Play</div>
+          <div class="card-collapsed-meta"><img class="meta-icon" src="ic_play.png?v=202506" alt="">SIGA SEU TREINO</div>
         </div>
         <div class="card-expanded">
-          <div class="card-exp-badge">♾️ FLUXO</div>
+          <div class="card-exp-badge"><img class="meta-icon" src="ic_play.png?v=202506" alt="">BRAVO PLAY</div>
           <div class="card-exp-name">Siga seu treino</div>
           <div class="card-exp-pills">
             <div class="card-exp-pill-row">
@@ -1921,7 +1921,7 @@ function renderHome(){
           <div class="card-collapsed-meta"><img class="meta-icon" src="ic_noexe.png?v=202506" alt="">${d.brainExCount} ex<span class="meta-sep">·</span><img class="meta-icon" src="ic_noseries.png?v=202506" alt="">${d.brainSeries} sér</div>
         </div>
         <div class="card-expanded">
-          <div class="card-exp-badge">🧠 FLUXO MARCADO</div>
+          <div class="card-exp-badge">🧠 BRAVO</div>
           <div class="card-exp-name">Treino do Dia</div>
           <div class="card-exp-pills">
             <div class="card-exp-pill-row">
@@ -1966,7 +1966,7 @@ function renderHome(){
 
     let badge='';
     if(p.mode==='circuit') badge='CIRCUITO';
-    else if(p.mode==='brain') badge='FLUXO MARC.';
+    else if(p.mode==='brain') badge='BRAVO';
     else badge='CLÁSSICO';
 
     let pills='';
@@ -2931,7 +2931,7 @@ function showCalDetail(dateStr,rec){
     html+=`</div>`;
     if(workouts.length>1)html+=`<button onclick="confirmDeleteWorkoutAt(${i})" style="font-size:11px;padding:3px 10px;border-radius:8px;border:1px solid rgba(255,77,109,.35);background:transparent;color:#ff4d6d;cursor:pointer">🗑</button>`;
     html+=`</div>`;
-    html+=`<div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--accent)">${w.name||'Automático ♾️'}</div>`;
+    html+=`<div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--accent)">${w.name||'Bravo Play'}</div>`;
     if(w.exTypes&&w.exTypes.length){
       html+=`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">`;
       w.exTypes.forEach(t=>{const et=EX_TYPE_MAP[t];if(et)html+=`<div style="display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:8px;background:var(--surface2);font-size:12px;color:${et.color};font-weight:600"><img src="ic_${t}.png?v=202506" style="width:21px;height:21px;object-fit:cover;border-radius:3px;flex-shrink:0"> ${et.label}</div>`;});
@@ -3023,7 +3023,7 @@ function markCalendar(name,obs,exTypes){
 }
 
 // ============================================================
-// FLUXO: seleção de tipo de exercício na preparação
+// BRAVO PLAY: seleção de tipo de exercício na preparação
 // ============================================================
 const EX_TYPE_INFO={
   puxar:  {label:'PUXAR',    color:'#9966CC', border:'rgba(180,127,255,.5)', bg:'rgba(180,127,255,.22)'},
@@ -3123,7 +3123,7 @@ let auto={
   restSecs:0,restTotal:0,
   execSecs:0,execTotal:60,execOverflow:false,
   prepSecs:15,_int:null,running:false,
-  workoutName:'Automático ♾️',
+  workoutName:'Bravo Play',
   pendingMarkName:''
 };
 
@@ -3178,7 +3178,7 @@ function startAutoExec(){
   ring.style.stroke='#F04E23';
   document.getElementById('autoExecTime').style.color='#F04E23';
   document.getElementById('autoExecOverflowLabel').style.opacity='0';
-  // Fluxo has no per-exercise videos (single exercise mode), clear
+  // Bravo Play has no per-exercise videos (single exercise mode), clear
   showYtEmbed('autoExecYtWrap',null,'autoExecCenter');
   applyPrepTypeToExec(); // mostra o ícone do tipo selecionado na preparação
   showScreen('autoExec');
@@ -3467,7 +3467,7 @@ function startAutoExecDirect(){
   ring.style.strokeDasharray=AUTO_CIRC;ring.style.stroke='#F04E23';
   document.getElementById('autoExecTime').style.color='#F04E23';
   document.getElementById('autoExecOverflowLabel').style.opacity='0';
-  // Fluxo has no per-exercise videos (single exercise mode), clear
+  // Bravo Play has no per-exercise videos (single exercise mode), clear
   showYtEmbed('autoExecYtWrap',null,'autoExecCenter');
   applyPrepTypeToExec(); // mostra o ícone do tipo selecionado
   showScreen('autoExec');
@@ -3497,13 +3497,13 @@ function autoNewExercise(){
 
 function autoFinishWorkout(){
   clearInterval(auto._int);
-  auto.pendingMarkName='Fluxo ♾️';
+  auto.pendingMarkName='Bravo Play';
   speak('Treino concluído. Parabéns!');
   beep(880,.15,.6,'sine',0);beep(1100,.15,.6,'sine',.2);beep(1320,.3,.7,'sine',.4);
   vibrate([100,50,100,50,200]);
-  document.getElementById('finishSub').textContent='Fluxo ♾️';
+  document.getElementById('finishSub').textContent='Bravo Play';
   showScreen('finish');
-  showBravoFixed('Fluxo ♾️');
+  showBravoFixed('Bravo Play');
   setTimeout(()=>{
     document.getElementById('markWorkoutName').textContent=auto.pendingMarkName;
     document.getElementById('markWorkoutObs').value='';
@@ -3608,7 +3608,7 @@ document.getElementById('markWorkoutModal').onclick=e=>{if(e.target.id==='markWo
 
 
 // ============================================================
-// FLUXO MARCADO ❎ — clássico com descanso calculado pelo esforço
+// BRAVO — clássico com descanso calculado pelo esforço
 // ============================================================
 let brain={
   preset:null,exIndex:0,serieNum:1,
@@ -3793,7 +3793,7 @@ function updateBrainRestUI(){
   document.getElementById('brainRestRing').style.strokeDashoffset=AUTO_CIRC*(1-(brain.restTotal>0?s/brain.restTotal:0));
 }
 
-// "Avançar agora" — mostra modal igual ao Fluxo (earlyRestModal) com tempo restante
+// "Avançar agora" — mostra modal igual ao Bravo Play (earlyRestModal) com tempo restante
 function brainSkipRest(){
   if(brain.restSecs<=0){
     clearInterval(brain._int);onBrainRestDone();return;
@@ -3806,7 +3806,7 @@ function brainSkipRest(){
     document.getElementById('earlyRestModal').classList.remove('open');
     clearInterval(brain._int);
     onBrainRestDone();
-    // Restore original Fluxo handler after use
+    // Restore original Bravo Play handler after use
     document.getElementById('btnEarlyRestContinue').onclick=()=>{
       document.getElementById('earlyRestModal').classList.remove('open');
       clearInterval(auto._int);auto.serieNum++;startAutoExecDirect();
