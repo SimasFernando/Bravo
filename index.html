@@ -507,6 +507,12 @@
   .menu-item-tag{font-size:10px;color:var(--muted);background:var(--surface2);padding:2px 7px;border-radius:6px;margin-left:auto;white-space:nowrap;flex-shrink:0;}
   .menu-item-tag-live{color:var(--accent);}
   .menu-divider{border:none;border-top:1px solid var(--surface2);margin:8px 0;}
+  .menu-accordion-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;padding:16px 24px 6px;background:transparent;border:none;cursor:pointer;text-align:left;}
+  .menu-accordion-toggle .menu-section-label{padding:0;}
+  .menu-accordion-chevron{font-size:11px;color:var(--muted);transition:transform .25s ease;flex-shrink:0;}
+  .menu-accordion-toggle.open .menu-accordion-chevron{transform:rotate(180deg);}
+  .menu-accordion-body{max-height:0;overflow:hidden;transition:max-height .3s ease;}
+  .menu-accordion-body.open{max-height:600px;}
   /* ---- REGISTRATION PROMPT ---- */
   .reg-prompt-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:flex-end;z-index:700;opacity:0;pointer-events:none;transition:opacity .25s;}
   .reg-prompt-overlay.open{opacity:1;pointer-events:all;}
@@ -1361,33 +1367,43 @@
         <span class="menu-item-icon">⭐</span> Programa Premium
       </button>
       <hr class="menu-divider">
-      <div class="menu-section-label">Programas Bravo</div>
-      <button class="menu-item" onclick="openBravoPlayFromMenu()">
-        <img class="menu-item-icon-img" src="ic_play.png?v=202506" alt=""> Bravo Play <span class="menu-item-tag menu-item-tag-live">Liberado</span>
+      <button class="menu-accordion-toggle" id="accToggle-programas" onclick="toggleMenuAccordion('programas')">
+        <span class="menu-section-label">Programas Bravo</span>
+        <span class="menu-accordion-chevron">▾</span>
       </button>
-      <button class="menu-item" onclick="openTreinoDoDiaFromMenu()">
-        <img class="menu-item-icon-img" src="ic_play.png?v=202506" alt=""> Treino do Dia <span class="menu-item-tag menu-item-tag-live">Liberado</span>
-      </button>
-      <button class="menu-item" style="opacity:.5;cursor:default">
-        <img class="menu-item-icon-img" src="ic_play.png?v=202506" alt=""> Treinamento Suspenso Bravo <span class="menu-item-tag">Em breve</span>
-      </button>
-      <button class="menu-item" style="opacity:.5;cursor:default">
-        <img class="menu-item-icon-img" src="ic_play.png?v=202506" alt=""> Sand Bag Bravo <span class="menu-item-tag">Em breve</span>
-      </button>
-      <button class="menu-item" style="opacity:.5;cursor:default">
-        <img class="menu-item-icon-img" src="ic_play.png?v=202506" alt=""> Be Hero Bravo <span class="menu-item-tag">Em breve</span>
-      </button>
+      <div class="menu-accordion-body" id="accBody-programas">
+        <button class="menu-item" onclick="openBravoPlayFromMenu()">
+          <img class="menu-item-icon-img" src="ic_play.png?v=202506" alt=""> Bravo Play <span class="menu-item-tag menu-item-tag-live">Liberado</span>
+        </button>
+        <button class="menu-item" onclick="openTreinoDoDiaFromMenu()">
+          <img class="menu-item-icon-img" src="ic_play.png?v=202506" alt=""> Treino do Dia <span class="menu-item-tag menu-item-tag-live">Liberado</span>
+        </button>
+        <button class="menu-item" style="opacity:.5;cursor:default">
+          <img class="menu-item-icon-img" src="ic_play.png?v=202506" alt=""> Treinamento Suspenso Bravo <span class="menu-item-tag">Em breve</span>
+        </button>
+        <button class="menu-item" style="opacity:.5;cursor:default">
+          <img class="menu-item-icon-img" src="ic_play.png?v=202506" alt=""> Sand Bag Bravo <span class="menu-item-tag">Em breve</span>
+        </button>
+        <button class="menu-item" style="opacity:.5;cursor:default">
+          <img class="menu-item-icon-img" src="ic_play.png?v=202506" alt=""> Be Hero Bravo <span class="menu-item-tag">Em breve</span>
+        </button>
+      </div>
       <hr class="menu-divider">
-      <div class="menu-section-label">Indicações Bravo</div>
-      <button class="menu-item" onclick="openIndicacoes('Equipamentos')">
-        <img class="menu-item-icon-img" src="ic_play.png?v=202506" alt=""> Equipamentos
+      <button class="menu-accordion-toggle" id="accToggle-indicacoes" onclick="toggleMenuAccordion('indicacoes')">
+        <span class="menu-section-label">Indicações Bravo</span>
+        <span class="menu-accordion-chevron">▾</span>
       </button>
-      <button class="menu-item" onclick="openIndicacoes('Gadgets')">
-        <img class="menu-item-icon-img" src="ic_play.png?v=202506" alt=""> Gadgets
-      </button>
-      <button class="menu-item" onclick="openIndicacoes('Vestuário')">
-        <img class="menu-item-icon-img" src="ic_play.png?v=202506" alt=""> Vestuário
-      </button>
+      <div class="menu-accordion-body" id="accBody-indicacoes">
+        <button class="menu-item" onclick="openIndicacoes('Equipamentos')">
+          <img class="menu-item-icon-img" src="ic_play.png?v=202506" alt=""> Equipamentos
+        </button>
+        <button class="menu-item" onclick="openIndicacoes('Gadgets')">
+          <img class="menu-item-icon-img" src="ic_play.png?v=202506" alt=""> Gadgets
+        </button>
+        <button class="menu-item" onclick="openIndicacoes('Vestuário')">
+          <img class="menu-item-icon-img" src="ic_play.png?v=202506" alt=""> Vestuário
+        </button>
+      </div>
       <hr class="menu-divider">
       <div class="menu-section-label">Projeto Bravo</div>
       <button class="menu-item" onclick="openAbout()">
@@ -2301,8 +2317,26 @@ document.getElementById('btnNew').onclick=()=>openEdit(null);
 
 // ---- MENU ----
 document.getElementById('btnMenu').onclick=()=>document.getElementById('menuOverlay').classList.add('open');
-function closeMenu(e){if(e.target===document.getElementById('menuOverlay'))document.getElementById('menuOverlay').classList.remove('open');}
-function closeMenuForce(){document.getElementById('menuOverlay').classList.remove('open');}
+function closeMenu(e){if(e.target===document.getElementById('menuOverlay')){document.getElementById('menuOverlay').classList.remove('open');resetMenuAccordions();}}
+function closeMenuForce(){document.getElementById('menuOverlay').classList.remove('open');resetMenuAccordions();}
+const MENU_ACCORDIONS=['programas','indicacoes'];
+function toggleMenuAccordion(name){
+  const wasOpen=document.getElementById('accBody-'+name).classList.contains('open');
+  MENU_ACCORDIONS.forEach(s=>{
+    document.getElementById('accBody-'+s).classList.remove('open');
+    document.getElementById('accToggle-'+s).classList.remove('open');
+  });
+  if(!wasOpen){
+    document.getElementById('accBody-'+name).classList.add('open');
+    document.getElementById('accToggle-'+name).classList.add('open');
+  }
+}
+function resetMenuAccordions(){
+  MENU_ACCORDIONS.forEach(s=>{
+    document.getElementById('accBody-'+s).classList.remove('open');
+    document.getElementById('accToggle-'+s).classList.remove('open');
+  });
+}
 function openSettingsFromMenu(){closeMenuForce();document.getElementById('settingsModal').classList.add('open');}
 function openAbout(){closeMenuForce();showScreen('aboutScreen');}
 function openBravoPlayFromMenu(){closeMenuForce();showScreen('home');selectAutoMode();}
