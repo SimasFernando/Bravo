@@ -258,7 +258,7 @@
     grid-template-columns:1fr;
     width:100%;height:100%;gap:0;padding:0!important;overflow:hidden;
   }
-  .exec-with-video.has-video .exec-main-col{display:contents;}
+  .exec-with-video.has-video .exec-main-col{display:contents!important;}
   .vt-top-wrap{grid-area:phase;}
   .exec-with-video.has-video .vt-top-wrap{padding:8px 16px 2px;gap:0;}
   .exec-with-video.has-video .auto-prep-title,
@@ -272,16 +272,21 @@
   .exec-with-video.has-video .vt-gauge-wrap{display:none;}
   .exec-with-video.has-video .gauge-wrap{display:block;}
   .vt-bottom-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;}
-  .exec-with-video.has-video .vt-bottom-wrap{grid-area:bottom;justify-content:center;gap:2px;padding:4px 0 10px;min-height:0;overflow:hidden;}
-  .vt-gauge-wrap{display:flex;align-items:center;justify-content:center;min-width:0;}
-  .vt-footer-row{display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;}
-  .exec-with-video.has-video .vt-footer-row{
-    flex:0 0 auto;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:6px;padding:2px 16px 4px;width:100%;
+  .exec-with-video.has-video .vt-bottom-wrap{
+    grid-area:bottom;display:flex;flex-direction:column;align-items:stretch;
+    justify-content:space-between;gap:2px;padding:8px 16px 12px;min-height:0;overflow:hidden;
   }
-  .exec-with-video.has-video .vt-footer-row .progress-row{display:contents;}
-  .exec-with-video.has-video .vt-footer-row .progress-chip:first-child{grid-column:1;justify-self:start;}
-  .exec-with-video.has-video .vt-footer-row .progress-chip:last-child{grid-column:3;justify-self:end;}
-  .exec-with-video.has-video .vt-footer-row .controls{grid-column:2;justify-self:center;}
+  .vt-gauge-wrap{display:flex;align-items:center;justify-content:center;min-width:0;}
+  .exec-with-video.has-video .vt-footer-row{display:contents;}
+  /* Nº de exercício/série: cantos superiores da área do cronômetro (não da tela toda) */
+  .exec-with-video.has-video .progress-row{
+    flex:0 0 auto;flex-direction:row!important;align-items:center;justify-content:space-between;
+    width:100%;gap:8px;order:1;
+  }
+  .exec-with-video.has-video .gauge-wrap{
+    flex:0 1 auto;width:min(88vw,340px);max-width:96%;aspect-ratio:2/1.05;margin:4px auto;order:2;
+  }
+  .exec-with-video.has-video .controls{order:3;flex:0 0 auto;justify-content:center;margin-top:0;}
   .exec-with-video.has-video .progress-chip{padding:5px 9px;gap:5px;}
   .exec-with-video.has-video .progress-chip img{width:15px;height:15px;}
   .exec-with-video.has-video .progress-count{font-size:12px;}
@@ -4202,9 +4207,25 @@ async function finishPremiumQuestionnaire(){
   showScreen('premiumDone');
 }
 
+// Trava a tela em modo retrato durante a execução do treino, em todos os modos.
+// (Alguns navegadores só permitem isso com o app instalado/tela cheia; falha silenciosamente quando não suportado.)
+const EXEC_ORIENT_SCREENS=new Set(['timer','autoPrep','autoReps','autoIntensity','autoExec','autoRest','autoContinue','brainPrep','brainReps','brainIntensity','brainExec','brainRest']);
+function lockPortrait(){
+  try{
+    if(screen.orientation&&screen.orientation.lock){
+      screen.orientation.lock('portrait').catch(()=>{});
+    }
+  }catch(e){}
+}
+function unlockOrientation(){
+  try{
+    if(screen.orientation&&screen.orientation.unlock)screen.orientation.unlock();
+  }catch(e){}
+}
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
   document.getElementById(id).classList.remove('hidden');
+  if(EXEC_ORIENT_SCREENS.has(id))lockPortrait();else unlockOrientation();
 }
 let toastTmr;
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTmr);toastTmr=setTimeout(()=>t.classList.remove('show'),2500);}
