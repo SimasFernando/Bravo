@@ -237,55 +237,91 @@
   .btn-yt-link{flex-shrink:0;width:34px;height:34px;background:rgba(255,0,0,.12);border:1.5px solid rgba(255,0,0,.35);border-radius:8px;color:#FF4444;font-size:15px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s;}
   .btn-yt-link.has-video{background:rgba(255,0,0,.25);border-color:#FF4444;}
   .btn-yt-link:active{background:rgba(255,0,0,.35);}
-  /* YouTube embed in exec screens */
-  .yt-embed-wrap{width:100%;max-width:380px;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#111;flex-shrink:0;margin-top:8px;display:none;}
+  /* ==== VIDEO MODE (vídeo do exercício) ==== */
+  /* Vídeo nativo: sem moldura de card, ocupa a própria célula do grid */
+  .yt-embed-wrap{position:relative;width:100%;height:100%;background:#000;overflow:hidden;display:none;}
   .yt-embed-wrap.visible{display:block;}
-  .yt-embed-wrap iframe{width:100%;height:100%;border:none;display:block;}
-  /* Landscape two-column layout when video is present */
+  .yt-embed-wrap iframe{position:absolute;top:50%;left:50%;width:100%;height:100%;min-width:100%;min-height:100%;transform:translate(-50%,-50%) scale(1.16);border:none;display:block;pointer-events:none;}
+  /* Camada de toque: único controle do usuário sobre o vídeo (play/pausa) */
+  .yt-tap-layer{position:absolute;inset:0;z-index:2;cursor:pointer;display:flex;align-items:center;justify-content:center;background:transparent;}
+  .yt-pause-badge{width:60px;height:60px;border-radius:50%;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(.85);transition:opacity .2s,transform .2s;pointer-events:none;}
+  .yt-tap-layer.is-paused .yt-pause-badge{opacity:1;transform:scale(1);}
+  .yt-pause-badge svg{width:24px;height:24px;fill:#fff;}
+  /* Nome do exercício sobreposto no topo do vídeo (substitui o cabeçalho externo em modo vídeo) */
+  .yt-exname-overlay{position:absolute;top:0;left:0;right:0;z-index:3;padding:14px 16px 26px;text-align:center;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:1.5px;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.85);pointer-events:none;background:linear-gradient(rgba(0,0,0,.55),transparent);}
+
+  /* Layout em grade quando há vídeo: pequena faixa de fase, vídeo ~60% (com nome do exercício embutido), 40% cronômetro+controles */
+  .exec-with-video.has-video{
+    display:grid!important;
+    grid-template-areas:"phase" "video" "bottom";
+    grid-template-rows:auto 6fr 4fr;
+    grid-template-columns:1fr;
+    width:100%;height:100%;gap:0;padding:0!important;overflow:hidden;
+  }
+  .exec-with-video.has-video .exec-main-col{display:contents;}
+  .vt-top-wrap{grid-area:phase;}
+  .exec-with-video.has-video .vt-top-wrap{padding:8px 16px 2px;gap:0;}
+  .exec-with-video.has-video .auto-prep-title,
+  .exec-with-video.has-video .auto-exercise-name,
+  .exec-with-video.has-video #circuitExLabel,
+  .exec-with-video.has-video #brainPrepProgress{display:none;}
+  .exec-with-video.has-video .phase-label{font-size:15px;}
+  .exec-with-video.has-video .cycle-badge{font-size:11px;}
+  .exec-with-video.has-video .yt-embed-wrap{grid-area:video;}
+  .exec-with-video.has-video .ring-wrap,
+  .exec-with-video.has-video .vt-gauge-wrap{display:none;}
+  .exec-with-video.has-video .gauge-wrap{display:block;}
+  .vt-bottom-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;}
+  .exec-with-video.has-video .vt-bottom-wrap{grid-area:bottom;justify-content:center;gap:2px;padding:4px 0 10px;min-height:0;overflow:hidden;}
+  .vt-gauge-wrap{display:flex;align-items:center;justify-content:center;min-width:0;}
+  .vt-footer-row{display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;}
+  .exec-with-video.has-video .vt-footer-row{
+    flex:0 0 auto;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:6px;padding:2px 16px 4px;width:100%;
+  }
+  .exec-with-video.has-video .vt-footer-row .progress-row{display:contents;}
+  .exec-with-video.has-video .vt-footer-row .progress-chip:first-child{grid-column:1;justify-self:start;}
+  .exec-with-video.has-video .vt-footer-row .progress-chip:last-child{grid-column:3;justify-self:end;}
+  .exec-with-video.has-video .vt-footer-row .controls{grid-column:2;justify-self:center;}
+  .exec-with-video.has-video .progress-chip{padding:5px 9px;gap:5px;}
+  .exec-with-video.has-video .progress-chip img{width:15px;height:15px;}
+  .exec-with-video.has-video .progress-count{font-size:12px;}
+  .exec-with-video.has-video .controls{gap:8px;}
+  .exec-with-video.has-video .btn-ctrl{width:34px;height:34px;border-radius:10px;}
+  .exec-with-video.has-video .btn-ctrl svg{width:14px;height:14px;}
+  .exec-with-video.has-video .btn-ctrl .ctrl-label{display:none;}
+  .exec-with-video.has-video .btn-playpause{width:46px;height:46px;}
+  .exec-with-video.has-video .btn-playpause svg{width:18px;height:18px;}
+  .exec-with-video.has-video .auto-big-label,
+  .exec-with-video.has-video .btn-auto-done{display:none;}
+
+  /* Cronômetro semicircular (velocímetro) — visível apenas em modo vídeo, agora com mais espaço (~40% da tela) */
+  .gauge-wrap{position:relative;width:min(54vw,240px);max-height:100%;aspect-ratio:2/1.05;display:none;}
+  .gauge-wrap svg{width:100%;height:100%;overflow:visible;}
+  .gauge-bg{fill:none;stroke:#1A1A1A;stroke-width:9;}
+  .gauge-fg{fill:none;stroke-width:9;stroke-linecap:round;stroke-dasharray:157;transition:stroke .35s,stroke-dashoffset .95s linear;filter:drop-shadow(0 0 8px rgba(255,106,61,.5));}
+  .gauge-center{position:absolute;left:0;right:0;bottom:2px;display:flex;flex-direction:column;align-items:center;}
+  .gauge-time{font-family:'Bebas Neue',sans-serif;font-size:clamp(24px,7vw,38px);line-height:1;font-variant-numeric:tabular-nums;}
+
+  /* Correção: telas de cronômetro (sem vídeo) em paisagem devem manter todas as informações visíveis */
   @media (orientation:landscape){
-    /* 50/50: cronômetro à esquerda, vídeo à direita */
-    .exec-with-video.has-video{
+    .ring-screen:not(.has-video){
       flex-direction:row!important;
-      align-items:stretch!important;
-      justify-content:stretch!important;
-      gap:0!important;
-      padding:0!important;
-      overflow:hidden!important;
-    }
-    .exec-with-video.has-video .exec-main-col{
-      flex:0 0 50%!important;
-      width:50%!important;
-      display:flex;
-      flex-direction:column;
+      flex-wrap:wrap;
+      align-content:center;
       align-items:center;
       justify-content:center;
-      padding:8px 12px;
-      box-sizing:border-box;
-      min-width:0;
+      gap:6px 22px;
+      padding:10px 18px;
+      overflow:hidden;
     }
-    .exec-with-video.has-video .yt-embed-wrap{
-      flex:0 0 50%!important;
-      width:50%!important;
-      max-width:none!important;
-      height:100%!important;
-      margin:0!important;
-      border-radius:0!important;
-      align-self:stretch!important;
-      min-width:0;
-      aspect-ratio:unset!important;
-      display:block!important;
-    }
-    .exec-with-video.has-video .yt-embed-wrap iframe{
-      height:100%!important;
-    }
-    /* Shrink ring em landscape */
-    .exec-with-video.has-video .ring-wrap{width:130px;height:130px;}
-    .exec-with-video.has-video .time-display{font-size:44px;}
-    .exec-with-video.has-video .btn-playpause{width:58px;height:58px;}
-    .exec-with-video.has-video .btn-playpause svg{width:22px;height:22px;}
-    .exec-with-video.has-video .btn-ctrl{width:46px;height:46px;}
-    .exec-with-video.has-video .btn-auto-done{font-size:13px;padding:8px 16px;height:auto;}
-    .exec-with-video.has-video .timer-top{width:100%;}
+    .ring-screen:not(.has-video) .timer-top,
+    .ring-screen:not(.has-video) #circuitExLabel,
+    .ring-screen:not(.has-video) .auto-prep-title,
+    .ring-screen:not(.has-video) .auto-exercise-name{flex:0 0 100%;width:100%;}
+    .ring-screen:not(.has-video) .ring-wrap{width:min(34vh,190px);flex-shrink:0;}
+    .ring-screen:not(.has-video) .progress-row{flex-direction:column;gap:8px;}
+    .ring-screen:not(.has-video) .controls{flex-direction:column;gap:8px;}
+    .ring-screen:not(.has-video) .btn-auto-done{order:1;}
   }
   .exercise-letter{font-family:'Bebas Neue',sans-serif;font-size:22px;width:28px;text-align:center;}
   .exercise-row{transition:opacity .2s;}
@@ -795,33 +831,45 @@
   <button class="btn-save" id="btnSave">SALVAR</button>
 </div>
 
-<div class="screen hidden" id="timer"><div class="timer-main exec-with-video" id="timerMain">
+<div class="screen hidden" id="timer"><div class="timer-main exec-with-video ring-screen" id="timerMain">
     <div class="exec-main-col" style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:space-between;width:100%;flex:1;">
-    <div class="timer-top">
-      <div class="phase-label" id="phaseLabel">PREPARE-SE</div>
-      <div class="cycle-badge" id="cycleBadge" style="display:none">Série <span id="cycleNum">1</span>/<span id="cycleTotal">4</span></div>
+    <div class="vt-top-wrap">
+      <div class="timer-top">
+        <div class="phase-label" id="phaseLabel">PREPARE-SE</div>
+        <div class="cycle-badge" id="cycleBadge" style="display:none">Série <span id="cycleNum">1</span>/<span id="cycleTotal">4</span></div>
+      </div>
+      <div id="circuitExLabel" class="circuit-exercise-label" style="display:none"></div>
     </div>
-    <div id="circuitExLabel" class="circuit-exercise-label" style="display:none"></div>
-    <div class="ring-wrap">
-      <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="44"/><circle class="ring-fg" id="ringFg" cx="60" cy="60" r="44"/></svg>
-      <div class="ring-center"><div class="time-display" id="timeDisplay">00</div><div class="time-sub" id="timeSub">SEGUNDOS</div></div>
+    <div class="vt-gauge-wrap">
+      <div class="ring-wrap">
+        <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="44"/><circle class="ring-fg" id="ringFg" cx="60" cy="60" r="44"/></svg>
+        <div class="ring-center"><div class="time-display" id="timeDisplay">00</div><div class="time-sub" id="timeSub">SEGUNDOS</div></div>
+      </div>
     </div>
     <div id="dotsRow" class="dots"></div>
     <div id="roundDotsRow" class="round-dots" style="display:none"></div>
-    <div class="progress-row" id="progressRow">
-      <div class="progress-chip" id="progExChip" style="display:none">
-        <img src="ic_noexe.png?v=202506" alt="">
-        <div class="progress-count"><span id="progExCur">1</span><span class="pc-muted">/<span id="progExTotal">1</span></span></div>
+    <div class="vt-bottom-wrap">
+      <div class="gauge-wrap">
+        <svg viewBox="0 0 120 70"><path class="gauge-bg" d="M10,65 A50,50 0 0 1 110,65"/><path class="gauge-fg" id="timerGaugeFg" d="M10,65 A50,50 0 0 1 110,65"/></svg>
+        <div class="gauge-center"><div class="gauge-time" id="timerGaugeTime">00</div></div>
       </div>
-      <div class="progress-chip" id="progSerieChip" style="display:none">
-        <img src="ic_noseries.png?v=202506" alt="">
-        <div class="progress-count"><span id="progSerieCur">1</span><span class="pc-muted">/<span id="progSerieTotal">1</span></span></div>
+      <div class="vt-footer-row">
+        <div class="progress-row" id="progressRow">
+          <div class="progress-chip" id="progExChip" style="display:none">
+            <img src="ic_noexe.png?v=202506" alt="">
+            <div class="progress-count"><span id="progExCur">1</span><span class="pc-muted">/<span id="progExTotal">1</span></span></div>
+          </div>
+          <div class="progress-chip" id="progSerieChip" style="display:none">
+            <img src="ic_noseries.png?v=202506" alt="">
+            <div class="progress-count"><span id="progSerieCur">1</span><span class="pc-muted">/<span id="progSerieTotal">1</span></span></div>
+          </div>
+        </div>
+        <div class="controls">
+          <button class="btn-ctrl" id="btnTimerBack"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg><span class="ctrl-label">Voltar</span></button>
+        <button class="btn-playpause" id="btnPlay"><svg viewBox="0 0 24 24" id="btnPlayIcon"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg></button>
+        <button class="btn-ctrl" id="btnSkip"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zm2-8.14L11.03 12 8 14.14V9.86zM16 6h2v12h-2z"/></svg><span class="ctrl-label">Avançar</span></button>
       </div>
-    </div>
-    <div class="controls">
-      <button class="btn-ctrl" id="btnTimerBack"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg><span class="ctrl-label">Voltar</span></button>
-      <button class="btn-playpause" id="btnPlay"><svg viewBox="0 0 24 24" id="btnPlayIcon"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg></button>
-      <button class="btn-ctrl" id="btnSkip"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zm2-8.14L11.03 12 8 14.14V9.86zM16 6h2v12h-2z"/></svg><span class="ctrl-label">Avançar</span></button>
+      </div>
     </div>
     </div>
     <div id="timerYtWrap" class="yt-embed-wrap"></div>
@@ -891,7 +939,7 @@
   <div class="auto-header centered">
     <div class="auto-phase-label"><img class="auto-phase-icon" src="ic_preparacao.png?v=202506" alt="">PREPARE-SE</div>
   </div>
-  <div class="auto-center">
+  <div class="auto-center ring-screen">
     <div class="auto-prep-title">SEU TREINO<br>COMEÇA EM</div>
     <div style="display:none"><span id="autoPrepExName">Exercício 1</span></div>
     <div class="ring-wrap" style="margin-top:8px">
@@ -959,7 +1007,7 @@
   <div class="auto-header centered">
     <div class="auto-phase-label" id="autoExecPhaseLabel"><img class="auto-phase-icon" src="ic_execucao.png?v=202506" alt="">VAMOS!</div>
   </div>
-  <div class="auto-center exec-with-video" id="autoExecCenter">
+  <div class="auto-center exec-with-video ring-screen" id="autoExecCenter">
     <div class="exec-main-col" style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;">
       <div class="auto-exercise-name" id="autoExecExName" style="display:none"></div>
       <div class="ring-wrap">
@@ -1075,7 +1123,7 @@
   <div class="auto-header centered">
     <div class="auto-rest-title"><img class="auto-phase-icon" src="ic_recuperacao.png?v=202506" alt="" style="width:26px;height:26px;">RECUPERAÇÃO</div>
   </div>
-  <div class="auto-center">
+  <div class="auto-center ring-screen">
     <div class="ring-wrap">
       <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="44"/><circle class="ring-fg" id="autoRestRing" cx="60" cy="60" r="44" style="stroke:var(--phase-rest)"/></svg>
       <div class="ring-center">
@@ -1125,25 +1173,38 @@
   <div class="auto-header centered">
     <div class="auto-phase-label" id="brainPrepPhaseLabel" style="color:var(--accent)"><img class="auto-phase-icon" src="ic_preparacao.png?v=202506" alt="">PREPARE-SE</div>
   </div>
-  <div class="auto-center">
-    <div class="auto-prep-title exercise-name-variant" id="brainPrepExName">Exercício 1</div>
-    <div style="display:none" id="brainPrepProgress">Exercício 1/2 · Série 1/3</div>
-    <div class="ring-wrap">
-      <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="44"/><circle class="ring-fg" id="brainPrepRing" cx="60" cy="60" r="44" style="stroke:var(--phase-prep)"/></svg>
-      <div class="ring-center">
-        <div class="time-display" id="brainPrepTime" style="color:var(--accent)">15</div>
-        <div class="time-sub">segundos</div>
+  <div class="auto-center exec-with-video ring-screen" id="brainPrepCenter">
+    <div class="exec-main-col">
+      <div class="vt-top-wrap">
+        <div class="auto-prep-title exercise-name-variant" id="brainPrepExName">Exercício 1</div>
+        <div style="display:none" id="brainPrepProgress">Exercício 1/2 · Série 1/3</div>
+      </div>
+      <div class="ring-wrap">
+        <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="44"/><circle class="ring-fg" id="brainPrepRing" cx="60" cy="60" r="44" style="stroke:var(--phase-prep)"/></svg>
+        <div class="ring-center">
+          <div class="time-display" id="brainPrepTime" style="color:var(--accent)">15</div>
+          <div class="time-sub">segundos</div>
+        </div>
+      </div>
+      <div class="vt-bottom-wrap">
+        <div class="gauge-wrap">
+          <svg viewBox="0 0 120 70"><path class="gauge-bg" d="M10,65 A50,50 0 0 1 110,65"/><path class="gauge-fg" id="brainPrepGaugeFg" d="M10,65 A50,50 0 0 1 110,65"/></svg>
+          <div class="gauge-center"><div class="gauge-time" id="brainPrepGaugeTime">15</div></div>
+        </div>
+        <div class="vt-footer-row">
+          <div class="progress-row">
+            <div class="progress-chip"><img src="ic_noexe.png?v=202506" alt=""><div class="progress-count"><span id="brainPrepExCur">1</span><span class="pc-muted">/<span id="brainPrepExTotal">2</span></span></div></div>
+            <div class="progress-chip"><img src="ic_noseries.png?v=202506" alt=""><div class="progress-count"><span id="brainPrepSerieNum">1</span><span class="pc-muted">/<span id="brainPrepSerieTotal">3</span></span></div></div>
+          </div>
+          <div class="controls" style="margin-top:16px">
+            <button class="btn-ctrl" id="btnBrainPrepBack"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg><span class="ctrl-label">Voltar</span></button>
+            <button class="btn-playpause" id="btnBrainPrepPlay" style="background:#F04E23;color:#fff"><svg viewBox="0 0 24 24" id="btnBrainPrepPlayIcon"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg></button>
+            <button class="btn-ctrl" id="btnBrainPrepSkip" title="Avançar para execução"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zm2-8.14L11.03 12 8 14.14V9.86zM16 6h2v12h-2z"/></svg><span class="ctrl-label">Avançar</span></button>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="progress-row">
-      <div class="progress-chip"><img src="ic_noexe.png?v=202506" alt=""><div class="progress-count"><span id="brainPrepExCur">1</span><span class="pc-muted">/<span id="brainPrepExTotal">2</span></span></div></div>
-      <div class="progress-chip"><img src="ic_noseries.png?v=202506" alt=""><div class="progress-count"><span id="brainPrepSerieNum">1</span><span class="pc-muted">/<span id="brainPrepSerieTotal">3</span></span></div></div>
-    </div>
-    <div class="controls" style="margin-top:16px">
-      <button class="btn-ctrl" id="btnBrainPrepBack"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg><span class="ctrl-label">Voltar</span></button>
-      <button class="btn-playpause" id="btnBrainPrepPlay" style="background:#F04E23;color:#fff"><svg viewBox="0 0 24 24" id="btnBrainPrepPlayIcon"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg></button>
-      <button class="btn-ctrl" id="btnBrainPrepSkip" title="Avançar para execução"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zm2-8.14L11.03 12 8 14.14V9.86zM16 6h2v12h-2z"/></svg><span class="ctrl-label">Avançar</span></button>
-    </div>
+    <div id="brainPrepYtWrap" class="yt-embed-wrap" style="display:none"></div>
   </div>
 </div>
 
@@ -1152,9 +1213,11 @@
   <div class="auto-header centered">
     <div class="auto-phase-label" id="brainExecPhaseLabel"><img class="auto-phase-icon" src="ic_execucao.png?v=202506" alt="">VAMOS!</div>
   </div>
-  <div class="auto-center exec-with-video" id="brainExecCenter">
+  <div class="auto-center exec-with-video ring-screen" id="brainExecCenter">
     <div class="exec-main-col">
-      <div class="auto-exercise-name" id="brainExecExName" style="color:#F04E23">Exercício 1</div>
+      <div class="vt-top-wrap">
+        <div class="auto-exercise-name" id="brainExecExName" style="color:#F04E23">Exercício 1</div>
+      </div>
       <div class="ring-wrap">
         <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="44"/><circle class="ring-fg" id="brainExecRing" cx="60" cy="60" r="44"/></svg>
         <div class="ring-center">
@@ -1162,18 +1225,24 @@
           <div class="time-sub">segundos</div>
         </div>
       </div>
-      <div class="progress-row">
-        <div class="progress-chip"><img src="ic_noexe.png?v=202506" alt=""><div class="progress-count" id="brainExecExCount"><span id="brainExecExCur">1</span><span class="pc-muted">/<span id="brainExecExTotal">2</span></span></div></div>
-        <div class="progress-chip"><img src="ic_noseries.png?v=202506" alt=""><div class="progress-count"><span id="brainExecSerieCur">1</span><span class="pc-muted">/<span id="brainExecSerieTotal">3</span></span></div></div>
-      </div>
       <div class="auto-big-label" id="brainExecOverflowLabel" style="opacity:0;font-size:13px;letter-spacing:1px;margin-top:0;color:#aaa">Série contínua ou prolongada</div>
-      <div style="height:16px"></div>
       <button class="btn-auto-done" id="brainExecDoneBtn" onclick="brainSerieOk()">CONCLUIR SÉRIE ›</button>
-      <div style="height:16px"></div>
-      <div class="controls">
-        <button class="btn-ctrl" id="btnBrainExecBack"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg><span class="ctrl-label">Voltar</span></button>
-        <button class="btn-playpause" id="btnBrainExecPlay" style="background:var(--accent);color:#fff"><svg viewBox="0 0 24 24" id="btnBrainExecPlayIcon"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg></button>
-        <button class="btn-ctrl" id="btnBrainExecSkip" title="Concluir série"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zm2-8.14L11.03 12 8 14.14V9.86zM16 6h2v12h-2z"/></svg><span class="ctrl-label">Avançar</span></button>
+      <div class="vt-bottom-wrap">
+        <div class="gauge-wrap">
+          <svg viewBox="0 0 120 70"><path class="gauge-bg" d="M10,65 A50,50 0 0 1 110,65"/><path class="gauge-fg" id="brainExecGaugeFg" d="M10,65 A50,50 0 0 1 110,65"/></svg>
+          <div class="gauge-center"><div class="gauge-time" id="brainExecGaugeTime">40</div></div>
+        </div>
+        <div class="vt-footer-row">
+          <div class="progress-row">
+            <div class="progress-chip"><img src="ic_noexe.png?v=202506" alt=""><div class="progress-count" id="brainExecExCount"><span id="brainExecExCur">1</span><span class="pc-muted">/<span id="brainExecExTotal">2</span></span></div></div>
+            <div class="progress-chip"><img src="ic_noseries.png?v=202506" alt=""><div class="progress-count"><span id="brainExecSerieCur">1</span><span class="pc-muted">/<span id="brainExecSerieTotal">3</span></span></div></div>
+          </div>
+          <div class="controls">
+            <button class="btn-ctrl" id="btnBrainExecBack"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg><span class="ctrl-label">Voltar</span></button>
+            <button class="btn-playpause" id="btnBrainExecPlay" style="background:var(--accent);color:#fff"><svg viewBox="0 0 24 24" id="btnBrainExecPlayIcon"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg></button>
+            <button class="btn-ctrl" id="btnBrainExecSkip" title="Concluir série"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zm2-8.14L11.03 12 8 14.14V9.86zM16 6h2v12h-2z"/></svg><span class="ctrl-label">Avançar</span></button>
+          </div>
+        </div>
       </div>
     </div>
     <div id="brainExecYtWrap" class="yt-embed-wrap" style="display:none"></div>
@@ -1233,7 +1302,7 @@
   <div class="auto-header centered">
     <div class="auto-phase-label" id="brainRestPhaseLabel" style="color:var(--accent)"><img class="auto-phase-icon" src="ic_recuperacao.png?v=202506" alt="">RECUPERAÇÃO</div>
   </div>
-  <div class="auto-center">
+  <div class="auto-center ring-screen">
     <div class="ring-wrap">
       <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="44"/><circle class="ring-fg" id="brainRestRing" cx="60" cy="60" r="44" style="stroke:var(--phase-rest)"/></svg>
       <div class="ring-center">
@@ -2473,7 +2542,31 @@ function extractYtId(url){
   const m=url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/))([A-Za-z0-9_-]{11})/);
   return m?m[1]:null;
 }
-function showYtEmbed(wrapId,videoId,containerId){
+function escHtml(s){
+  const d=document.createElement('div');d.textContent=s||'';return d.innerHTML;
+}
+// Estado global do vídeo: garante que o vídeo só pausa/retoma por decisão do usuário,
+// mesmo quando o mesmo exercício passa da tela de preparação para a de execução.
+let videoCtrl={id:null,paused:false,label:''};
+function ytEmbedHtml(videoId,label){
+  const params='autoplay=1&mute=1&loop=1&playlist='+videoId+'&controls=0&rel=0&modestbranding=1&playsinline=1&iv_load_policy=3&disablekb=1&fs=0&enablejsapi=1';
+  return `<iframe src="https://www.youtube.com/embed/${videoId}?${params}" allow="autoplay; encrypted-media; picture-in-picture" frameborder="0"></iframe>`
+    +(label?`<div class="yt-exname-overlay">${escHtml(label)}</div>`:'')
+    +`<div class="yt-tap-layer${videoCtrl.paused?' is-paused':''}" onclick="toggleVideoPlay(this)"><div class="yt-pause-badge"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>`;
+}
+function postYtCommand(wrap,func){
+  const ifr=wrap&&wrap.querySelector('iframe');
+  if(!ifr||!ifr.contentWindow)return;
+  try{ifr.contentWindow.postMessage(JSON.stringify({event:'command',func,args:[]}),'*');}catch(e){}
+}
+function toggleVideoPlay(layer){
+  const wrap=layer.closest('.yt-embed-wrap');
+  if(!wrap)return;
+  videoCtrl.paused=!videoCtrl.paused;
+  layer.classList.toggle('is-paused',videoCtrl.paused);
+  postYtCommand(wrap,videoCtrl.paused?'pauseVideo':'playVideo');
+}
+function showYtEmbed(wrapId,videoId,containerId,label){
   const wrap=document.getElementById(wrapId);
   if(!wrap)return;
   const container=containerId?document.getElementById(containerId):wrap.parentElement;
@@ -2482,12 +2575,22 @@ function showYtEmbed(wrapId,videoId,containerId){
     wrap.style.display='none';
     if(container)container.classList.remove('has-video');
     wrap.innerHTML='';
+    videoCtrl.id=null;videoCtrl.paused=false;videoCtrl.label='';
     return;
   }
-  wrap.innerHTML=`<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0&modestbranding=1" allowfullscreen allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>`;
+  if(container)container.classList.add('has-video');
   wrap.classList.add('visible');
   wrap.style.display='block';
-  if(container)container.classList.add('has-video');
+  if(videoCtrl.id!==videoId){
+    // Novo vídeo: começa a tocar automaticamente, em loop e mudo
+    videoCtrl.id=videoId;videoCtrl.paused=false;videoCtrl.label=label||'';
+    wrap.innerHTML=ytEmbedHtml(videoId,videoCtrl.label);
+  } else if(!wrap.querySelector('iframe')){
+    // Mesmo vídeo, mas esta tela ainda não tem o player (ex.: passou de preparação para execução):
+    // recria o player respeitando se o usuário havia pausado
+    wrap.innerHTML=ytEmbedHtml(videoId,videoCtrl.label||label||'');
+    if(videoCtrl.paused)setTimeout(()=>postYtCommand(wrap,'pauseVideo'),350);
+  }
 }
 let ytModalTarget={field:'',index:0};
 function openYtModal(field,index){
@@ -2844,29 +2947,41 @@ function phaseStart(){
   if(tmr.phase==='action')speak(tmr.isCircuit?('Exercício '+EX_LETTERS[tmr.exIndex]):(tmr.normalExCount>1?('Exercício '+EX_LETTERS[tmr.exIndex]):'Vamos!'));
   if(tmr.phase==='rest')speak('Recuperação.');
   beep(tmr.phase==='action'?1200:800,.15,.6);
-  // YouTube embed: show on action phase for the current exercise
-  if(tmr.phase==='action'){
+  // Vídeo: já aparece na fase de preparação e continua na execução (não reaparece no descanso)
+  if(tmr.phase==='prep'||tmr.phase==='action'){
     const p=presets.find(x=>x.id===selectedId);
     const idx=tmr.exIndex||0;
     const vids=tmr.isCircuit?p?.exerciseVideos:p?.normalExerciseVideos;
+    const names=tmr.isCircuit?p?.exercises:p?.normalExercises;
     const vid=extractYtId(vids?.[idx]||'');
-    showYtEmbed('timerYtWrap',vid,'timerMain');
-    document.getElementById('timerMain').classList.toggle('exec-with-video',!!vid);
+    const label=(names?.[idx]||'').trim();
+    showYtEmbed('timerYtWrap',vid,'timerMain',label);
   } else {
     showYtEmbed('timerYtWrap',null,'timerMain');
-    document.getElementById('timerMain').classList.remove('exec-with-video');
   }
+  setGauge('timer',tmr.seconds,tmr.total,rc);
 }
 
 function fmtTime(s){
   if(s>=60){const m=Math.floor(s/60),ss=s%60;return`${String(m).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;}
   return String(s).padStart(2,'0');
 }
+// Cronômetro semicircular (velocímetro): 180° no início, 90° no meio, 0° no fim.
+const GAUGE_CIRC=157;
+function setGauge(prefix,s,total,color){
+  const fg=document.getElementById(prefix+'GaugeFg');
+  const t=document.getElementById(prefix+'GaugeTime');
+  if(fg)fg.style.strokeDashoffset=GAUGE_CIRC*(1-(total>0?s/total:0));
+  if(fg&&color)fg.style.stroke=color;
+  if(t)t.textContent=fmtTime(Math.max(0,s));
+  if(t&&color)t.style.color=color;
+}
 function updateTimerUI(){
   const s=Math.max(0,tmr.seconds);
   document.getElementById('timeDisplay').textContent=fmtTime(s);
   document.getElementById('timeSub').textContent=s>=60?'MIN : SEG':'SEGUNDOS';
   ringFg.style.strokeDashoffset=CIRC*(1-(tmr.total>0?s/tmr.total:0));
+  setGauge('timer',s,tmr.total,ringFg.style.stroke);
 }
 
 function buildDots(){
@@ -3754,6 +3869,10 @@ function showBrainPrep(){
   if(label){label.textContent='PREPARE-SE';label.style.color=c;}
   let secs=brain.prepSecs;
   document.getElementById('brainPrepTime').textContent=String(secs).padStart(2,'0');
+  setGauge('brainPrep',secs,brain.prepSecs,rc);
+  // Vídeo: já aparece na fase de preparação, tocando em loop e mudo
+  const vids=brain.preset?.brainExerciseVideos;
+  showYtEmbed('brainPrepYtWrap',extractYtId(vids?.[brain.exIndex]||''),'brainPrepCenter',brainExName());
   showScreen('brainPrep');
   speak('Prepare-se.');beep(800,.15,.5);
   const fl=document.getElementById('flash');fl.style.background=c;fl.classList.add('on');setTimeout(()=>fl.classList.remove('on'),150);
@@ -3762,6 +3881,7 @@ function showBrainPrep(){
     const s=Math.max(0,secs);
     document.getElementById('brainPrepTime').textContent=String(s).padStart(2,'0');
     ring.style.strokeDashoffset=AUTO_CIRC*(1-(s/brain.prepSecs));
+    setGauge('brainPrep',s,brain.prepSecs,rc);
     if(s===3)beepCountdown();
     if(s<=0){clearInterval(brain._int);startBrainExec();}
   },1000);
@@ -3786,9 +3906,10 @@ function startBrainExec(){
   document.getElementById('brainExecTime').style.color=c;
   ring.style.strokeDasharray=AUTO_CIRC;ring.style.stroke=rc;
   document.getElementById('brainExecOverflowLabel').style.opacity='0';
-  // YouTube embed for this exercise
+  setGauge('brainExec',brain.execSecs,brain.execTotal,rc);
+  // Vídeo: mesmo vídeo iniciado na preparação continua tocando (sem reiniciar caso já esteja rodando)
   const vids=brain.preset?.brainExerciseVideos;
-  showYtEmbed('brainExecYtWrap',extractYtId(vids?.[brain.exIndex]||''),'brainExecCenter');
+  showYtEmbed('brainExecYtWrap',extractYtId(vids?.[brain.exIndex]||''),'brainExecCenter',brainExName());
   showScreen('brainExec');
   speak('Vamos!');beep(1200,.15,.6);vibrate([80,30,80]);
   const fl=document.getElementById('flash');fl.style.background=c;fl.classList.add('on');setTimeout(()=>fl.classList.remove('on'),150);
@@ -3808,14 +3929,21 @@ function updateBrainExecUI(){
   const c=brainColor('action');
   const ring=document.getElementById('brainExecRing');
   const timeEl=document.getElementById('brainExecTime');
+  const gaugeFg=document.getElementById('brainExecGaugeFg');
+  const gaugeTime=document.getElementById('brainExecGaugeTime');
   if(!brain.execOverflow){
     const s=Math.max(0,brain.execSecs);
     timeEl.textContent=String(s).padStart(2,'0');
     ring.style.strokeDashoffset=AUTO_CIRC*(1-(s/brain.execTotal));
+    if(gaugeFg)gaugeFg.style.strokeDashoffset=GAUGE_CIRC*(1-(s/brain.execTotal));
+    if(gaugeTime)gaugeTime.textContent=String(s).padStart(2,'0');
   } else {
     const elapsed=Math.abs(brain.execSecs);
-    timeEl.textContent=`+${String(Math.floor(elapsed/60)).padStart(2,'0')}:${String(elapsed%60).padStart(2,'0')}`;
+    const txt=`+${String(Math.floor(elapsed/60)).padStart(2,'0')}:${String(elapsed%60).padStart(2,'0')}`;
+    timeEl.textContent=txt;
     ring.style.strokeDashoffset=AUTO_CIRC;
+    if(gaugeFg)gaugeFg.style.strokeDashoffset=0;
+    if(gaugeTime)gaugeTime.textContent=txt;
   }
 }
 
