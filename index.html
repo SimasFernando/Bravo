@@ -397,6 +397,9 @@
     .exec-with-video.has-video .btn-ctrl svg{width:12px!important;height:12px!important;}
     .exec-with-video.has-video .btn-playpause{width:38px!important;height:38px!important;}
     .exec-with-video.has-video .btn-playpause svg{width:15px!important;height:15px!important;}
+    /* A coluna de vídeo na horizontal tem uma proporção bem diferente do 16:9,
+       então o zoom de recorte precisa ser maior que no retrato para não sobrar tarja preta */
+    .exec-with-video.has-video .yt-embed-wrap iframe{transform:translate(-50%,-50%) scale(1.7)!important;}
   }
   .exercise-letter{font-family:'Bebas Neue',sans-serif;font-size:22px;width:28px;text-align:center;}
   .exercise-row{transition:opacity .2s;}
