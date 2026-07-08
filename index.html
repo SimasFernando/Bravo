@@ -344,14 +344,14 @@
     }
 
     /* #timer, #brainPrep e #brainExec: 2 linhas (topo / rodapé) */
-    #timerMain .exec-main-col,#brainPrepCenter .exec-main-col,#brainExecCenter .exec-main-col{
+    #timerMain:not(.has-video) .exec-main-col,#brainPrepCenter:not(.has-video) .exec-main-col,#brainExecCenter:not(.has-video) .exec-main-col{
       grid-template-rows:auto auto;
       grid-template-areas:"top ring" "bottom ring";
       row-gap:clamp(6px,1.5vh,16px);
     }
-    #timerMain .vt-top-wrap,#brainPrepCenter .vt-top-wrap,#brainExecCenter .vt-top-wrap{grid-area:top;}
-    #timerMain .gauge-wrap,#brainPrepCenter .gauge-wrap,#brainExecCenter .gauge-wrap{grid-area:ring;}
-    #timerMain .vt-footer-row,#brainPrepCenter .vt-footer-row,#brainExecCenter .vt-footer-row{grid-area:bottom;}
+    #timerMain:not(.has-video) .vt-top-wrap,#brainPrepCenter:not(.has-video) .vt-top-wrap,#brainExecCenter:not(.has-video) .vt-top-wrap{grid-area:top;}
+    #timerMain:not(.has-video) .gauge-wrap,#brainPrepCenter:not(.has-video) .gauge-wrap,#brainExecCenter:not(.has-video) .gauge-wrap{grid-area:ring;}
+    #timerMain:not(.has-video) .vt-footer-row,#brainPrepCenter:not(.has-video) .vt-footer-row,#brainExecCenter:not(.has-video) .vt-footer-row{grid-area:bottom;}
 
     /* #autoExecCenter: 5 linhas (topo / aviso / chip do tipo / botão concluir / rodapé) */
     #autoExecCenter .exec-main-col{
@@ -379,16 +379,16 @@
 
     /* ---------- COM VÍDEO ---------- */
     .exec-with-video.has-video{
-      grid-template-columns:30% 70%!important;
+      grid-template-columns:40% 60%!important;
       grid-template-rows:auto 1fr!important;
       grid-template-areas:"phase video" "bottom video"!important;
       row-gap:0!important;
     }
     .exec-with-video.has-video .vt-top-wrap{padding:clamp(6px,1.5vh,12px) 10px 2px!important;}
-    .exec-with-video.has-video .phase-label{font-size:clamp(12px,2.2vh,17px)!important;justify-content:center;}
+    .exec-with-video.has-video .phase-label{font-size:clamp(14px,2.4vh,20px)!important;justify-content:center;}
     .exec-with-video.has-video .vt-bottom-wrap{padding:4px 10px 10px!important;gap:2px!important;}
-    .exec-with-video.has-video .gauge-wrap{width:min(85%,220px)!important;margin:2px auto!important;}
-    .exec-with-video.has-video .gauge-time{font-size:clamp(18px,5vh,32px)!important;}
+    .exec-with-video.has-video .gauge-wrap{width:min(88%,260px)!important;margin:2px auto!important;}
+    .exec-with-video.has-video .gauge-time{font-size:clamp(20px,5.5vh,38px)!important;}
     .exec-with-video.has-video .progress-chip{padding:4px 8px!important;gap:4px!important;}
     .exec-with-video.has-video .progress-chip img{width:13px!important;height:13px!important;}
     .exec-with-video.has-video .progress-count{font-size:11px!important;}
@@ -399,7 +399,7 @@
     .exec-with-video.has-video .btn-playpause svg{width:15px!important;height:15px!important;}
     /* A coluna de vídeo na horizontal tem uma proporção bem diferente do 16:9,
        então o zoom de recorte precisa ser maior que no retrato para não sobrar tarja preta */
-    .exec-with-video.has-video .yt-embed-wrap iframe{transform:translate(-50%,-50%) scale(1.7)!important;}
+    .exec-with-video.has-video .yt-embed-wrap iframe{transform:translate(-50%,-50%) scale(1.9)!important;}
   }
   .exercise-letter{font-family:'Bebas Neue',sans-serif;font-size:22px;width:28px;text-align:center;}
   .exercise-row{transition:opacity .2s;}
