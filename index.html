@@ -582,10 +582,21 @@
   .cal-detail-obs{font-size:13px;color:var(--muted);margin-top:6px;font-style:italic;}
   .cal-legend{padding:8px 16px;font-size:11px;color:var(--muted);text-align:center;}
   .cal-day-detail-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
-  /* ---- PODER BRAVO (calendar stats card) ---- */
-  .cal-poder-card{background:var(--surface);border-radius:16px;padding:16px 16px 14px;margin:4px 4px 0;}
-  .cal-poder-title{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;color:var(--accent);display:flex;align-items:center;gap:8px;margin-bottom:14px;}
-  .cal-poder-title img{width:17px;height:17px;object-fit:contain;}
+  /* ---- PODER BRAVO (card colapsável do calendário, mesmo conceito dos cards da home) ---- */
+  .cal-stat-card{background:var(--surface);border-radius:16px;margin:4px 4px 0;overflow:hidden;border:1px solid rgba(255,255,255,.05);}
+  .cal-stat-toggle{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;padding:14px 16px;background:transparent;border:none;cursor:pointer;text-align:left;}
+  .cal-stat-chips{display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
+  .cal-stat-chip{display:flex;align-items:center;gap:7px;}
+  .cal-stat-chip img{width:18px;height:18px;object-fit:contain;flex-shrink:0;opacity:.85;}
+  .cal-stat-chip-value{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--text);letter-spacing:.5px;}
+  .cal-stat-chip-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+  .cal-stat-chevron{font-size:13px;color:var(--accent);transition:transform .25s ease;flex-shrink:0;}
+  .cal-stat-toggle.open .cal-stat-chevron{transform:rotate(180deg);}
+  .cal-stat-body{max-height:0;overflow:hidden;transition:max-height .3s ease;}
+  .cal-stat-body.open{max-height:700px;}
+  .cal-stat-section{padding:0 16px 16px;}
+  .cal-stat-section-title{font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:2px;color:var(--accent);display:flex;align-items:center;gap:6px;margin:0 0 12px;border-top:1px solid var(--surface2);padding-top:14px;}
+  .cal-stat-section-title img{width:14px;height:14px;object-fit:contain;}
   .cal-poder-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px 10px;}
   .cal-poder-item{text-align:center;}
   .cal-poder-value{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--text);letter-spacing:1px;line-height:1;}
@@ -1387,37 +1398,52 @@
       <div class="cal-detail-obs" id="calDetailObs"></div>
     </div>
     <div class="cal-legend">Círculos preenchidos = treino realizado</div>
-    <div class="cal-poder-card" id="calActivityStats" style="margin-bottom:10px;">
-      <div class="cal-poder-title"><img src="ic_agenda.png?v=202506" alt="">TREINOS</div>
-      <div class="cal-poder-grid">
-        <div class="cal-poder-item">
-          <div class="cal-poder-value" id="calTreinosMes">–</div>
-          <div class="cal-poder-label">Treinos no mês</div>
+    <div class="cal-stat-card" id="calStatCard">
+      <button class="cal-stat-toggle" id="calStatToggle" onclick="toggleCalStatsCard()">
+        <div class="cal-stat-chips">
+          <div class="cal-stat-chip"><img src="ic_agenda.png?v=202506" alt=""><span class="cal-stat-chip-value" id="calStatTreinosInline">–</span><span class="cal-stat-chip-label">Treinos</span></div>
+          <div class="cal-stat-chip"><img src="ic_execucao.png?v=202506" alt=""><span class="cal-stat-chip-value" id="calStatPoderInline">–</span><span class="cal-stat-chip-label">Poder Bravo</span></div>
         </div>
-        <div class="cal-poder-item">
-          <div class="cal-poder-value" id="calTreinosAno">–</div>
-          <div class="cal-poder-label">Treinos no ano</div>
+        <span class="cal-stat-chevron" id="calStatChevron">▾</span>
+      </button>
+      <div class="cal-stat-body" id="calStatBody">
+        <div class="cal-stat-section">
+          <div class="cal-stat-section-title"><img src="ic_agenda.png?v=202506" alt="">TREINOS</div>
+          <div class="cal-poder-grid">
+            <div class="cal-poder-item">
+              <div class="cal-poder-value" id="calTreinosMes">–</div>
+              <div class="cal-poder-label">Treinos no mês</div>
+            </div>
+            <div class="cal-poder-item">
+              <div class="cal-poder-value" id="calTreinosAno">–</div>
+              <div class="cal-poder-label">Treinos no ano</div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-    <div class="cal-poder-card" id="calPoderStats">
-      <div class="cal-poder-title"><img src="ic_execucao.png?v=202506" alt="">PODER BRAVO</div>
-      <div class="cal-poder-grid">
-        <div class="cal-poder-item">
-          <div class="cal-poder-value" id="calPoderMonthSum">–</div>
-          <div class="cal-poder-label">Poder do mês</div>
-        </div>
-        <div class="cal-poder-item">
-          <div class="cal-poder-value" id="calPoderMonthAvg">–</div>
-          <div class="cal-poder-label">Média por treino</div>
-        </div>
-        <div class="cal-poder-item">
-          <div class="cal-poder-value" id="calPoderMonthRecord">–</div>
-          <div class="cal-poder-label">Recorde do mês</div>
-        </div>
-        <div class="cal-poder-item">
-          <div class="cal-poder-value" id="calPoderAllRecord">–</div>
-          <div class="cal-poder-label">Recorde histórico</div>
+        <div class="cal-stat-section">
+          <div class="cal-stat-section-title"><img src="ic_execucao.png?v=202506" alt="">PODER BRAVO</div>
+          <div class="cal-poder-grid">
+            <div class="cal-poder-item">
+              <div class="cal-poder-value" id="calPoderMonthSum">–</div>
+              <div class="cal-poder-label">Poder do mês</div>
+            </div>
+            <div class="cal-poder-item">
+              <div class="cal-poder-value" id="calPoderYearSum">–</div>
+              <div class="cal-poder-label">Poder do ano</div>
+            </div>
+            <div class="cal-poder-item">
+              <div class="cal-poder-value" id="calPoderMonthAvg">–</div>
+              <div class="cal-poder-label">Média por treino</div>
+            </div>
+            <div class="cal-poder-item">
+              <div class="cal-poder-value" id="calPoderMonthRecord">–</div>
+              <div class="cal-poder-label">Recorde do mês</div>
+            </div>
+            <div class="cal-poder-item">
+              <div class="cal-poder-value" id="calPoderAllRecord">–</div>
+              <div class="cal-poder-label">Recorde histórico</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -3120,7 +3146,11 @@ document.getElementById('btnFinishHome').onclick=()=>{hideBravoFixed();applyProg
 
 
 
-document.getElementById('btnCalendar').onclick=()=>{renderCalendar();showScreen('calendarScreen');};
+document.getElementById('btnCalendar').onclick=()=>{
+  const body=document.getElementById('calStatBody'),toggle=document.getElementById('calStatToggle');
+  if(body){body.classList.remove('open');toggle.classList.remove('open');} // card sempre inicia contraído
+  renderCalendar();showScreen('calendarScreen');
+};
 document.getElementById('btnCalBack').onclick=()=>showScreen('home');
 
 // ============================================================
@@ -3181,6 +3211,16 @@ function renderCalendar(){
   renderCalPoderStats(records);
 }
 
+// Card colapsável do calendário (Treinos + Poder Bravo) — mesmo conceito visual dos cards da home,
+// mas aqui começa sempre contraído e cada toque apenas abre/fecha o próprio card.
+function toggleCalStatsCard(){
+  const body=document.getElementById('calStatBody');
+  const toggle=document.getElementById('calStatToggle');
+  const willOpen=!body.classList.contains('open');
+  body.classList.toggle('open',willOpen);
+  toggle.classList.toggle('open',willOpen);
+}
+
 // Conta treinos executados no mês/ano atualmente navegados no calendário (todos os modos, com ou sem Poder Bravo).
 function renderCalActivityStats(records){
   records = records || loadCalendar();
@@ -3195,6 +3235,7 @@ function renderCalActivityStats(records){
   });
   document.getElementById('calTreinosMes').textContent = monthCount;
   document.getElementById('calTreinosAno').textContent = yearCount;
+  document.getElementById('calStatTreinosInline').textContent = monthCount;
 }
 
 // Recalcula e exibe as estatísticas de Poder Bravo a partir de todos os treinos salvos.
@@ -3202,15 +3243,17 @@ function renderCalActivityStats(records){
 // garantindo que as estatísticas fiquem sempre atualizadas automaticamente.
 function renderCalPoderStats(records){
   records = records || loadCalendar();
-  let monthSum=0, monthCount=0, monthRecord=0, allTimeRecord=0;
+  let monthSum=0, monthCount=0, monthRecord=0, yearSum=0, allTimeRecord=0;
   records.forEach(dayRec=>{
     const workouts = dayRec.workouts || (dayRec.name ? [{name:dayRec.name,poderBravo:dayRec.poderBravo}] : []);
     const [y,m] = dayRec.date.split('-').map(Number);
     const isCurrentMonth = (y===calYear && (m-1)===calMonth);
+    const isCurrentYear = (y===calYear);
     workouts.forEach(w=>{
       if(w.poderBravo==null) return;
       const pb=w.poderBravo;
       if(pb>allTimeRecord) allTimeRecord=pb;
+      if(isCurrentYear) yearSum+=pb;
       if(isCurrentMonth){
         monthSum+=pb;
         monthCount++;
@@ -3220,9 +3263,11 @@ function renderCalPoderStats(records){
   });
   const monthAvg = monthCount>0 ? Math.round(monthSum/monthCount) : 0;
   document.getElementById('calPoderMonthSum').textContent   = monthCount>0 ? monthSum : '–';
+  document.getElementById('calPoderYearSum').textContent    = yearSum>0 ? yearSum : '–';
   document.getElementById('calPoderMonthAvg').textContent   = monthCount>0 ? monthAvg : '–';
   document.getElementById('calPoderMonthRecord').textContent= monthCount>0 ? monthRecord : '–';
   document.getElementById('calPoderAllRecord').textContent  = allTimeRecord>0 ? allTimeRecord : '–';
+  document.getElementById('calStatPoderInline').textContent = monthCount>0 ? monthSum : '0';
 }
 function showCalDetail(dateStr,rec){
   _calDetailDateStr = dateStr;
@@ -4392,6 +4437,11 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
   indicator.textContent='↓ Puxe para atualizar';
   document.body.prepend(indicator);
   document.addEventListener('touchstart',e=>{
+    // Puxar para atualizar só é permitido na tela inicial — em qualquer outra tela
+    // (execução, descanso, calendário etc.) o gesto pode reiniciar um treino ou
+    // tirar o usuário da tela sem querer, então fica desativado.
+    const homeEl=document.getElementById('home');
+    if(!homeEl||homeEl.classList.contains('hidden'))return;
     const scrollable=e.touches[0].target.closest('[style*="overflow"],.screen')||document.documentElement;
     if(scrollable.scrollTop>0)return;
     startY=e.touches[0].clientY;
