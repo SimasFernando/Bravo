@@ -636,6 +636,8 @@
   .menu-item:active{background:var(--surface2);}
   .menu-item-icon{font-size:16px;width:22px;text-align:center;flex-shrink:0;}
   .menu-item-icon-img{width:18px;height:18px;object-fit:contain;flex-shrink:0;}
+  .menu-item-icon-svg{width:18px;height:18px;flex-shrink:0;color:var(--accent);}
+  .menu-item-icon-svg svg{width:18px;height:18px;fill:currentColor;display:block;}
   .menu-item-tag{font-size:10px;color:var(--muted);background:var(--surface2);padding:2px 7px;border-radius:6px;margin-left:auto;white-space:nowrap;flex-shrink:0;}
   .menu-item-tag-live{color:var(--accent);}
   .menu-divider{border:none;border-top:1px solid var(--surface2);margin:8px 0;}
@@ -1524,11 +1526,14 @@
     </div>
     <div class="menu-drawer-body">
       <div class="menu-section-label">Minha Conta</div>
+      <button class="menu-item" onclick="openLoginFromMenu()">
+        <span class="menu-item-icon-svg"><svg viewBox="0 0 24 24"><path d="M11 7l-1.41 1.41L12.17 11H3v2h9.17l-2.58 2.59L11 17l5-5-5-5zm7-2h-6v2h6v10h-6v2h6a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z"/></svg></span> Entrar
+      </button>
       <button class="menu-item" onclick="openRegisterFromMenu()">
-        <span class="menu-item-icon">👤</span> Cadastro rápido
+        <span class="menu-item-icon-svg"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></span> Cadastro rápido
       </button>
       <button class="menu-item" onclick="openPremiumFromMenu()">
-        <span class="menu-item-icon">⭐</span> Programa Premium
+        <span class="menu-item-icon-svg"><svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.86L12 17.77l-6.18 3.23L7 14.14 2 9.27l7.1-1.01z"/></svg></span> Programa Premium
       </button>
       <hr class="menu-divider">
       <button class="menu-accordion-toggle" id="accToggle-programas" onclick="toggleMenuAccordion('programas')">
@@ -1574,12 +1579,12 @@
       <hr class="menu-divider">
       <div class="menu-section-label">Projeto Bravo</div>
       <button class="menu-item" onclick="openAbout()">
-        <span class="menu-item-icon">ℹ️</span> Sobre
+        <span class="menu-item-icon-svg"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg></span> Sobre
       </button>
       <hr class="menu-divider">
       <div class="menu-section-label">App</div>
       <button class="menu-item" onclick="openSettingsFromMenu()">
-        <span class="menu-item-icon">⚙️</span> Configurações
+        <span class="menu-item-icon-svg"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.03 7.03 0 0 0-1.63-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.5.42l-.36 2.54c-.59.24-1.14.56-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.63 8.84a.5.5 0 0 0 .12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32c.14.24.42.34.68.22l2.39-.96c.5.38 1.04.7 1.63.94l.36 2.54c.05.28.27.42.5.42h3.84c.24 0 .46-.14.5-.42l.36-2.54c.59-.24 1.14-.56 1.63-.94l2.39.96c.26.1.54.02.68-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg></span> Configurações
       </button>
     </div>
   </div>
@@ -1616,6 +1621,10 @@
       <input class="reg-input" id="regEmail" type="email" placeholder="seu@email.com" autocomplete="email">
     </div>
     <div style="display:flex;flex-direction:column;gap:6px;">
+      <div class="reg-label">Senha <span style="color:var(--muted);font-size:10px">(opcional — permite entrar com e-mail em outro aparelho)</span></div>
+      <input class="reg-input" id="regPassword" type="password" placeholder="Mín. 6 caracteres" autocomplete="new-password">
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px;">
       <div class="reg-label">Ano de nascimento <span style="color:var(--muted);font-size:10px">(opcional)</span></div>
       <input class="reg-input" id="regYear" type="number" placeholder="Ex: 1990" min="1920" max="2010">
     </div>
@@ -1639,6 +1648,37 @@
     </button>
     <div id="googleSignInStatus" style="font-size:12px;color:var(--muted);text-align:center;min-height:16px;"></div>
     <div class="reg-disclaimer">Sem spam. O Bravo é simples e continuará assim.</div>
+  </div>
+</div>
+
+<!-- LOGIN SCREEN (recuperar conta em outro aparelho) -->
+<div class="screen hidden" id="loginScreen" style="flex-direction:column;">
+  <div class="reg-header">
+    <button class="btn-ctrl" id="btnLoginBack"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg><span class="ctrl-label">Voltar</span></button>
+    <div class="reg-title">ENTRAR</div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:14px;padding:0 0 8px;">
+    <div class="reg-disclaimer" style="text-align:left;">Já treina no Bravo? Entre para recuperar seus treinos e programas neste aparelho.</div>
+    <button class="btn-connect" id="btnGoogleSignInLogin">
+      <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84c-.21 1.13-.84 2.09-1.8 2.73v2.27h2.91c1.7-1.57 2.69-3.88 2.69-6.64z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.91-2.27c-.81.54-1.84.86-3.05.86-2.34 0-4.33-1.58-5.04-3.71H.96v2.34C2.44 15.98 5.48 18 9 18z"/><path fill="#FBBC05" d="M3.96 10.7c-.18-.54-.28-1.11-.28-1.7s.1-1.16.28-1.7V4.96H.96A8.996 8.996 0 0 0 0 9c0 1.45.35 2.83.96 4.04l3-2.34z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0 5.48 0 2.44 2.02.96 4.96l3 2.34C4.67 5.16 6.66 3.58 9 3.58z"/></svg>
+      <span>Entrar com Google</span>
+    </button>
+    <div style="display:flex;align-items:center;gap:10px;margin:4px 0;">
+      <div style="flex:1;height:1px;background:var(--surface2)"></div>
+      <div style="font-size:11px;color:var(--muted)">ou com e-mail e senha</div>
+      <div style="flex:1;height:1px;background:var(--surface2)"></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px;">
+      <div class="reg-label">E-mail</div>
+      <input class="reg-input" id="loginEmail" type="email" placeholder="seu@email.com" autocomplete="email">
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px;">
+      <div class="reg-label">Senha</div>
+      <input class="reg-input" id="loginPassword" type="password" placeholder="Sua senha" autocomplete="current-password">
+    </div>
+    <button class="btn-save" id="btnLoginSubmit">ENTRAR</button>
+    <button id="btnLoginForgotPw" style="background:none;border:none;color:var(--muted);font-size:12px;text-decoration:underline;padding:4px;cursor:pointer;align-self:center;">Esqueci minha senha</button>
+    <div id="loginStatus" style="font-size:12px;color:var(--muted);text-align:center;min-height:16px;"></div>
   </div>
 </div>
 
@@ -1719,7 +1759,9 @@
 // FIREBASE — inicialização e camada de sincronização
 // ============================================================
 import { initializeApp }           from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getAuth, signInAnonymously, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, linkWithPopup, signOut }
+import { getAuth, signInAnonymously, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, linkWithPopup,
+         EmailAuthProvider, linkWithCredential, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+         sendPasswordResetEmail, signOut }
                                     from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { getFirestore, doc, getDoc, setDoc, serverTimestamp }
                                     from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
@@ -1944,6 +1986,77 @@ async function _fbMigrateAnonData(anonUid, newUid) {
 
 window._fbGoogleSignIn = _fbGoogleSignIn;
 window._fbSignOut = async () => { try { await signOut(_fbAuth); } catch(e) { console.warn(e); } };
+
+// ---- LOGIN / CADASTRO POR E-MAIL E SENHA ----
+// Usado no Cadastro Rápido (opcional): vincula e-mail/senha ao usuário anônimo atual,
+// preservando os dados já salvos — mesmo princípio do link do Google.
+async function _fbEmailSignUp(email, password) {
+  try {
+    const currentUser = _fbAuth.currentUser;
+    if (currentUser && currentUser.isAnonymous) {
+      try {
+        const cred = EmailAuthProvider.credential(email, password);
+        const result = await linkWithCredential(currentUser, cred);
+        window._fbUid = result.user.uid;
+        localStorage.setItem('bravo_fb_uid', result.user.uid);
+        return { ok: true, status: 'linked' };
+      } catch (linkErr) {
+        if (linkErr.code === 'auth/email-already-in-use' || linkErr.code === 'auth/credential-already-in-use') {
+          // Já existe uma conta com este e-mail: faz login nela e migra os dados do UID anônimo
+          const anonUid = currentUser.uid;
+          try {
+            const result = await signInWithEmailAndPassword(_fbAuth, email, password);
+            await _fbMigrateAnonData(anonUid, result.user.uid);
+            window._fbUid = result.user.uid;
+            localStorage.setItem('bravo_fb_uid', result.user.uid);
+            return { ok: true, status: 'merged' };
+          } catch (signInErr) {
+            console.warn('fbEmailSignUp signIn', signInErr);
+            return { ok: false, code: signInErr.code };
+          }
+        }
+        console.warn('fbEmailSignUp link', linkErr);
+        return { ok: false, code: linkErr.code };
+      }
+    } else {
+      const result = await createUserWithEmailAndPassword(_fbAuth, email, password);
+      window._fbUid = result.user.uid;
+      localStorage.setItem('bravo_fb_uid', result.user.uid);
+      return { ok: true, status: 'created' };
+    }
+  } catch (e) {
+    console.warn('fbEmailSignUp', e);
+    return { ok: false, code: e.code };
+  }
+}
+
+// Usado na tela "Entrar": login em um aparelho novo com e-mail/senha já cadastrados.
+// Se o aparelho ainda tinha um usuário anônimo com dados locais, faz a migração antes de trocar de UID.
+async function _fbEmailLogin(email, password) {
+  try {
+    const currentUser = _fbAuth.currentUser;
+    const anonUid = (currentUser && currentUser.isAnonymous) ? currentUser.uid : null;
+    const result = await signInWithEmailAndPassword(_fbAuth, email, password);
+    if (anonUid && anonUid !== result.user.uid) {
+      await _fbMigrateAnonData(anonUid, result.user.uid);
+    }
+    window._fbUid = result.user.uid;
+    localStorage.setItem('bravo_fb_uid', result.user.uid);
+    return { ok: true };
+  } catch (e) {
+    console.warn('fbEmailLogin', e);
+    return { ok: false, code: e.code };
+  }
+}
+
+async function _fbResetPassword(email) {
+  try { await sendPasswordResetEmail(_fbAuth, email); return { ok: true }; }
+  catch (e) { console.warn('fbResetPassword', e); return { ok: false, code: e.code }; }
+}
+
+window._fbEmailSignUp = _fbEmailSignUp;
+window._fbEmailLogin = _fbEmailLogin;
+window._fbResetPassword = _fbResetPassword;
 
 </script>
 
@@ -2514,6 +2627,7 @@ function openIndicacoes(categoria){
   showScreen('indicacoesScreen');
 }
 function openRegisterFromMenu(){closeMenuForce();showScreen('registerScreen');if(window._fbAuthCurrentUser)_refreshGoogleUIIfPossible();}
+function openLoginFromMenu(){closeMenuForce();document.getElementById('loginStatus').textContent='';showScreen('loginScreen');}
 
 // ---- PROGRAMA PREMIUM ----
 function openPremiumFromMenu(){
@@ -2558,7 +2672,9 @@ document.getElementById('btnRegSave').onclick=async()=>{
   const phone=document.getElementById('regPhone').value.trim();
   if(!name){showToast('Informe como quer ser chamado');return;}
   if(!phone){showToast('Informe seu WhatsApp');return;}
-  const data={name,phone,email:document.getElementById('regEmail').value.trim(),year:document.getElementById('regYear').value.trim(),gender:selectedGender};
+  const email=document.getElementById('regEmail').value.trim();
+  const password=document.getElementById('regPassword').value;
+  const data={name,phone,email,year:document.getElementById('regYear').value.trim(),gender:selectedGender};
   const btn=document.getElementById('btnRegSave');
   btn.textContent='SALVANDO...';btn.disabled=true;
   const params=new URLSearchParams(data).toString();
@@ -2568,7 +2684,17 @@ document.getElementById('btnRegSave').onclick=async()=>{
   await new Promise(r=>setTimeout(r,800));
   localStorage.setItem('bravo_user',JSON.stringify(data));
   localStorage.setItem('bravo_reg_done','1');
-  if(window._fbSaveUser)window._fbSaveUser(data);btn.disabled=false;
+  if(window._fbSaveUser)window._fbSaveUser(data);
+  // E-mail e senha preenchidos: cria login por e-mail, permitindo recuperar os dados em outro aparelho depois
+  if(email&&password){
+    if(password.length<6){
+      showToast('Senha muito curta (mín. 6 caracteres) — cadastro salvo, mas sem login por e-mail');
+    } else if(window._fbEmailSignUp){
+      const res=await window._fbEmailSignUp(email,password);
+      if(res&&res.ok&&res.status==='merged')showToast('Conta encontrada — dados sincronizados! 🔒');
+    }
+  }
+  btn.disabled=false;
   renderHome();
   if(localStorage.getItem('bravo_premium_pending')){
     localStorage.removeItem('bravo_premium_pending');
@@ -2580,7 +2706,55 @@ document.getElementById('btnRegSave').onclick=async()=>{
   }
 };
 
-// ---- REGISTRATION PROMPT (after 3 workouts) ----
+// ---- LOGIN (recuperar conta em outro aparelho) ----
+document.getElementById('btnLoginBack').onclick=()=>showScreen('home');
+const btnGoogleSignInLogin=document.getElementById('btnGoogleSignInLogin');
+if(btnGoogleSignInLogin){
+  btnGoogleSignInLogin.onclick=async()=>{
+    if(!window._fbGoogleSignIn)return;
+    const status=document.getElementById('loginStatus');
+    status.textContent='Conectando...';
+    await window._fbGoogleSignIn();
+    status.textContent='';
+    showScreen('home');
+    if(typeof renderHome==='function')renderHome();
+  };
+}
+function _loginErrorMessage(code){
+  if(code==='auth/invalid-credential'||code==='auth/wrong-password'||code==='auth/user-not-found')return 'E-mail ou senha incorretos.';
+  if(code==='auth/invalid-email')return 'E-mail inválido.';
+  if(code==='auth/too-many-requests')return 'Muitas tentativas. Tente novamente mais tarde.';
+  return 'Não foi possível entrar. Tente novamente.';
+}
+document.getElementById('btnLoginSubmit').onclick=async()=>{
+  const email=document.getElementById('loginEmail').value.trim();
+  const password=document.getElementById('loginPassword').value;
+  const status=document.getElementById('loginStatus');
+  const btn=document.getElementById('btnLoginSubmit');
+  if(!email||!password){status.textContent='Informe e-mail e senha.';return;}
+  btn.disabled=true;btn.textContent='ENTRANDO...';
+  status.textContent='Entrando...';
+  const res=window._fbEmailLogin?await window._fbEmailLogin(email,password):{ok:false};
+  btn.disabled=false;btn.textContent='ENTRAR';
+  if(res.ok){
+    status.textContent='';
+    showToast('Login realizado! Seus dados foram sincronizados 💪');
+    showScreen('home');
+    if(typeof renderHome==='function')renderHome();
+  } else {
+    status.textContent=_loginErrorMessage(res.code);
+  }
+};
+document.getElementById('btnLoginForgotPw').onclick=async()=>{
+  const email=document.getElementById('loginEmail').value.trim();
+  const status=document.getElementById('loginStatus');
+  if(!email){status.textContent='Digite seu e-mail acima para receber o link de redefinição.';return;}
+  status.textContent='Enviando...';
+  const res=window._fbResetPassword?await window._fbResetPassword(email):{ok:false};
+  status.textContent=res.ok?'Enviamos um link para redefinir sua senha.':'Não foi possível enviar. Confira o e-mail.';
+};
+
+
 function getWorkoutCount(){return parseInt(localStorage.getItem('bravo_workout_count')||'0');}
 function incrementWorkoutCount(){const n=getWorkoutCount()+1;localStorage.setItem('bravo_workout_count',n);return n;}
 function checkRegPrompt(){
