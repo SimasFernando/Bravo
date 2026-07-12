@@ -582,6 +582,18 @@
   .cal-detail-obs{font-size:13px;color:var(--muted);margin-top:6px;font-style:italic;}
   .cal-legend{padding:8px 16px;font-size:11px;color:var(--muted);text-align:center;}
   .cal-day-detail-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+  /* ---- PODER BRAVO (calendar stats card) ---- */
+  .cal-poder-card{background:var(--surface);border-radius:16px;padding:16px 16px 14px;margin:4px 4px 0;}
+  .cal-poder-title{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;color:var(--accent);display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+  .cal-poder-title img{width:17px;height:17px;object-fit:contain;}
+  .cal-poder-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px 10px;}
+  .cal-poder-item{text-align:center;}
+  .cal-poder-value{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--text);letter-spacing:1px;line-height:1;}
+  .cal-poder-label{font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:4px;}
+  .cal-detail-poder{display:flex;align-items:center;gap:6px;margin-top:6px;}
+  .cal-detail-poder img{width:15px;height:15px;object-fit:contain;}
+  .cal-detail-poder .cdp-label{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
+  .cal-detail-poder .cdp-value{font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--accent);letter-spacing:1px;}
   .btn-del-workout{font-size:12px;padding:5px 12px;border-radius:10px;border:1px solid rgba(200,50,50,.35);background:transparent;color:#c03030;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .2s;}
   .btn-del-workout:active{background:rgba(200,50,50,.1);}
   /* Mark workout modal */
@@ -1375,6 +1387,27 @@
       <div class="cal-detail-obs" id="calDetailObs"></div>
     </div>
     <div class="cal-legend">Círculos preenchidos = treino realizado</div>
+    <div class="cal-poder-card" id="calPoderStats">
+      <div class="cal-poder-title"><img src="ic_execucao.png?v=202506" alt="">PODER BRAVO</div>
+      <div class="cal-poder-grid">
+        <div class="cal-poder-item">
+          <div class="cal-poder-value" id="calPoderMonthSum">–</div>
+          <div class="cal-poder-label">Poder do mês</div>
+        </div>
+        <div class="cal-poder-item">
+          <div class="cal-poder-value" id="calPoderMonthAvg">–</div>
+          <div class="cal-poder-label">Média por treino</div>
+        </div>
+        <div class="cal-poder-item">
+          <div class="cal-poder-value" id="calPoderMonthRecord">–</div>
+          <div class="cal-poder-label">Recorde do mês</div>
+        </div>
+        <div class="cal-poder-item">
+          <div class="cal-poder-value" id="calPoderAllRecord">–</div>
+          <div class="cal-poder-label">Recorde histórico</div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1427,6 +1460,13 @@
           </div>
         </div>
       </div>
+    </div>
+    <div id="markPoderBravoBlock" style="display:none;margin-top:4px;margin-bottom:4px;background:var(--surface2);border-radius:14px;padding:12px 16px;align-items:center;justify-content:space-between;flex-direction:row;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <img src="ic_execucao.png?v=202506" alt="" style="width:20px;height:20px;object-fit:contain;">
+        <span style="font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1.5px;color:var(--text);">PODER BRAVO</span>
+      </div>
+      <div id="markPoderBravoValue" style="font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--accent);">0</div>
     </div>
     <div class="field-group" style="margin-top:4px">
       <div class="field-label">Observação (opcional)</div>
@@ -3047,6 +3087,7 @@ function hideBravoFixed(){
 function showFinish(p){
   releaseWakeLock();
   auto.pendingMarkName=p.name||'Treino';
+  pendingPoderBravo=null; // Clássico/Circuito não calculam Poder Bravo
   speak('Treino concluído. Parabéns!');
   beep(880,.15,.6,'sine',0);beep(1100,.15,.6,'sine',.2);beep(1320,.3,.7,'sine',.4);
   vibrate([100,50,100,50,200]);
@@ -3057,6 +3098,7 @@ function showFinish(p){
   setTimeout(()=>{
     document.getElementById('markWorkoutName').textContent=auto.pendingMarkName;
     document.getElementById('markWorkoutObs').value='';
+    showMarkPoderBravo(null);
     resetExTypes();
     document.getElementById('markWorkoutModal').classList.add('open');
   },2000);
@@ -3122,6 +3164,35 @@ function renderCalendar(){
     }
     grid.appendChild(cell);
   }
+  renderCalPoderStats(records);
+}
+
+// Recalcula e exibe as estatísticas de Poder Bravo a partir de todos os treinos salvos.
+// Chamada sempre que o calendário é renderizado (abertura, navegação de mês, marcação, edição ou exclusão de treino),
+// garantindo que as estatísticas fiquem sempre atualizadas automaticamente.
+function renderCalPoderStats(records){
+  records = records || loadCalendar();
+  let monthSum=0, monthCount=0, monthRecord=0, allTimeRecord=0;
+  records.forEach(dayRec=>{
+    const workouts = dayRec.workouts || (dayRec.name ? [{name:dayRec.name,poderBravo:dayRec.poderBravo}] : []);
+    const [y,m] = dayRec.date.split('-').map(Number);
+    const isCurrentMonth = (y===calYear && (m-1)===calMonth);
+    workouts.forEach(w=>{
+      if(w.poderBravo==null) return;
+      const pb=w.poderBravo;
+      if(pb>allTimeRecord) allTimeRecord=pb;
+      if(isCurrentMonth){
+        monthSum+=pb;
+        monthCount++;
+        if(pb>monthRecord) monthRecord=pb;
+      }
+    });
+  });
+  const monthAvg = monthCount>0 ? Math.round(monthSum/monthCount) : 0;
+  document.getElementById('calPoderMonthSum').textContent   = monthCount>0 ? monthSum : '–';
+  document.getElementById('calPoderMonthAvg').textContent   = monthCount>0 ? monthAvg : '–';
+  document.getElementById('calPoderMonthRecord').textContent= monthCount>0 ? monthRecord : '–';
+  document.getElementById('calPoderAllRecord').textContent  = allTimeRecord>0 ? allTimeRecord : '–';
 }
 function showCalDetail(dateStr,rec){
   _calDetailDateStr = dateStr;
@@ -3146,6 +3217,9 @@ function showCalDetail(dateStr,rec){
       html+=`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">`;
       w.exTypes.forEach(t=>{const et=EX_TYPE_MAP[t];if(et)html+=`<div style="display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:8px;background:var(--surface2);font-size:12px;color:${et.color};font-weight:600"><img src="ic_${t}.png?v=202506" style="width:21px;height:21px;object-fit:cover;border-radius:3px;flex-shrink:0"> ${et.label}</div>`;});
       html+=`</div>`;
+    }
+    if(w.poderBravo!=null){
+      html+=`<div class="cal-detail-poder"><img src="ic_execucao.png?v=202506" alt=""><span class="cdp-label">Poder Bravo</span><span class="cdp-value">${w.poderBravo}</span></div>`;
     }
     if(w.obs)html+=`<div style="font-size:13px;color:#888;margin-top:5px;font-style:italic">${w.obs}</div>`;
     html+=`</div>`;
@@ -3215,7 +3289,17 @@ function showDeleteConfirm(msg, onConfirm){
   overlay.querySelector('#_delConfirm').onclick = ()=>{ overlay.remove(); onConfirm(); };
 }
 
-function markCalendar(name,obs,exTypes){
+function showMarkPoderBravo(value){
+  const block=document.getElementById('markPoderBravoBlock');
+  if(value!=null){
+    document.getElementById('markPoderBravoValue').textContent=value;
+    block.style.display='flex';
+  } else {
+    block.style.display='none';
+  }
+}
+
+function markCalendar(name,obs,exTypes,poderBravo){
   const today=new Date();
   const dateStr=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
   const records=loadCalendar();
@@ -3227,7 +3311,9 @@ function markCalendar(name,obs,exTypes){
   }
   // Support legacy single-workout format: migrate to workouts array
   if(!dayEntry.workouts){dayEntry.workouts=[{name:dayEntry.name,obs:dayEntry.obs||'',exTypes:[]}];delete dayEntry.name;delete dayEntry.obs;}
-  dayEntry.workouts.push({name,obs:obs||'',exTypes:exTypes||[],time:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})});
+  const newWorkout={name,obs:obs||'',exTypes:exTypes||[],time:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})};
+  if(poderBravo!=null) newWorkout.poderBravo=poderBravo;
+  dayEntry.workouts.push(newWorkout);
   saveCalendar(records);
   showToast('Treino marcado no calendário ✓');
 }
@@ -3306,12 +3392,26 @@ function startAutoWorkout(){
 
 
 const REST_TABLE={
-  '1-3':[240,270,300,330,360],
+  '1-3':[180,210,240,270,300],
   '4-7':[90,105,120,150,180],
   '8-10':[50,60,75,90,120],
   '11-15':[40,50,60,75,90],
   '15-30':[30,40,45,60,75],
 };
+
+// ============================================================
+// PODER BRAVO — pontuação de esforço (Bravo Play e Bravo)
+// ============================================================
+const PODER_BRAVO_REPS_VALUE={'1-3':5.0,'4-7':4.5,'8-10':4.0,'11-15':3.75,'15-30':3.5};
+const PODER_BRAVO_INT_MULT=[1.0,1.25,1.6,2.0,2.5]; // indices 0..4 = Muito fácil..Limite
+function poderSerie(repsKey,intIdx){
+  const v=PODER_BRAVO_REPS_VALUE[repsKey];
+  const m=PODER_BRAVO_INT_MULT[intIdx];
+  return (v!=null&&m!=null)?v*m:0;
+}
+// Valor pendente de Poder Bravo do treino que está prestes a ser marcado no calendário.
+// null quando o modo atual (Clássico/Circuito) não calcula Poder Bravo.
+let pendingPoderBravo=null;
 
 const AUTO_CIRC=2*Math.PI*44;
 let auto={
@@ -3321,7 +3421,8 @@ let auto={
   execSecs:0,execTotal:60,execOverflow:false,
   prepSecs:15,_int:null,running:false,
   workoutName:'Bravo Play',
-  pendingMarkName:''
+  pendingMarkName:'',
+  poderBravoSum:0
 };
 
 function autoExName(){return'Exercício '+auto.exIndex;}
@@ -3332,6 +3433,7 @@ function startAutoMode(){
   auto.execSecs=60;auto.execTotal=60;auto.execOverflow=false;
   auto.prepSecs=15;
   auto.running=true;
+  auto.poderBravoSum=0;
   startAutoWorkout(); // reset tipo de exercício acumulado
   showAutoPrep();
 }
@@ -3588,6 +3690,7 @@ function selectIntensity(btn){
   auto.selectedInt=parseInt(btn.dataset.int);
   const restSecs=REST_TABLE[auto.selectedRepsKey][auto.selectedInt];
   auto.restSecs=restSecs;auto.restTotal=restSecs;
+  auto.poderBravoSum+=poderSerie(auto.selectedRepsKey,auto.selectedInt);
   startAutoRest();
 }
 
@@ -3705,6 +3808,7 @@ function autoNewExercise(){
 function autoFinishWorkout(){
   clearInterval(auto._int);
   auto.pendingMarkName='Bravo Play';
+  pendingPoderBravo=Math.ceil(auto.poderBravoSum);
   speak('Treino concluído. Parabéns!');
   beep(880,.15,.6,'sine',0);beep(1100,.15,.6,'sine',.2);beep(1320,.3,.7,'sine',.4);
   vibrate([100,50,100,50,200]);
@@ -3714,6 +3818,7 @@ function autoFinishWorkout(){
   setTimeout(()=>{
     document.getElementById('markWorkoutName').textContent=auto.pendingMarkName;
     document.getElementById('markWorkoutObs').value='';
+    showMarkPoderBravo(pendingPoderBravo);
     // Pré-seleciona os tipos acumulados durante o treino
     resetExTypes();
     autoWorkoutTypes.forEach(t=>{
@@ -3798,13 +3903,17 @@ function resetExTypes(){
 
 document.getElementById('btnMarkDone').onclick=()=>{
   const obs=document.getElementById('markWorkoutObs').value.trim();
-  markCalendar(auto.pendingMarkName,obs,[...selectedExTypes]);
+  markCalendar(auto.pendingMarkName,obs,[...selectedExTypes],pendingPoderBravo);
+  pendingPoderBravo=null;
+  showMarkPoderBravo(null);
   resetExTypes();
   document.getElementById('markWorkoutModal').classList.remove('open');
   hideBravoFixed();applyAccent('#F04E23');showScreen('home');
   incrementWorkoutCount();checkRegPrompt();
 };
 function skipMarkWorkout(){
+  pendingPoderBravo=null;
+  showMarkPoderBravo(null);
   document.getElementById('markWorkoutModal').classList.remove('open');
   hideBravoFixed();applyAccent('#F04E23');showScreen('home');
   incrementWorkoutCount();checkRegPrompt();
@@ -3823,7 +3932,8 @@ let brain={
   execSecs:0,execTotal:0,execOverflow:false,
   restSecs:0,restTotal:0,
   _int:null,running:false,
-  pendingMarkName:'',_afterRest:''
+  pendingMarkName:'',_afterRest:'',
+  poderBravoSum:0
 };
 
 function startBrainMode(p){
@@ -3836,6 +3946,7 @@ function startBrainMode(p){
   brain.exIndex=0;brain.serieNum=1;
   brain.execOverflow=false;brain.running=true;
   brain.pendingMarkName=p.name;
+  brain.poderBravoSum=0;
   applyAccent('#F04E23');
   brain._cardColor=p.color||'#F04E23';
   acquireWakeLock();
@@ -3975,8 +4086,10 @@ function selectBrainReps(btn){
 }
 
 function selectBrainIntensity(btn){
-  const restSecs=REST_TABLE[brain._repsKey][parseInt(btn.dataset.int)];
+  const intIdx=parseInt(btn.dataset.int);
+  const restSecs=REST_TABLE[brain._repsKey][intIdx];
   brain.restSecs=restSecs;brain.restTotal=restSecs;
+  brain.poderBravoSum+=poderSerie(brain._repsKey,intIdx);
   const isLastSerie=(brain.serieNum>=brain.totalSeries);
   const isLastEx=(brain.exIndex>=brain.totalExercises-1);
   if(isLastSerie&&isLastEx)       brain._afterRest='finish';
@@ -4056,6 +4169,7 @@ function onBrainRestDone(){
 function brainFinishWorkout(){
   clearInterval(brain._int);
   releaseWakeLock();
+  pendingPoderBravo=Math.ceil(brain.poderBravoSum);
   speak('Treino concluído. Parabéns!');
   beep(880,.15,.6,'sine',0);beep(1100,.15,.6,'sine',.2);beep(1320,.3,.7,'sine',.4);
   vibrate([100,50,100,50,200]);
@@ -4067,6 +4181,7 @@ function brainFinishWorkout(){
   setTimeout(()=>{
     document.getElementById('markWorkoutName').textContent=label;
     document.getElementById('markWorkoutObs').value='';
+    showMarkPoderBravo(pendingPoderBravo);
     resetExTypes();
     document.getElementById('markWorkoutModal').classList.add('open');
   },2000);
