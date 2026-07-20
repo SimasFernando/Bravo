@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bravo — Admin</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body>
+
+  <!-- ================= LOGIN ================= -->
+  <div class="admin-screen" id="adminLoginScreen">
+    <div class="admin-card">
+      <div class="admin-logo">BRAVO</div>
+      <div class="admin-subtitle">Painel administrativo</div>
+      <form id="adminLoginForm">
+        <div class="field-group">
+          <label class="field-label" for="adminEmail">E-mail</label>
+          <input class="field-input" type="email" id="adminEmail" required autocomplete="username">
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="adminPassword">Senha</label>
+          <input class="field-input" type="password" id="adminPassword" required autocomplete="current-password">
+        </div>
+        <button class="admin-btn" type="submit">ENTRAR</button>
+        <div class="admin-status" id="adminLoginStatus"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= ACESSO NEGADO ================= -->
+  <div class="admin-screen hidden" id="adminDeniedScreen">
+    <div class="admin-card" style="text-align:center;">
+      <div class="admin-logo">BRAVO</div>
+      <p style="margin:16px 0;color:var(--text);font-size:14px;">
+        Essa conta não tem acesso ao painel administrativo.
+      </p>
+      <button class="admin-btn" id="adminDeniedLogoutBtn" onclick="location.reload()">VOLTAR</button>
+    </div>
+  </div>
+
+  <!-- ================= PAINEL ================= -->
+  <div class="admin-screen hidden" id="adminPanelScreen" style="justify-content:flex-start;padding:0;">
+    <div class="admin-topbar">
+      <div class="admin-logo" style="font-size:18px;margin:0;">BRAVO ADMIN</div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span class="admin-topbar-name" id="adminName"></span>
+        <button class="admin-logout" id="adminLogoutBtn">Sair</button>
+      </div>
+    </div>
+
+    <div class="admin-content">
+      <div class="admin-nav">
+        <button class="active" data-view="home">Início</button>
+        <button data-view="users">Usuários</button>
+        <button data-view="groups">Grupos</button>
+        <button data-view="programs">Programas Bravo</button>
+        <button data-view="messages">Mensagens</button>
+        <button data-view="offers">Escolhas Bravo</button>
+      </div>
+
+      <div id="adminViewHome">
+        <p style="color:var(--muted);font-size:14px;">
+          Login e permissão de admin funcionando. As seções (Usuários, Grupos,
+          Programas, Mensagens, Ofertas) entram nos próximos passos.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="assets/js/admin-auth.js"></script>
+</body>
+</html>
