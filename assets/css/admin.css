@@ -1,0 +1,86 @@
+/* admin.css — usa as variáveis (--bg, --accent, etc.) e classes
+   (.field-input, .field-label) já definidas em styles.css.
+   Aqui só o necessário pro layout específico do painel. */
+
+body{overflow:auto;}
+
+.admin-screen{
+  min-height:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:32px 20px;
+}
+.admin-screen.hidden{display:none;}
+
+.admin-card{
+  width:100%;
+  max-width:360px;
+  background:var(--surface);
+  border:1px solid var(--surface2);
+  border-radius:var(--radius);
+  padding:28px 24px;
+}
+
+.admin-logo{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:28px;
+  letter-spacing:2px;
+  color:var(--accent);
+  text-align:center;
+  margin-bottom:4px;
+}
+.admin-subtitle{
+  font-size:13px;
+  color:var(--muted);
+  text-align:center;
+  margin-bottom:24px;
+}
+
+.admin-card form{display:flex;flex-direction:column;gap:16px;}
+
+.admin-btn{
+  margin-top:4px;
+  padding:14px;
+  border-radius:12px;
+  border:none;
+  background:var(--accent);
+  color:#fff;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:16px;
+  letter-spacing:2px;
+  cursor:pointer;
+}
+.admin-btn:active{opacity:.85;}
+
+.admin-status{
+  min-height:18px;
+  font-size:13px;
+  color:var(--muted);
+  text-align:center;
+}
+
+/* Tela do painel em si (top bar + área de conteúdo) */
+.admin-topbar{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:16px 20px;
+  border-bottom:1px solid var(--surface2);
+}
+.admin-topbar-name{font-size:13px;color:var(--muted);}
+.admin-logout{
+  background:none;border:1px solid var(--surface2);color:var(--text);
+  border-radius:8px;padding:8px 14px;font-size:13px;cursor:pointer;
+}
+
+.admin-content{width:100%;max-width:720px;padding:24px 20px;margin:0 auto;}
+
+.admin-nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;}
+.admin-nav button{
+  background:var(--surface2);border:none;color:var(--text);
+  border-radius:10px;padding:10px 16px;font-size:13px;cursor:pointer;
+}
+.admin-nav button.active{background:var(--accent);}
