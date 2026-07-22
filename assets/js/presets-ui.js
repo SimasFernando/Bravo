@@ -255,6 +255,7 @@ function renderHome(){
     aCard.addEventListener('click', e => {
       if (ap.locked) { if (typeof showToast === 'function') showToast('Programa bloqueado. Fale com seu professor.'); return; }
       if (e.target.dataset.adminDup) { duplicatePreset('_admin_' + e.target.dataset.adminDup); return; }
+      aCard.classList.toggle('selected');
     });
     bravoList.appendChild(aCard);
   });
