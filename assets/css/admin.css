@@ -4,6 +4,12 @@
 
 body{overflow:auto;}
 
+/* Regra genérica: qualquer elemento com class="hidden" fica invisível.
+   Sem essa regra, só .admin-screen.hidden funcionava — as abas internas
+   (Usuários/Grupos/Programas) e os blocos de campos por modo (Clássico/
+   Circuito/Bravo) ficavam todos empilhados ao mesmo tempo. */
+.hidden{display:none !important;}
+
 .admin-screen{
   min-height:100%;
   display:flex;
