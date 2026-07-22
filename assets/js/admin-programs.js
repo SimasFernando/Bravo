@@ -57,15 +57,23 @@ document.getElementById('progExCount')?.addEventListener('input', (e) => {
 document.getElementById('progBrainExCount')?.addEventListener('input', (e) => {
   renderExerciseInputs('progBrainExList', 'progBEx', parseInt(e.target.value) || 1);
 });
-document.getElementById('progMode')?.addEventListener('change', (e) => {
-  document.querySelectorAll('.prog-fields').forEach(f => f.classList.add('hidden'));
-  const map = { normal: 'progFieldsNormal', circuit: 'progFieldsCircuit', brain: 'progFieldsBrain' };
-  document.getElementById(map[e.target.value])?.classList.remove('hidden');
+document.querySelectorAll('#adminViewPrograms .mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const mode = btn.dataset.mode;
+    document.querySelectorAll('#adminViewPrograms .mode-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('progMode').value = mode;
+
+    document.querySelectorAll('.prog-fields').forEach(f => f.classList.add('hidden'));
+    const map = { normal: 'progFieldsNormal', circuit: 'progFieldsCircuit', brain: 'progFieldsBrain' };
+    document.getElementById(map[mode])?.classList.remove('hidden');
+  });
 });
 
 function resetForm() {
   editingId = null;
   document.getElementById('progMode').value = 'normal';
+  document.querySelectorAll('#adminViewPrograms .mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === 'normal'));
   document.getElementById('progName').value = '';
   document.getElementById('progObs').value = '';
   document.querySelectorAll('.prog-fields').forEach(f => f.classList.add('hidden'));
