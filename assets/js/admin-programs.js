@@ -14,21 +14,35 @@ const EX_LETTERS = ['A','B','C','D','E','F','G','H','I','J','K','L'];
 let _programs = null;
 let editingId = null;
 
+function isValidYtUrl(url) {
+  if (!url) return true; // vazio é válido (campo opcional)
+  return /(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/))([A-Za-z0-9_-]{11})/.test(url);
+}
+
 function escapeHtml(str) {
   return String(str).replace(/[&<>"']/g, c => ({
     '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
   }[c]));
 }
 
-// ---- geração dinâmica dos campos de nome de exercício ----
-function renderExerciseInputs(containerId, prefix, count, existingNames) {
+const BRAVO_ORANGE = '#F04E23';
+
+// ---- geração dinâmica dos campos: nome + link do YouTube por exercício ----
+function renderExerciseInputs(containerId, prefix, count, existingNames, existingVideos) {
   const el = document.getElementById(containerId);
   let html = '';
   for (let i = 0; i < count; i++) {
-    const val = existingNames?.[i] || '';
-    html += `<div class="field-group" style="margin-bottom:6px;">
-      <label class="field-label">Exercício ${EX_LETTERS[i] || (i+1)}</label>
-      <input class="field-input" id="${prefix}${i}" value="${escapeHtml(val)}" placeholder="Nome do exercício">
+    const nameVal = existingNames?.[i] || '';
+    const videoVal = existingVideos?.[i] || '';
+    html += `<div style="display:flex;gap:8px;align-items:flex-end;margin-bottom:8px;">
+      <div class="field-group" style="flex:1;">
+        <label class="field-label">Exercício ${EX_LETTERS[i] || (i+1)}</label>
+        <input class="field-input" id="${prefix}${i}" value="${escapeHtml(nameVal)}" placeholder="Nome do exercício">
+      </div>
+      <div class="field-group" style="flex:1;">
+        <label class="field-label">Link YouTube (opcional)</label>
+        <input class="field-input" id="${prefix}Yt${i}" value="${escapeHtml(videoVal)}" placeholder="https://youtube.com/...">
+      </div>
     </div>`;
   }
   el.innerHTML = html;
@@ -43,7 +57,6 @@ document.getElementById('progExCount')?.addEventListener('input', (e) => {
 document.getElementById('progBrainExCount')?.addEventListener('input', (e) => {
   renderExerciseInputs('progBrainExList', 'progBEx', parseInt(e.target.value) || 1);
 });
-
 document.getElementById('progMode')?.addEventListener('change', (e) => {
   document.querySelectorAll('.prog-fields').forEach(f => f.classList.add('hidden'));
   const map = { normal: 'progFieldsNormal', circuit: 'progFieldsCircuit', brain: 'progFieldsBrain' };
@@ -80,26 +93,35 @@ document.getElementById('progSaveBtn')?.addEventListener('click', async () => {
   const obs = document.getElementById('progObs').value.trim();
   const mode = document.getElementById('progMode').value;
 
-  let data = { name, obs, mode };
+  let data = { name, obs, mode, color: BRAVO_ORANGE };
+  let allVideoUrls = [];
 
   if (mode === 'normal') {
     const normalExCount = parseInt(document.getElementById('progNormalExCount').value) || 1;
     const normalExercises = [];
+    const normalExerciseVideos = [];
     for (let i = 0; i < normalExCount; i++) {
       normalExercises.push(document.getElementById('progNfEx' + i)?.value.trim() || EX_LETTERS[i]);
+      const v = document.getElementById('progNfExYt' + i)?.value.trim() || '';
+      normalExerciseVideos.push(v);
+      allVideoUrls.push(v);
     }
     data = { ...data,
       cycles: parseInt(document.getElementById('progCycles').value) || 1,
       prep: parseInt(document.getElementById('progPrep').value) || 0,
       action: parseInt(document.getElementById('progAction').value) || 0,
       rest: parseInt(document.getElementById('progRest').value) || 0,
-      normalExCount, normalExercises
+      normalExCount, normalExercises, normalExerciseVideos
     };
   } else if (mode === 'circuit') {
     const exCount = parseInt(document.getElementById('progExCount').value) || 1;
     const exercises = [];
+    const exerciseVideos = [];
     for (let i = 0; i < exCount; i++) {
       exercises.push(document.getElementById('progCEx' + i)?.value.trim() || EX_LETTERS[i]);
+      const v = document.getElementById('progCExYt' + i)?.value.trim() || '';
+      exerciseVideos.push(v);
+      allVideoUrls.push(v);
     }
     data = { ...data,
       exCount,
@@ -107,22 +129,29 @@ document.getElementById('progSaveBtn')?.addEventListener('click', async () => {
       prep: parseInt(document.getElementById('progCPrep').value) || 0,
       action: parseInt(document.getElementById('progCAction').value) || 0,
       rest: parseInt(document.getElementById('progCRest').value) || 0,
-      exercises
+      exercises, exerciseVideos
     };
   } else { // brain
     const brainExCount = parseInt(document.getElementById('progBrainExCount').value) || 1;
     const brainExercises = [];
+    const brainExerciseVideos = [];
     for (let i = 0; i < brainExCount; i++) {
       brainExercises.push(document.getElementById('progBEx' + i)?.value.trim() || ('Exercício ' + (i+1)));
+      const v = document.getElementById('progBExYt' + i)?.value.trim() || '';
+      brainExerciseVideos.push(v);
+      allVideoUrls.push(v);
     }
     data = { ...data,
       brainExCount,
       brainSeries: parseInt(document.getElementById('progBrainSeries').value) || 1,
       brainAction: parseInt(document.getElementById('progBrainAction').value) || 0,
       brainPrep: parseInt(document.getElementById('progBrainPrep').value) || 0,
-      brainExercises
+      brainExercises, brainExerciseVideos
     };
   }
+
+  const invalid = allVideoUrls.some(v => v && !isValidYtUrl(v));
+  if (invalid) { alert('Um dos links do YouTube parece inválido. Confira e tente de novo.'); return; }
 
   const id = editingId || ('p_' + Date.now().toString(36));
   await setDoc(doc(window._adminDb, 'programs', id), {
