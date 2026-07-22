@@ -64,9 +64,9 @@ document.querySelectorAll('#adminViewPrograms .mode-btn').forEach(btn => {
     btn.classList.add('active');
     document.getElementById('progMode').value = mode;
 
-    document.querySelectorAll('.prog-fields').forEach(f => f.classList.add('hidden'));
+    document.querySelectorAll('.prog-fields').forEach(f => window.adminHide(f));
     const map = { normal: 'progFieldsNormal', circuit: 'progFieldsCircuit', brain: 'progFieldsBrain' };
-    document.getElementById(map[mode])?.classList.remove('hidden');
+    window.adminShow(document.getElementById(map[mode]));
   });
 });
 
@@ -76,8 +76,8 @@ function resetForm() {
   document.querySelectorAll('#adminViewPrograms .mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === 'normal'));
   document.getElementById('progName').value = '';
   document.getElementById('progObs').value = '';
-  document.querySelectorAll('.prog-fields').forEach(f => f.classList.add('hidden'));
-  document.getElementById('progFieldsNormal').classList.remove('hidden');
+  document.querySelectorAll('.prog-fields').forEach(f => window.adminHide(f));
+  window.adminShow(document.getElementById('progFieldsNormal'));
   document.getElementById('progNormalExCount').value = 1;
   document.getElementById('progExCount').value = 4;
   document.getElementById('progBrainExCount').value = 2;
@@ -88,11 +88,11 @@ function resetForm() {
 
 document.getElementById('adminProgramNewBtn')?.addEventListener('click', () => {
   resetForm();
-  document.getElementById('adminProgramForm').classList.remove('hidden');
+  window.adminShow(document.getElementById('adminProgramForm'));
 });
 
 document.getElementById('progCancelBtn')?.addEventListener('click', () => {
-  document.getElementById('adminProgramForm').classList.add('hidden');
+  window.adminHide(document.getElementById('adminProgramForm'));
 });
 
 document.getElementById('progSaveBtn')?.addEventListener('click', async () => {
@@ -168,7 +168,7 @@ document.getElementById('progSaveBtn')?.addEventListener('click', async () => {
     createdBy: window._adminUid || null
   }, { merge: true });
 
-  document.getElementById('adminProgramForm').classList.add('hidden');
+  window.adminHide(document.getElementById('adminProgramForm'));
   _programs = null;
   renderPrograms();
 });

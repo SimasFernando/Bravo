@@ -36,8 +36,8 @@ const loginStatus  = document.getElementById('adminLoginStatus');
 const adminNameEl  = document.getElementById('adminName');
 
 function showScreen(el) {
-  [loginScreen, panelScreen, deniedScreen].forEach(s => s && s.classList.add('hidden'));
-  el && el.classList.remove('hidden');
+  [loginScreen, panelScreen, deniedScreen].forEach(s => window.adminHide(s));
+  window.adminShow(el);
 }
 
 loginForm.addEventListener('submit', async (e) => {
