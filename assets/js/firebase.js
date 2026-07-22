@@ -114,12 +114,35 @@ onAuthStateChanged(_fbAuth, async user => {
     window._fbUid = user.uid;
     window._fbIsAnonymous = user.isAnonymous;
     localStorage.setItem('bravo_fb_uid', user.uid);
+    await _fbEnsureUserDoc(user);
     await _fbLoadAll();
     _updateGoogleUI(user);
   } else {
     try { await signInAnonymously(_fbAuth); } catch(e) { console.warn('fbAnonymousLogin', e); }
   }
 });
+
+// Garante que todo usuário logado (Google ou e-mail/senha) tenha um
+// registro em 'users', mesmo que nunca tenha passado pela tela de
+// Cadastro. Sem isso, ele fica invisível no painel admin. Não
+// sobrescreve dados já preenchidos pelo formulário de cadastro.
+async function _fbEnsureUserDoc(user) {
+  if (!user || user.isAnonymous) return;
+  try {
+    const ref = _userDoc();
+    const snap = await getDoc(ref);
+    if (!snap.exists()) {
+      await setDoc(ref, {
+        name: user.displayName || '',
+        email: user.email || '',
+        phone: '',
+        createdAt: serverTimestamp()
+      }, { merge: true });
+    } else if (user.email && !snap.data().email) {
+      await setDoc(ref, { email: user.email }, { merge: true });
+    }
+  } catch (e) { console.warn('fbEnsureUserDoc', e); }
+}
 
 function _updateGoogleUI(user) {
   const label = document.getElementById('googleSignInLabel');
