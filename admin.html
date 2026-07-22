@@ -108,42 +108,42 @@
           </div>
 
           <div id="progFieldsNormal" class="prog-fields">
-            <div style="display:flex;gap:8px;margin-bottom:12px;">
-              <div class="field-group"><label class="field-label">Ciclos</label><input class="field-input" type="number" id="progCycles" value="3"></div>
-              <div class="field-group"><label class="field-label">Prep (s)</label><input class="field-input" type="number" id="progPrep" value="10"></div>
-              <div class="field-group"><label class="field-label">Ação (s)</label><input class="field-input" type="number" id="progAction" value="40"></div>
-              <div class="field-group"><label class="field-label">Descanso (s)</label><input class="field-input" type="number" id="progRest" value="20"></div>
-            </div>
-            <div class="field-group" style="margin-bottom:8px;">
-              <label class="field-label">Nº de exercícios</label>
+            <div class="field-group" style="margin-bottom:12px;">
+              <label class="field-label">Nº Exercícios</label>
               <input class="field-input" type="number" id="progNormalExCount" value="1" min="1" max="12">
+            </div>
+            <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+              <div class="field-group"><label class="field-label">Séries</label><input class="field-input" type="number" id="progCycles" value="3"></div>
+              <div class="field-group"><label class="field-label">Preparação (s)</label><input class="field-input" type="number" id="progPrep" value="10"></div>
+              <div class="field-group"><label class="field-label">Execução (s)</label><input class="field-input" type="number" id="progAction" value="40"></div>
+              <div class="field-group"><label class="field-label">Recuperação (s)</label><input class="field-input" type="number" id="progRest" value="20"></div>
             </div>
             <div id="progNormalExList"></div>
           </div>
 
           <div id="progFieldsCircuit" class="prog-fields hidden">
-            <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
-              <div class="field-group"><label class="field-label">Rounds</label><input class="field-input" type="number" id="progRounds" value="3"></div>
-              <div class="field-group"><label class="field-label">Prep (s)</label><input class="field-input" type="number" id="progCPrep" value="10"></div>
-              <div class="field-group"><label class="field-label">Ação (s)</label><input class="field-input" type="number" id="progCAction" value="30"></div>
-              <div class="field-group"><label class="field-label">Descanso (s)</label><input class="field-input" type="number" id="progCRest" value="0"></div>
-            </div>
-            <div class="field-group" style="margin-bottom:8px;">
-              <label class="field-label">Nº de exercícios</label>
+            <div class="field-group" style="margin-bottom:12px;">
+              <label class="field-label">Nº Exercícios</label>
               <input class="field-input" type="number" id="progExCount" value="4" min="1" max="12">
+            </div>
+            <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+              <div class="field-group"><label class="field-label">Rodadas</label><input class="field-input" type="number" id="progRounds" value="3"></div>
+              <div class="field-group"><label class="field-label">Preparação (s)</label><input class="field-input" type="number" id="progCPrep" value="10"></div>
+              <div class="field-group"><label class="field-label">Execução (s)</label><input class="field-input" type="number" id="progCAction" value="30"></div>
+              <div class="field-group"><label class="field-label">Intervalo entre exercícios (s)</label><input class="field-input" type="number" id="progCRest" value="0"></div>
             </div>
             <div id="progCircuitExList"></div>
           </div>
 
           <div id="progFieldsBrain" class="prog-fields hidden">
+            <div class="field-group" style="margin-bottom:12px;">
+              <label class="field-label">Nº Exercícios</label>
+              <input class="field-input" type="number" id="progBrainExCount" value="2" min="1" max="12">
+            </div>
             <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
               <div class="field-group"><label class="field-label">Séries</label><input class="field-input" type="number" id="progBrainSeries" value="3"></div>
-              <div class="field-group"><label class="field-label">Prep (s)</label><input class="field-input" type="number" id="progBrainPrep" value="15"></div>
-              <div class="field-group"><label class="field-label">Ação (s)</label><input class="field-input" type="number" id="progBrainAction" value="40"></div>
-            </div>
-            <div class="field-group" style="margin-bottom:8px;">
-              <label class="field-label">Nº de exercícios</label>
-              <input class="field-input" type="number" id="progBrainExCount" value="2" min="1" max="12">
+              <div class="field-group"><label class="field-label">Preparação (s)</label><input class="field-input" type="number" id="progBrainPrep" value="15"></div>
+              <div class="field-group"><label class="field-label">Execução (s)</label><input class="field-input" type="number" id="progBrainAction" value="40"></div>
             </div>
             <div id="progBrainExList"></div>
           </div>
