@@ -1,100 +1,78 @@
-// ============================================================
-// ADMIN-AUTH — login e verificação de permissão do painel admin
-// ------------------------------------------------------------
-// Separado do firebase.js do app normal de propósito: aqui não
-// existe login anônimo, cadastro, nem migração de dados — só
-// entrada de quem já tem conta E tem o claim "admin".
-// ============================================================
-import { initializeApp }
-  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut }
-  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { getFirestore }
-  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bravo — Admin</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body>
 
-// Mesmo projeto Firebase do app Bravo.
-const _fbConfig = {
-  apiKey:            "AIzaSyC6ZXhDAFkg7ef6hAl_YpWmG559FK84NJc",
-  authDomain:        "bravotreino.firebaseapp.com",
-  projectId:         "bravotreino",
-  storageBucket:     "bravotreino.firebasestorage.app",
-  messagingSenderId: "879643595983",
-  appId:             "1:879643595983:web:efb490252a6f3c06e493ba"
-};
+  <!-- ================= LOGIN ================= -->
+  <div class="admin-screen" id="adminLoginScreen">
+    <div class="admin-card">
+      <div class="admin-logo">BRAVO</div>
+      <div class="admin-subtitle">Painel administrativo</div>
+      <form id="adminLoginForm">
+        <div class="field-group">
+          <label class="field-label" for="adminEmail">E-mail</label>
+          <input class="field-input" type="email" id="adminEmail" required autocomplete="username">
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="adminPassword">Senha</label>
+          <input class="field-input" type="password" id="adminPassword" required autocomplete="current-password">
+        </div>
+        <button class="admin-btn" type="submit">ENTRAR</button>
+        <div class="admin-status" id="adminLoginStatus"></div>
+      </form>
+      <button class="admin-btn" id="adminGoogleBtn" style="margin-top:12px;background:var(--surface2);">
+        ENTRAR COM GOOGLE
+      </button>
+    </div>
+  </div>
 
-const _adminApp  = initializeApp(_fbConfig);
-const _adminAuth = getAuth(_adminApp);
-window._adminDb  = getFirestore(_adminApp);
+  <!-- ================= ACESSO NEGADO ================= -->
+  <div class="admin-screen hidden" id="adminDeniedScreen">
+    <div class="admin-card" style="text-align:center;">
+      <div class="admin-logo">BRAVO</div>
+      <p style="margin:16px 0;color:var(--text);font-size:14px;">
+        Essa conta não tem acesso ao painel administrativo.
+      </p>
+      <button class="admin-btn" id="adminDeniedLogoutBtn">VOLTAR</button>
+    </div>
+  </div>
 
-const loginScreen = document.getElementById('adminLoginScreen');
-const panelScreen = document.getElementById('adminPanelScreen');
-const deniedScreen = document.getElementById('adminDeniedScreen');
-const loginForm    = document.getElementById('adminLoginForm');
-const loginEmail   = document.getElementById('adminEmail');
-const loginPassword= document.getElementById('adminPassword');
-const loginStatus  = document.getElementById('adminLoginStatus');
-const adminNameEl  = document.getElementById('adminName');
+  <!-- ================= PAINEL ================= -->
+  <div class="admin-screen hidden" id="adminPanelScreen" style="justify-content:flex-start;padding:0;">
+    <div class="admin-topbar">
+      <div class="admin-logo" style="font-size:18px;margin:0;">BRAVO ADMIN</div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span class="admin-topbar-name" id="adminName"></span>
+        <button class="admin-logout" id="adminLogoutBtn">Sair</button>
+      </div>
+    </div>
 
-function showScreen(el) {
-  [loginScreen, panelScreen, deniedScreen].forEach(s => s && s.classList.add('hidden'));
-  el && el.classList.remove('hidden');
-}
+    <div class="admin-content">
+      <div class="admin-nav">
+        <button class="active" data-view="home">Início</button>
+        <button data-view="users">Usuários</button>
+        <button data-view="groups">Grupos</button>
+        <button data-view="programs">Programas Bravo</button>
+        <button data-view="messages">Mensagens</button>
+        <button data-view="offers">Escolhas Bravo</button>
+      </div>
 
-loginForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  loginStatus.textContent = 'Entrando...';
-  try {
-    await signInWithEmailAndPassword(_adminAuth, loginEmail.value.trim(), loginPassword.value);
-    // onAuthStateChanged cuida do resto (checar claim e trocar de tela)
-  } catch (err) {
-    loginStatus.textContent = 'E-mail ou senha inválidos.';
-    console.warn('admin login error', err);
-  }
-});
+      <div id="adminViewHome">
+        <p style="color:var(--muted);font-size:14px;">
+          Login e permissão de admin funcionando. As seções (Usuários, Grupos,
+          Programas, Mensagens, Ofertas) entram nos próximos passos.
+        </p>
+      </div>
+    </div>
+  </div>
 
-document.getElementById('adminLogoutBtn')?.addEventListener('click', () => signOut(_adminAuth));
-
-document.getElementById('adminGoogleBtn')?.addEventListener('click', async () => {
-  loginStatus.textContent = 'Entrando...';
-  try {
-    await signInWithPopup(_adminAuth, new GoogleAuthProvider());
-  } catch (err) {
-    loginStatus.textContent = 'Não foi possível entrar com Google.';
-    console.warn('admin google login error', err);
-  }
-});
-
-// Antes, o botão "Voltar" da tela de acesso negado só recarregava a
-// página — como a sessão continuava logada com a conta sem permissão,
-// ficava preso em looping. Agora ele desloga de verdade, liberando
-// pra tentar com outra conta.
-document.getElementById('adminDeniedLogoutBtn')?.addEventListener('click', (e) => {
-  e.preventDefault();
-  signOut(_adminAuth);
-});
-
-onAuthStateChanged(_adminAuth, async (user) => {
-  if (!user) {
-    showScreen(loginScreen);
-    loginStatus.textContent = '';
-    return;
-  }
-  // Força atualizar o token pra pegar o claim mais recente
-  // (importante logo depois de você rodar o setAdminClaim.js).
-  const tokenResult = await user.getIdTokenResult(true);
-  const isAdmin = tokenResult.claims.admin === true;
-
-  if (!isAdmin) {
-    showScreen(deniedScreen);
-    return;
-  }
-
-  window._adminUid   = user.uid;
-  window._adminScope = tokenResult.claims.scope || 'all';
-  if (adminNameEl) adminNameEl.textContent = user.email;
-  showScreen(panelScreen);
-
-  document.dispatchEvent(new CustomEvent('adminReady', {
-    detail: { uid: user.uid, email: user.email, scope: window._adminScope }
-  }));
-});
+  <script type="module" src="assets/js/admin-auth.js"></script>
+</body>
+</html>
