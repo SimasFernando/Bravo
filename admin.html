@@ -156,6 +156,36 @@
 
         <div id="adminProgramList"></div>
       </div>
+
+      <div id="adminViewMessages" class="hidden">
+        <div style="background:var(--surface);border:1px solid var(--surface2);border-radius:12px;padding:16px;margin-bottom:20px;">
+          <div class="field-group" style="margin-bottom:12px;">
+            <label class="field-label">Mensagem</label>
+            <textarea class="field-input" id="msgText" rows="4" style="resize:vertical;" placeholder="Escreva a mensagem..."></textarea>
+          </div>
+          <div class="field-group" style="margin-bottom:12px;">
+            <label class="field-label">Destinatário</label>
+            <div class="mode-toggle" style="grid-template-columns:1fr 1fr 1fr;">
+              <button type="button" class="mode-btn active" data-scope="all">Todos</button>
+              <button type="button" class="mode-btn" data-scope="group">Grupo</button>
+              <button type="button" class="mode-btn" data-scope="individual">Aluno</button>
+            </div>
+            <input type="hidden" id="msgScope" value="all">
+          </div>
+          <div class="field-group hidden" id="msgGroupField" style="margin-bottom:12px;">
+            <label class="field-label">Qual grupo</label>
+            <select class="field-input" id="msgGroupSelect"><option value="">Escolha um grupo...</option></select>
+          </div>
+          <div class="field-group hidden" id="msgUserField" style="margin-bottom:12px;">
+            <label class="field-label">Qual aluno</label>
+            <select class="field-input" id="msgUserSelect"><option value="">Escolha um aluno...</option></select>
+          </div>
+          <button class="admin-btn" id="msgSendBtn">ENVIAR</button>
+          <div class="admin-status" id="msgStatus"></div>
+        </div>
+
+        <div id="adminMessageList"></div>
+      </div>
     </div>
   </div>
 
@@ -164,5 +194,6 @@
   <script type="module" src="assets/js/admin-users.js"></script>
   <script type="module" src="assets/js/admin-groups.js"></script>
   <script type="module" src="assets/js/admin-programs.js"></script>
+  <script type="module" src="assets/js/admin-messages.js"></script>
 </body>
 </html>
