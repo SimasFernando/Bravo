@@ -177,6 +177,25 @@ function modeLabel(mode) {
   return { normal: 'Clássico', circuit: 'Circuito', brain: 'Bravo (Cérebro)' }[mode] || mode;
 }
 
+function accessBadge(access) {
+  if (access === 'free') return { text: 'Livre p/ todos', color: '#2DC653' };
+  if (access === 'paid') return { text: 'Bloqueado (pago)', color: 'var(--accent)' };
+  return { text: 'Rascunho — ninguém vê ainda', color: 'var(--muted)' };
+}
+
+let _users = null;
+let _groups = null;
+async function ensureUsersGroups() {
+  if (!_users) {
+    const snap = await getDocs(collection(window._adminDb, 'users'));
+    _users = snap.docs.map(d => ({ uid: d.id, ...d.data() }));
+  }
+  if (!_groups) {
+    const snap = await getDocs(collection(window._adminDb, 'groups'));
+    _groups = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  }
+}
+
 async function renderPrograms() {
   const list = document.getElementById('adminProgramList');
   if (!_programs) {
@@ -190,15 +209,46 @@ async function renderPrograms() {
     return;
   }
 
-  list.innerHTML = _programs.map(p => `
+  await ensureUsersGroups();
+
+  list.innerHTML = _programs.map(p => {
+    const badge = accessBadge(p.access);
+    return `
     <div style="background:var(--surface);border:1px solid var(--surface2);border-radius:12px;padding:14px 16px;margin-bottom:10px;">
       <div style="display:flex;justify-content:space-between;align-items:center;">
         <div style="font-size:15px;font-weight:600;">${escapeHtml(p.name)}</div>
         <button data-del-program="${p.id}" style="background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;">Excluir</button>
       </div>
       <div style="color:var(--muted);font-size:13px;margin-top:4px;">${modeLabel(p.mode)}${p.obs ? ' · ' + escapeHtml(p.obs) : ''}</div>
+      <div style="font-size:12px;margin-top:6px;color:${badge.color};">● ${badge.text}</div>
+
+      <details style="margin-top:10px;">
+        <summary style="font-size:13px;color:var(--accent);cursor:pointer;">Atribuir</summary>
+        <div style="margin-top:10px;display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button class="admin-btn" data-assign-action="free" data-pid="${p.id}" style="font-size:12px;padding:8px 12px;">Todos (livre)</button>
+            <button class="admin-btn" data-assign-action="paid" data-pid="${p.id}" style="font-size:12px;padding:8px 12px;background:var(--surface2);">Todos (bloqueado)</button>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <select class="field-input" data-assign-user-select="${p.id}" style="flex:1;">
+              <option value="">Escolha um aluno...</option>
+              ${_users.map(u => `<option value="${u.uid}">${escapeHtml(u.name || u.email || u.uid)}</option>`).join('')}
+            </select>
+            <button class="admin-btn" data-assign-action="individual" data-pid="${p.id}" style="font-size:12px;padding:8px 12px;white-space:nowrap;">Liberar</button>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <select class="field-input" data-assign-group-select="${p.id}" style="flex:1;">
+              <option value="">Escolha um grupo...</option>
+              ${_groups.map(g => `<option value="${g.id}">${escapeHtml(g.name)}</option>`).join('')}
+            </select>
+            <button class="admin-btn" data-assign-action="group" data-pid="${p.id}" style="font-size:12px;padding:8px 12px;white-space:nowrap;">Liberar</button>
+          </div>
+          <div data-assign-status="${p.id}" style="font-size:12px;color:var(--muted);min-height:16px;"></div>
+        </div>
+      </details>
     </div>
-  `).join('');
+  `;
+  }).join('');
 }
 
 document.getElementById('adminProgramList')?.addEventListener('click', async (e) => {
@@ -208,6 +258,44 @@ document.getElementById('adminProgramList')?.addEventListener('click', async (e)
     await deleteDoc(doc(window._adminDb, 'programs', delId));
     _programs = null;
     renderPrograms();
+    return;
+  }
+
+  const action = e.target.dataset?.assignAction;
+  const pid = e.target.dataset?.pid;
+  if (!action || !pid) return;
+  const statusEl = document.querySelector(`[data-assign-status="${pid}"]`);
+
+  if (action === 'free' || action === 'paid') {
+    await setDoc(doc(window._adminDb, 'programs', pid), { access: action }, { merge: true });
+    const p = _programs.find(x => x.id === pid);
+    if (p) p.access = action;
+    if (statusEl) statusEl.textContent = action === 'free' ? 'Liberado pra todos.' : 'Marcado como bloqueado (pago) pra todos.';
+    renderPrograms();
+    return;
+  }
+
+  if (action === 'individual') {
+    const sel = document.querySelector(`[data-assign-user-select="${pid}"]`);
+    const uid = sel?.value;
+    if (!uid) { if (statusEl) statusEl.textContent = 'Escolha um aluno primeiro.'; return; }
+    await setDoc(doc(window._adminDb, 'unlockedPrograms', uid), { [pid]: true }, { merge: true });
+    if (statusEl) statusEl.textContent = 'Liberado pra esse aluno.';
+    return;
+  }
+
+  if (action === 'group') {
+    const sel = document.querySelector(`[data-assign-group-select="${pid}"]`);
+    const groupId = sel?.value;
+    if (!groupId) { if (statusEl) statusEl.textContent = 'Escolha um grupo primeiro.'; return; }
+    const members = _users.filter(u => u.groupId === groupId);
+    if (members.length === 0) { if (statusEl) statusEl.textContent = 'Esse grupo não tem alunos ainda.'; return; }
+    if (statusEl) statusEl.textContent = `Liberando pra ${members.length} aluno(s)...`;
+    await Promise.all(members.map(u =>
+      setDoc(doc(window._adminDb, 'unlockedPrograms', u.uid), { [pid]: true }, { merge: true })
+    ));
+    if (statusEl) statusEl.textContent = `Liberado pra ${members.length} aluno(s) do grupo.`;
+    return;
   }
 });
 
