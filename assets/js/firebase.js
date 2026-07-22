@@ -6,7 +6,7 @@ import { getAuth, signInAnonymously, onAuthStateChanged, GoogleAuthProvider, sig
          EmailAuthProvider, linkWithCredential, createUserWithEmailAndPassword, signInWithEmailAndPassword,
          sendPasswordResetEmail, signOut }
                                     from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { getFirestore, doc, getDoc, setDoc, serverTimestamp }
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp, collection, getDocs }
                                     from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 const _fbConfig = {
@@ -116,11 +116,40 @@ onAuthStateChanged(_fbAuth, async user => {
     localStorage.setItem('bravo_fb_uid', user.uid);
     await _fbEnsureUserDoc(user);
     await _fbLoadAll();
+    _fbLoadAdminPrograms();
     _updateGoogleUI(user);
   } else {
     try { await signInAnonymously(_fbAuth); } catch(e) { console.warn('fbAnonymousLogin', e); }
   }
 });
+
+// Busca o catálogo de "Programas Bravo" criados no painel admin, e quais
+// deles este usuário já tem liberado (compra manual ou futuramente Hotmart).
+// Programas em rascunho (sem 'access' definido) não aparecem pra ninguém.
+async function _fbLoadAdminPrograms() {
+  try {
+    const progsSnap = await getDocs(collection(_fbDb, 'programs'));
+    const catalog = progsSnap.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .filter(p => p.access === 'free' || p.access === 'paid');
+
+    let unlocked = {};
+    if (window._fbUid) {
+      const unlockSnap = await getDoc(doc(_fbDb, 'unlockedPrograms', window._fbUid));
+      if (unlockSnap.exists()) unlocked = unlockSnap.data();
+    }
+
+    window._adminPrograms = catalog.map(p => ({
+      ...p,
+      locked: p.access === 'paid' && !unlocked[p.id]
+    }));
+  } catch (e) {
+    console.warn('fbLoadAdminPrograms', e);
+    window._adminPrograms = [];
+  }
+  if (typeof window.renderHome === 'function') window.renderHome();
+}
+window._fbLoadAdminPrograms = _fbLoadAdminPrograms;
 
 // Garante que todo usuário logado (Google ou e-mail/senha) tenha um
 // registro em 'users', mesmo que nunca tenha passado pela tela de

@@ -7,6 +7,9 @@ const PALETTE=[
   {hex:'#FF6B9D',name:'Rosa'},
 ];
 const EX_LETTERS=['A','B','C','D','E','F'];
+function escapeHtmlSafe(str){
+  return String(str||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
 const OBS_DEFAULTS={
   leve:'Carga leve: Usar uma carga que consiga realizar de 15 a 30 repetições dentro do tempo.',
   media:'Carga média: Usar uma carga que consiga realizar de 10 a 15 repetições dentro do tempo.',
@@ -109,9 +112,13 @@ function selectBravoMarcado(){
 }
 
 function duplicatePreset(id){
-  // Find source: could be in presets or be the bravo marcado
+  // Find source: could be in presets, be the bravo marcado, or an admin program
   let src=presets.find(p=>p.id===id);
   if(!src && id==='_bravoMarcado') src=BRAVO_MARCADO;
+  if(!src && id.startsWith('_admin_')){
+    const adminId=id.slice('_admin_'.length);
+    src=(window._adminPrograms||[]).find(p=>p.id===adminId);
+  }
   if(!src)return;
   const copy=JSON.parse(JSON.stringify(src));
   copy.id='p'+Date.now();
@@ -216,6 +223,40 @@ function renderHome(){
       });
     }
     bravoList.appendChild(bCard);
+  });
+
+  // ---- Programas Bravo criados no painel admin (professor) ----
+  // Caminho separado de propósito: não entra no sistema de arrastar/
+  // reordenar nem no de seleção pra treinar direto — o aluno só pode
+  // copiar pra "Meus Programas" e treinar por lá, igual sempre fez.
+  (window._adminPrograms || []).forEach(ap => {
+    const exCount = ap.mode === 'circuit' ? ap.exCount : (ap.mode === 'brain' ? ap.brainExCount : ap.normalExCount);
+    const secondaryLabel = ap.mode === 'circuit' ? 'rounds' : 'séries';
+    const secondaryVal = ap.mode === 'circuit' ? ap.rounds : (ap.mode === 'brain' ? ap.brainSeries : ap.cycles);
+    const modeBadge = { normal: 'CLÁSSICO', circuit: 'CIRCUITO', brain: 'BRAVO' }[ap.mode] || '';
+
+    const aCard = document.createElement('div');
+    aCard.className = 'preset-card';
+    aCard.style.setProperty('--c', ap.locked ? '#666' : (ap.color || '#F04E23'));
+    aCard.style.setProperty('--cr', hexToRgb(ap.locked ? '#666' : (ap.color || '#F04E23')));
+    aCard.innerHTML = `
+      <div class="card-color-band"></div>
+      <div class="card-collapsed-row">
+        <div class="card-collapsed-name">${ap.locked ? '🔒 ' : ''}${escapeHtmlSafe(ap.name)}</div>
+        <div class="card-collapsed-meta"><img class="meta-icon" src="ic_noexe.png?v=202506" alt="">${exCount||0} ex<span class="meta-sep">·</span><img class="meta-icon" src="ic_noseries.png?v=202506" alt="">${secondaryVal||0} ${secondaryLabel}</div>
+      </div>
+      <div class="card-expanded">
+        <div class="card-exp-badge"><img class="meta-icon" src="ic_play.png?v=202506" alt="">${modeBadge}</div>
+        <div class="card-exp-name">${escapeHtmlSafe(ap.name)}</div>
+        <div class="card-exp-obs">${ap.locked ? 'Programa bloqueado. Fale com seu professor para liberar.' : (ap.obs||'')}</div>
+      </div>
+      ${ap.locked ? '' : `<div class="card-exp-actions"><button class="btn-dup" data-admin-dup="${ap.id}" title="Copiar para Meus Programas">⧉</button></div>`}
+    `;
+    aCard.addEventListener('click', e => {
+      if (ap.locked) { if (typeof showToast === 'function') showToast('Programa bloqueado. Fale com seu professor.'); return; }
+      if (e.target.dataset.adminDup) { duplicatePreset('_admin_' + e.target.dataset.adminDup); return; }
+    });
+    bravoList.appendChild(aCard);
   });
 
   const list=document.getElementById('userPresetList');list.innerHTML='';
