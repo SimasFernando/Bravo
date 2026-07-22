@@ -7,7 +7,7 @@
 // ============================================================
 import { initializeApp }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut }
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { getFirestore }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
@@ -53,6 +53,25 @@ loginForm.addEventListener('submit', async (e) => {
 });
 
 document.getElementById('adminLogoutBtn')?.addEventListener('click', () => signOut(_adminAuth));
+
+document.getElementById('adminGoogleBtn')?.addEventListener('click', async () => {
+  loginStatus.textContent = 'Entrando...';
+  try {
+    await signInWithPopup(_adminAuth, new GoogleAuthProvider());
+  } catch (err) {
+    loginStatus.textContent = 'Não foi possível entrar com Google.';
+    console.warn('admin google login error', err);
+  }
+});
+
+// Antes, o botão "Voltar" da tela de acesso negado só recarregava a
+// página — como a sessão continuava logada com a conta sem permissão,
+// ficava preso em looping. Agora ele desloga de verdade, liberando
+// pra tentar com outra conta.
+document.getElementById('adminDeniedLogoutBtn')?.addEventListener('click', (e) => {
+  e.preventDefault();
+  signOut(_adminAuth);
+});
 
 onAuthStateChanged(_adminAuth, async (user) => {
   if (!user) {
