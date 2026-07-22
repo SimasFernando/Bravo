@@ -90,12 +90,13 @@
 
         <div id="adminProgramForm" class="hidden" style="background:var(--surface);border:1px solid var(--surface2);border-radius:12px;padding:16px;margin-bottom:20px;">
           <div class="field-group" style="margin-bottom:12px;">
-            <label class="field-label">Formato</label>
-            <select class="field-input" id="progMode">
-              <option value="normal">Clássico</option>
-              <option value="circuit">Circuito</option>
-              <option value="brain">Bravo (Cérebro)</option>
-            </select>
+            <label class="field-label">Modo</label>
+            <div class="mode-toggle" style="grid-template-columns:1fr 1fr 1fr;">
+              <button type="button" class="mode-btn active" data-mode="normal">⏱ Clássico</button>
+              <button type="button" class="mode-btn" data-mode="circuit">🔄 Circuito</button>
+              <button type="button" class="mode-btn" data-mode="brain">Bravo</button>
+            </div>
+            <input type="hidden" id="progMode" value="normal">
           </div>
           <div class="field-group" style="margin-bottom:12px;">
             <label class="field-label">Nome do programa</label>
