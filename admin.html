@@ -66,13 +66,30 @@
 
       <div id="adminViewHome">
         <p style="color:var(--muted);font-size:14px;">
-          Login e permissão de admin funcionando. As seções (Usuários, Grupos,
-          Programas, Mensagens, Ofertas) entram nos próximos passos.
+          Login e permissão de admin funcionando. Grupos, Programas, Mensagens
+          e Ofertas entram nos próximos passos.
         </p>
+      </div>
+
+      <div id="adminViewUsers" class="hidden">
+        <input class="field-input" id="adminUserSearch" placeholder="Buscar por nome, telefone ou e-mail" style="margin-bottom:16px;">
+        <div id="adminUserCount" style="color:var(--muted);font-size:13px;margin-bottom:12px;"></div>
+        <div id="adminUserList"></div>
+      </div>
+
+      <div id="adminViewGroups" class="hidden">
+        <div style="display:flex;gap:8px;margin-bottom:16px;">
+          <input class="field-input" id="adminGroupName" placeholder="Nome do novo grupo (ex: Turma manhã)">
+          <button class="admin-btn" id="adminGroupAddBtn" style="white-space:nowrap;">CRIAR</button>
+        </div>
+        <div id="adminGroupList"></div>
       </div>
     </div>
   </div>
 
+  <script src="assets/js/admin-nav.js"></script>
   <script type="module" src="assets/js/admin-auth.js"></script>
+  <script type="module" src="assets/js/admin-users.js"></script>
+  <script type="module" src="assets/js/admin-groups.js"></script>
 </body>
 </html>
