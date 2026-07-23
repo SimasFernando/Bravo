@@ -53,6 +53,12 @@ toggleSound.classList.toggle('on',cfg.sound);
 toggleVibrate.classList.toggle('on',cfg.vibrate);
 toggleSound.onclick=()=>{cfg.sound=!cfg.sound;toggleSound.classList.toggle('on',cfg.sound);saveCfg();};
 toggleVibrate.onclick=()=>{cfg.vibrate=!cfg.vibrate;toggleVibrate.classList.toggle('on',cfg.vibrate);saveCfg();};
+
+document.getElementById('btnSignOut')?.addEventListener('click', async ()=>{
+  if(!confirm('Sair da conta? Você pode entrar de novo a qualquer momento com o mesmo e-mail/Google.'))return;
+  if(window._fbSignOut) await window._fbSignOut();
+  location.reload(); // garante que o app recarrega do zero, sem misturar dados da conta anterior
+});
 // Settings now opened via menu drawer
 function closeSettings(){document.getElementById('settingsModal').classList.remove('open');}
 document.getElementById('settingsModal').onclick=e=>{if(e.target.id==='settingsModal')closeSettings();};
