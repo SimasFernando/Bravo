@@ -6,7 +6,7 @@ import { getAuth, signInAnonymously, onAuthStateChanged, GoogleAuthProvider, sig
          EmailAuthProvider, linkWithCredential, createUserWithEmailAndPassword, signInWithEmailAndPassword,
          sendPasswordResetEmail, signOut }
                                     from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { getFirestore, doc, getDoc, setDoc, serverTimestamp, collection, getDocs }
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp, collection, getDocs, query, where }
                                     from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 const _fbConfig = {
@@ -117,6 +117,7 @@ onAuthStateChanged(_fbAuth, async user => {
     await _fbEnsureUserDoc(user);
     await _fbLoadAll();
     _fbLoadAdminPrograms();
+    _fbLoadMessages();
     _updateGoogleUI(user);
   } else {
     try { await signInAnonymously(_fbAuth); } catch(e) { console.warn('fbAnonymousLogin', e); }
@@ -150,6 +151,54 @@ async function _fbLoadAdminPrograms() {
   if (typeof window.renderHome === 'function') window.renderHome();
 }
 window._fbLoadAdminPrograms = _fbLoadAdminPrograms;
+
+// Busca as mensagens que valem pra este usuário: as de "todos", as
+// individuais dirigidas a ele, e as do grupo dele (se tiver um). Cada
+// tipo precisa de uma consulta separada porque as regras de segurança
+// do Firestore exigem que o filtro (where) já bata com a condição da
+// regra — uma busca "solta" na coleção inteira seria negada.
+async function _fbLoadMessages() {
+  try {
+    const uid = window._fbUid;
+    if (!uid) { window._inboxMessages = []; return; }
+
+    const userSnap = await getDoc(_userDoc());
+    const groupId = userSnap.exists() ? userSnap.data().groupId : null;
+
+    const queries = [
+      getDocs(query(collection(_fbDb, 'messages'), where('scope', '==', 'all'))),
+      getDocs(query(collection(_fbDb, 'messages'), where('scope', '==', 'individual'), where('targetUid', '==', uid)))
+    ];
+    if (groupId) {
+      queries.push(getDocs(query(collection(_fbDb, 'messages'), where('scope', '==', 'group'), where('targetGroupId', '==', groupId))));
+    }
+    const snaps = await Promise.all(queries);
+
+    let all = [];
+    snaps.forEach(s => s.forEach(d => all.push({ id: d.id, ...d.data() })));
+    const seen = new Set();
+    all = all.filter(m => !seen.has(m.id) && seen.add(m.id));
+    all.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+    const readSnap = await getDocs(collection(_fbDb, 'users', uid, 'inboxRead'));
+    const readIds = new Set(readSnap.docs.map(d => d.id));
+
+    window._inboxMessages = all.map(m => ({ ...m, read: readIds.has(m.id) }));
+  } catch (e) {
+    console.warn('fbLoadMessages', e);
+    window._inboxMessages = [];
+  }
+  if (typeof window.renderInboxBadge === 'function') window.renderInboxBadge();
+}
+window._fbLoadMessages = _fbLoadMessages;
+
+async function _fbMarkMessageRead(messageId) {
+  if (!window._fbUid) return;
+  try {
+    await setDoc(doc(_fbDb, 'users', window._fbUid, 'inboxRead', messageId), { readAt: Date.now() });
+  } catch (e) { console.warn('fbMarkMessageRead', e); }
+}
+window._fbMarkMessageRead = _fbMarkMessageRead;
 
 // Garante que todo usuário logado (Google ou e-mail/senha) tenha um
 // registro em 'users', mesmo que nunca tenha passado pela tela de

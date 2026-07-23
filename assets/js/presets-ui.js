@@ -57,6 +57,12 @@ toggleVibrate.onclick=()=>{cfg.vibrate=!cfg.vibrate;toggleVibrate.classList.togg
 document.getElementById('btnSignOut')?.addEventListener('click', async ()=>{
   if(!confirm('Sair da conta? Você pode entrar de novo a qualquer momento com o mesmo e-mail/Google.'))return;
   if(window._fbSignOut) await window._fbSignOut();
+  // Limpa os dados desta conta guardados no aparelho — sem isso, o nome,
+  // calendário e treinos da conta anterior continuavam aparecendo mesmo
+  // depois de deslogar. Preferências do aparelho (som/vibração) ficam.
+  ['bravo_user','bravo_fb_uid','nt_calendar','nt_presets',
+   'bravo_premium_pending','bravo_reg_done','bravo_reg_snoozed','bravo_workout_count']
+    .forEach(k=>localStorage.removeItem(k));
   location.reload(); // garante que o app recarrega do zero, sem misturar dados da conta anterior
 });
 // Settings now opened via menu drawer
@@ -1025,4 +1031,49 @@ function deletePreset(id){
   if(selectedId===id)selectedId=presets[0]?.id??null;
   savePresets(presets);renderHome();
 }
+
+// ============================================================
+// CAIXA DE ENTRADA — mensagens do professor (todos/grupo/individual)
+// ============================================================
+function renderInboxBadge(){
+  const badge=document.getElementById('inboxBadge');
+  if(!badge)return;
+  const unread=(window._inboxMessages||[]).filter(m=>!m.read).length;
+  if(unread>0){badge.textContent=unread>9?'9+':unread;badge.classList.remove('hidden');}
+  else{badge.classList.add('hidden');}
+}
+window.renderInboxBadge=renderInboxBadge;
+
+function renderInboxList(){
+  const list=document.getElementById('inboxList');
+  const messages=window._inboxMessages||[];
+  if(messages.length===0){
+    list.innerHTML='<p style="color:#888;font-size:14px;text-align:center;margin-top:40px;">Nenhuma mensagem ainda.</p>';
+    return;
+  }
+  list.innerHTML=messages.map(m=>{
+    const date=m.createdAt?new Date(m.createdAt).toLocaleDateString('pt-BR'):'';
+    return `<div style="background:#181818;border:1px solid #242424;border-radius:12px;padding:14px 16px;margin-bottom:10px;${m.read?'':'border-color:#F04E23;'}">
+      <div style="font-size:14px;line-height:1.4;">${escapeHtmlSafe(m.text)}</div>
+      <div style="color:#888;font-size:12px;margin-top:8px;">${date}</div>
+    </div>`;
+  }).join('');
+}
+
+async function openInbox(){
+  showScreen('inboxScreen');
+  renderInboxList();
+  // Abrir a caixa já marca tudo como lido (mais simples pro aluno)
+  const unread=(window._inboxMessages||[]).filter(m=>!m.read);
+  for(const m of unread){
+    m.read=true;
+    if(window._fbMarkMessageRead)await window._fbMarkMessageRead(m.id);
+  }
+  renderInboxBadge();
+  renderInboxList();
+}
+
+document.getElementById('btnInbox')?.addEventListener('click',openInbox);
+document.getElementById('btnInboxBack')?.addEventListener('click',()=>showScreen('home'));
+
 
