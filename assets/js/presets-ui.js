@@ -54,6 +54,22 @@ toggleVibrate.classList.toggle('on',cfg.vibrate);
 toggleSound.onclick=()=>{cfg.sound=!cfg.sound;toggleSound.classList.toggle('on',cfg.sound);saveCfg();};
 toggleVibrate.onclick=()=>{cfg.vibrate=!cfg.vibrate;toggleVibrate.classList.toggle('on',cfg.vibrate);saveCfg();};
 
+document.getElementById('btnLinkGoogle')?.addEventListener('click', async ()=>{
+  if(!window._fbLinkGoogleToCurrentAccount)return;
+  const result=await window._fbLinkGoogleToCurrentAccount();
+  if(result.ok){
+    showToast('Google vinculado! Agora você pode entrar por e-mail ou Google.');
+    document.getElementById('btnLinkGoogle').style.display='none';
+  } else if(result.reason==='already-in-use'){
+    alert('Esse Google já está sendo usado em outra conta separada. Fale com seu professor pra unificar.');
+  } else if(result.reason==='already-linked'){
+    showToast('O Google já está vinculado a esta conta.');
+    document.getElementById('btnLinkGoogle').style.display='none';
+  } else {
+    showToast('Não foi possível vincular agora. Tente de novo.');
+  }
+});
+
 document.getElementById('btnSignOut')?.addEventListener('click', async ()=>{
   if(!confirm('Sair da conta? Você pode entrar de novo a qualquer momento com o mesmo e-mail/Google.'))return;
   if(window._fbSignOut) await window._fbSignOut();
@@ -608,7 +624,20 @@ function resetMenuAccordions(){
     document.getElementById('accToggle-'+s).classList.remove('open');
   });
 }
-function openSettingsFromMenu(){closeMenuForce();document.getElementById('settingsModal').classList.add('open');}
+function openSettingsFromMenu(){
+  closeMenuForce();
+  const emailEl=document.getElementById('settingsAccountEmail');
+  const linkBtn=document.getElementById('btnLinkGoogle');
+  const user=window._fbCurrentUser;
+  if(emailEl){
+    emailEl.textContent=(user&&!user.isAnonymous)?('Conectado como '+(user.email||'')):'Você ainda não está logado';
+  }
+  if(linkBtn){
+    const hasGoogle=user?.providerData?.some(p=>p.providerId==='google.com');
+    linkBtn.style.display=(user&&!user.isAnonymous&&!hasGoogle)?'block':'none';
+  }
+  document.getElementById('settingsModal').classList.add('open');
+}
 function openAbout(){closeMenuForce();showScreen('aboutScreen');}
 function openBravoPlayFromMenu(){closeMenuForce();showScreen('home');selectAutoMode();}
 function openTreinoDoDiaFromMenu(){closeMenuForce();showScreen('home');selectBravoMarcado();}
@@ -1047,6 +1076,8 @@ window.renderInboxBadge=renderInboxBadge;
 function renderInboxList(){
   const list=document.getElementById('inboxList');
   const messages=window._inboxMessages||[];
+  const clearAllBtn=document.getElementById('btnInboxClearAll');
+  if(clearAllBtn)clearAllBtn.style.display=messages.length>0?'block':'none';
   if(messages.length===0){
     list.innerHTML='<p style="color:#888;font-size:14px;text-align:center;margin-top:40px;">Nenhuma mensagem ainda.</p>';
     return;
@@ -1054,11 +1085,30 @@ function renderInboxList(){
   list.innerHTML=messages.map(m=>{
     const date=m.createdAt?new Date(m.createdAt).toLocaleDateString('pt-BR'):'';
     return `<div style="background:#181818;border:1px solid #242424;border-radius:12px;padding:14px 16px;margin-bottom:10px;${m.read?'':'border-color:#F04E23;'}">
-      <div style="font-size:14px;line-height:1.4;">${escapeHtmlSafe(m.text)}</div>
+      <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;">
+        <div style="font-size:14px;line-height:1.4;">${escapeHtmlSafe(m.text)}</div>
+        <button data-del-msg="${m.id}" style="background:none;border:none;color:#888;font-size:16px;cursor:pointer;line-height:1;padding:0;flex-shrink:0;">✕</button>
+      </div>
       <div style="color:#888;font-size:12px;margin-top:8px;">${date}</div>
     </div>`;
   }).join('');
 }
+
+document.getElementById('inboxList')?.addEventListener('click',async(e)=>{
+  const delId=e.target.dataset?.delMsg;
+  if(!delId)return;
+  window._inboxMessages=(window._inboxMessages||[]).filter(m=>m.id!==delId);
+  renderInboxList();renderInboxBadge();
+  if(window._fbDismissMessage)await window._fbDismissMessage(delId);
+});
+
+document.getElementById('btnInboxClearAll')?.addEventListener('click',async()=>{
+  if(!confirm('Apagar todas as mensagens? Isso só some da sua caixa, não afeta os outros alunos.'))return;
+  const ids=(window._inboxMessages||[]).map(m=>m.id);
+  window._inboxMessages=[];
+  renderInboxList();renderInboxBadge();
+  if(window._fbDismissMessage)for(const id of ids)await window._fbDismissMessage(id);
+});
 
 async function openInbox(){
   showScreen('inboxScreen');

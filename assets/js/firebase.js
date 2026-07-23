@@ -112,6 +112,7 @@ window._fbSavePremiumApplication = _fbSavePremiumApplication;
 onAuthStateChanged(_fbAuth, async user => {
   if (user) {
     window._fbUid = user.uid;
+    window._fbCurrentUser = user;
     window._fbIsAnonymous = user.isAnonymous;
     localStorage.setItem('bravo_fb_uid', user.uid);
     await _fbEnsureUserDoc(user);
@@ -181,9 +182,14 @@ async function _fbLoadMessages() {
     all.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
     const readSnap = await getDocs(collection(_fbDb, 'users', uid, 'inboxRead'));
-    const readIds = new Set(readSnap.docs.map(d => d.id));
+    const readMap = {};
+    readSnap.docs.forEach(d => { readMap[d.id] = d.data(); });
 
-    window._inboxMessages = all.map(m => ({ ...m, read: readIds.has(m.id) }));
+    // Mensagens apagadas por este aluno não aparecem mais pra ele —
+    // mas continuam existindo normalmente pros outros que a receberam.
+    window._inboxMessages = all
+      .filter(m => !readMap[m.id]?.dismissed)
+      .map(m => ({ ...m, read: !!readMap[m.id] }));
   } catch (e) {
     console.warn('fbLoadMessages', e);
     window._inboxMessages = [];
@@ -195,10 +201,21 @@ window._fbLoadMessages = _fbLoadMessages;
 async function _fbMarkMessageRead(messageId) {
   if (!window._fbUid) return;
   try {
-    await setDoc(doc(_fbDb, 'users', window._fbUid, 'inboxRead', messageId), { readAt: Date.now() });
+    await setDoc(doc(_fbDb, 'users', window._fbUid, 'inboxRead', messageId), { readAt: Date.now() }, { merge: true });
   } catch (e) { console.warn('fbMarkMessageRead', e); }
 }
 window._fbMarkMessageRead = _fbMarkMessageRead;
+
+// "Apagar" uma mensagem é pessoal: só marca como escondida pra este
+// aluno (não apaga o documento original, que continua valendo pra quem
+// mais recebeu). O aluno não tem permissão de apagar o original mesmo.
+async function _fbDismissMessage(messageId) {
+  if (!window._fbUid) return;
+  try {
+    await setDoc(doc(_fbDb, 'users', window._fbUid, 'inboxRead', messageId), { dismissed: true, dismissedAt: Date.now() }, { merge: true });
+  } catch (e) { console.warn('fbDismissMessage', e); }
+}
+window._fbDismissMessage = _fbDismissMessage;
 
 // Garante que todo usuário logado (Google ou e-mail/senha) tenha um
 // registro em 'users', mesmo que nunca tenha passado pela tela de
@@ -329,6 +346,32 @@ async function _fbMigrateAnonData(anonUid, newUid) {
 }
 
 window._fbGoogleSignIn = _fbGoogleSignIn;
+
+// Vincula o Google à conta ATUAL (não-anônima) que já está logada — ex:
+// alguém que sempre entrou por e-mail/senha e quer poder entrar com
+// Google também, sem virar uma conta separada. Não mexe em dados: só
+// liga os dois métodos de login ao mesmo uid.
+async function _fbLinkGoogleToCurrentAccount() {
+  const currentUser = _fbAuth.currentUser;
+  if (!currentUser || currentUser.isAnonymous) return { ok: false, reason: 'no-user' };
+  try {
+    await linkWithPopup(currentUser, new GoogleAuthProvider());
+    return { ok: true };
+  } catch (e) {
+    if (e.code === 'auth/credential-already-in-use') {
+      // Já existe uma OUTRA conta Google separada com este e-mail.
+      // Não mesclamos automaticamente pra não arriscar perder dados de
+      // nenhuma das duas — precisa de uma migração manual deliberada.
+      return { ok: false, reason: 'already-in-use' };
+    }
+    if (e.code === 'auth/provider-already-linked') {
+      return { ok: false, reason: 'already-linked' };
+    }
+    console.warn('fbLinkGoogleToCurrentAccount', e);
+    return { ok: false, reason: 'error' };
+  }
+}
+window._fbLinkGoogleToCurrentAccount = _fbLinkGoogleToCurrentAccount;
 window._fbSignOut = async () => { try { await signOut(_fbAuth); } catch(e) { console.warn(e); } };
 
 // ---- LOGIN / CADASTRO POR E-MAIL E SENHA ----
