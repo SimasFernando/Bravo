@@ -210,8 +210,13 @@
     <div class="modal-title">CONFIGURA&#199;&#213;ES</div>
     <div class="modal-row"><div><div style="font-size:14px">Sons</div><div style="font-size:12px;color:var(--muted)">Voz + bipes</div></div><button class="toggle on" id="toggleSound"></button></div>
     <div class="modal-row"><div><div style="font-size:14px">Vibra&#231;&#227;o</div><div style="font-size:12px;color:var(--muted)">Ao trocar fase</div></div><button class="toggle on" id="toggleVibrate"></button></div>
-    <button class="btn-save" style="background:var(--surface2);color:var(--text);margin-bottom:8px;" id="btnSignOut">SAIR DA CONTA</button>
-    <button class="btn-save" onclick="closeSettings()">FECHAR</button>
+
+    <div style="height:1px;background:var(--surface2);margin:16px 0;"></div>
+    <div id="settingsAccountEmail" style="font-size:12px;color:var(--muted);margin-bottom:12px;"></div>
+    <button class="btn-save" style="background:var(--surface2);color:var(--text);margin-bottom:8px;display:none;" id="btnLinkGoogle">VINCULAR GOOGLE A ESTA CONTA</button>
+    <button style="background:none;border:none;color:#E8500A;font-size:14px;padding:12px 0;width:100%;text-align:center;cursor:pointer;" id="btnSignOut">Sair da conta</button>
+
+    <button class="btn-save" style="margin-top:12px;" onclick="closeSettings()">FECHAR</button>
   </div>
 </div>
 
@@ -938,9 +943,10 @@
 
 <!-- INDICAÇÕES BRAVO -->
 <div class="screen hidden" id="inboxScreen" style="flex-direction:column;">
-  <div class="about-header">
+  <div class="about-header" style="position:relative;">
     <button class="btn-ctrl" id="btnInboxBack"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg><span class="ctrl-label">Voltar</span></button>
     <div class="about-title-main">MENSAGENS</div>
+    <button id="btnInboxClearAll" style="background:none;border:none;color:#888;font-size:12px;cursor:pointer;position:absolute;right:16px;">Apagar todas</button>
   </div>
   <div id="inboxList" style="padding:16px;overflow-y:auto;flex:1;"></div>
 </div>
