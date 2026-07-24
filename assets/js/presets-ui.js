@@ -658,8 +658,7 @@ document.querySelectorAll('#settingsModal [data-theme]').forEach(btn=>{
     const theme=btn.dataset.theme;
     localStorage.setItem('bravo_theme',theme);
     document.querySelectorAll('#settingsModal [data-theme]').forEach(b=>b.classList.toggle('active',b===btn));
-    const link=document.getElementById('themeStylesheet');
-    if(link)link.href=theme==='light'?'assets/css/styles-light.css':'assets/css/styles-dark.css';
+    document.documentElement.classList.toggle('theme-light',theme==='light');
   });
 });
 function openAbout(){closeMenuForce();showScreen('aboutScreen');}
@@ -1089,7 +1088,7 @@ function deletePreset(id){
 // CAIXA DE ENTRADA — mensagens do professor (todos/grupo/individual)
 // ============================================================
 function renderInboxBadge(){
-  const badge=document.getElementById('inboxBadge');
+  const badge=document.getElementById('navMessagesBadge');
   if(!badge)return;
   const unread=(window._inboxMessages||[]).filter(m=>!m.read).length;
   if(unread>0){badge.textContent=unread>9?'9+':unread;badge.classList.remove('hidden');}
@@ -1147,7 +1146,7 @@ async function openInbox(){
   renderInboxList();
 }
 
-document.getElementById('btnInbox')?.addEventListener('click',openInbox);
+document.getElementById('navMessages')?.addEventListener('click',openInbox);
 document.getElementById('btnInboxBack')?.addEventListener('click',()=>showScreen('home'));
 
 
