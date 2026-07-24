@@ -229,11 +229,24 @@
     background:var(--surface2);border:none;color:var(--muted);font-size:16px;
     display:flex;align-items:center;justify-content:center;cursor:pointer;}
   .btn-dup:active{background:var(--btn-active-bg);}
+  .btn-view{flex-shrink:0;width:28px;height:28px;border-radius:8px;
+    background:var(--surface2);border:none;color:var(--muted);font-size:14px;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;}
+  .btn-view:active{background:var(--btn-active-bg);}
   .btn-edit{flex-shrink:0;width:28px;height:28px;border-radius:8px;
     border:none;background:var(--surface2);font-size:13px;cursor:pointer;
     display:flex;align-items:center;justify-content:center;color:var(--muted);}
   .btn-edit:active{background:var(--btn-active-bg);}
   .preset-mode-badge{display:none;}/* replaced by card-exp-badge */
+  /* ---- Tela de edição em modo Visualizar (somente leitura) ---- */
+  #edit.view-only .field-input,
+  #edit.view-only .field-textarea{
+    pointer-events:none;background:transparent;opacity:.88;
+  }
+  #edit.view-only .mode-btn{pointer-events:none;cursor:default;}
+  #edit.view-only .mode-btn:not(.active){opacity:.35;}
+  #edit.view-only .ex-drag-handle,
+  #edit.view-only .btn-yt-link{display:none!important;}
   .btn-delete-edit{margin-top:8px;width:100%;padding:14px;border-radius:12px;border:1px solid rgba(255,80,80,.35);background:rgba(255,80,80,.06);color:#ff6b6b;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;cursor:pointer;transition:background .2s;}
   .btn-delete-edit:active{background:rgba(255,80,80,.18);}
   /* ---- BTN TREINAR (pill CTA no card expandido) ---- */
