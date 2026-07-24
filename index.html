@@ -40,7 +40,8 @@
     <div class="home-welcome-sub">O reconhecimento da sua evolução. <span style="color:var(--accent)">♥</span></div>
   </div>
 
-  <!-- TREINO DO DIA -->
+  <!-- PROGRAMAS BRAVO -->
+  <div class="section-label" style="margin-bottom:8px">Programas Bravo</div>
   <div class="preset-list" id="presetList"></div>
   <div style="display:none">
     <button id="btnHeroStats"></button>
@@ -65,7 +66,12 @@
   <div style="color:var(--muted);font-size:13px;margin:-8px 0 16px;">
     Escolha quais programas aparecem na tela inicial. Nenhum é apagado — só sai da vista.
   </div>
-  <div id="treinosVisList" style="display:flex;flex-direction:column;gap:10px;overflow-y:auto;flex:1;padding-bottom:90px;"></div>
+  <div style="overflow-y:auto;flex:1;padding-bottom:90px;">
+    <div class="section-label" style="margin-bottom:8px;">Programas Bravo</div>
+    <div id="treinosBravoList" style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px;"></div>
+    <div class="section-label" style="margin-bottom:8px;">Meus Programas</div>
+    <div id="treinosVisList" style="display:flex;flex-direction:column;gap:10px;"></div>
+  </div>
 </div>
 
 <div class="screen hidden" id="progressScreen">
