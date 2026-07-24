@@ -302,7 +302,7 @@ function renderHome(){
   const list=document.getElementById('userPresetList');list.innerHTML='';
   const userEmpty=document.getElementById('userPresetEmpty');
   // Favoritos primeiro
-  const sorted=[...presets.filter(p=>p.fav),...presets.filter(p=>!p.fav)];
+  const sorted=[...presets.filter(p=>p.fav&&!p.hiddenHome),...presets.filter(p=>!p.fav&&!p.hiddenHome)];
   sorted.forEach(p=>{
     const c=p.color||PALETTE[0].hex;
     const card=document.createElement('div');
@@ -388,7 +388,7 @@ function renderHome(){
     });
     list.appendChild(card);
   });
-  if(userEmpty) userEmpty.style.display=presets.length===0?'block':'none';
+  if(userEmpty) userEmpty.style.display=presets.filter(p=>!p.hiddenHome).length===0?'block':'none';
   initDragDrop();
   initDragDropBravo();
 
@@ -1148,5 +1148,41 @@ async function openInbox(){
 
 document.getElementById('navMessages')?.addEventListener('click',openInbox);
 document.getElementById('btnInboxBack')?.addEventListener('click',()=>showScreen('home'));
+
+// ============================================================
+// TREINOS — mostrar/ocultar programas da tela inicial (item 6.3)
+// ============================================================
+function renderTreinosVisList(){
+  const list=document.getElementById('treinosVisList');
+  if(!list)return;
+  if(presets.length===0){
+    list.innerHTML='<p style="color:var(--muted);font-size:14px;text-align:center;margin-top:40px;">Você ainda não tem programas em "Meus Programas".</p>';
+    return;
+  }
+  list.innerHTML=presets.map(p=>{
+    const modeLabel={normal:'Clássico',circuit:'Circuito',brain:'Bravo'}[p.mode]||'';
+    const isVisible=!p.hiddenHome;
+    return `<div style="background:var(--surface);border:1px solid var(--surface2);border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:12px;">
+      <div style="width:8px;height:8px;border-radius:50%;background:${p.color||'#F04E23'};flex-shrink:0;"></div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:15px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtmlSafe(p.name)}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px;">${modeLabel}</div>
+      </div>
+      <button class="toggle ${isVisible?'on':''}" data-toggle-visible="${p.id}" style="flex-shrink:0;"></button>
+    </div>`;
+  }).join('');
+}
+window.renderTreinosVisList=renderTreinosVisList;
+
+document.getElementById('treinosVisList')?.addEventListener('click',e=>{
+  const id=e.target.dataset?.toggleVisible;
+  if(!id)return;
+  const p=presets.find(x=>x.id===id);
+  if(!p)return;
+  p.hiddenHome=!p.hiddenHome;
+  savePresets(presets);
+  renderHome();
+  renderTreinosVisList();
+});
 
 
