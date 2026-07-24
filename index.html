@@ -155,6 +155,13 @@
     </div>
   </div>
   <div class="field-group"><div class="field-label">Nome</div><input class="field-input" id="efName" placeholder="Ex: Carga Pesada"></div>
+  <div class="field-group">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div class="field-label">Descrição</div>
+      <button style="font-size:11px;background:none;border:none;color:var(--muted);cursor:pointer;text-decoration:underline" onclick="clearObs()">limpar</button>
+    </div>
+    <textarea class="field-textarea" id="efObs" placeholder="Dicas, carga, etc..."></textarea>
+  </div>
   <div class="field-group"><div class="field-label">Cor do Cronômetro</div><div class="color-picker" id="colorPicker"></div></div>
   <div id="normalFields" style="display:flex;flex-direction:column;gap:12px">
     <div class="row2">
@@ -199,13 +206,6 @@
       <div class="field-label">Nomes dos exercícios (opcional)</div>
       <div class="circuit-exercises" id="brainExerciseInputs"></div>
     </div>
-  </div>
-  <div class="field-group">
-    <div style="display:flex;align-items:center;justify-content:space-between">
-      <div class="field-label">Observações</div>
-      <button style="font-size:11px;background:none;border:none;color:var(--muted);cursor:pointer;text-decoration:underline" onclick="clearObs()">limpar</button>
-    </div>
-    <textarea class="field-textarea" id="efObs" placeholder="Dicas, carga, etc..."></textarea>
   </div>
   <button class="btn-save" id="btnSave">SALVAR</button>
 </div>
