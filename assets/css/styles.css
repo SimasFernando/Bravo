@@ -153,6 +153,7 @@
   .card-collapsed-row{
     display:flex;align-items:center;gap:12px;
     transition:opacity .2s;
+    position:relative;z-index:1;
   }
   .preset-card.selected .card-collapsed-row{display:none;}
 
@@ -179,7 +180,7 @@
   .meta-sep{opacity:.35;margin:0 1px;}
 
   /* Expanded layout */
-  .card-expanded{display:none;flex-direction:column;gap:6px;}
+  .card-expanded{display:none;flex-direction:column;gap:6px;position:relative;z-index:1;}
   .preset-card.selected .card-expanded{display:flex;}
 
   .card-exp-badge{
