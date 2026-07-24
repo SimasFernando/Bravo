@@ -185,11 +185,12 @@ function renderHome(){
   const bravoList=document.getElementById('presetList');
   bravoList.innerHTML='';
   const bravoOrder=loadBravoOrder();
+  const hiddenBravo=loadHiddenBravoIds();
   // All bravo cards: Bravo Play (auto) + BRAVO_CARDS entries
   const allBravoCards=[
     {id:'_autoMode',name:'Bravo Play',color:'#F04E23'},
     ...BRAVO_CARDS.map(c=>({id:'_bravo_'+c.id,name:c.name,color:c.color,_data:c}))
-  ];
+  ].filter(bc=>!hiddenBravo.includes(bc.id));
   // Sort by persisted order
   allBravoCards.sort((a,b)=>{
     const ia=bravoOrder.indexOf(a.id),ib=bravoOrder.indexOf(b.id);
@@ -268,7 +269,7 @@ function renderHome(){
   // Caminho separado de propósito: não entra no sistema de arrastar/
   // reordenar nem no de seleção pra treinar direto — o aluno só pode
   // copiar pra "Meus Programas" e treinar por lá, igual sempre fez.
-  (window._adminPrograms || []).forEach(ap => {
+  (window._adminPrograms || []).filter(ap=>!hiddenBravo.includes('_admin_'+ap.id)).forEach(ap => {
     const exCount = ap.mode === 'circuit' ? ap.exCount : (ap.mode === 'brain' ? ap.brainExCount : ap.normalExCount);
     const secondaryLabel = ap.mode === 'circuit' ? 'rounds' : 'séries';
     const secondaryVal = ap.mode === 'circuit' ? ap.rounds : (ap.mode === 'brain' ? ap.brainSeries : ap.cycles);
@@ -402,6 +403,21 @@ function loadBravoOrder(){
   return s?JSON.parse(s):['_autoMode','_bravo_treinoDoDia'];
 }
 function saveBravoOrder(order){localStorage.setItem('bravo_cards_order',JSON.stringify(order));}
+
+// Ids ocultados da Home dentro de "Programas Bravo" (Bravo Play, Treino
+// do Dia, ou programas do admin). Guardado localmente — são programas
+// que o aluno não controla diretamente, só a visibilidade deles aqui.
+function loadHiddenBravoIds(){
+  const s=localStorage.getItem('bravo_hidden_bravo_ids');
+  return s?JSON.parse(s):[];
+}
+function saveHiddenBravoIds(ids){localStorage.setItem('bravo_hidden_bravo_ids',JSON.stringify(ids));}
+function toggleHiddenBravo(id){
+  const ids=loadHiddenBravoIds();
+  const i=ids.indexOf(id);
+  if(i===-1)ids.push(id);else ids.splice(i,1);
+  saveHiddenBravoIds(ids);
+}
 
 // ---- DRAG & DROP GENÉRICO PARA CARDS ----
 function initCardDragDrop(listEl,onDone){
@@ -1153,10 +1169,40 @@ document.getElementById('btnInboxBack')?.addEventListener('click',()=>showScreen
 // TREINOS — mostrar/ocultar programas da tela inicial (item 6.3)
 // ============================================================
 function renderTreinosVisList(){
+  // ---- Seção Programas Bravo ----
+  const bravoList=document.getElementById('treinosBravoList');
+  if(bravoList){
+    const hiddenBravo=loadHiddenBravoIds();
+    const items=[
+      {id:'_autoMode',name:'Bravo Play',color:'#F04E23',mode:''},
+      ...BRAVO_CARDS.map(c=>({id:'_bravo_'+c.id,name:c.name,color:c.color,mode:'Bravo'})),
+      ...(window._adminPrograms||[]).map(ap=>({
+        id:'_admin_'+ap.id,name:ap.name,color:ap.color||'#F04E23',
+        mode:{normal:'Clássico',circuit:'Circuito',brain:'Bravo'}[ap.mode]||''
+      }))
+    ];
+    if(items.length===0){
+      bravoList.innerHTML='<p style="color:var(--muted);font-size:14px;">Nenhum programa disponível.</p>';
+    } else {
+      bravoList.innerHTML=items.map(it=>{
+        const isVisible=!hiddenBravo.includes(it.id);
+        return `<div style="background:var(--surface);border:1px solid var(--surface2);border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:12px;">
+          <div style="width:8px;height:8px;border-radius:50%;background:${it.color};flex-shrink:0;"></div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:15px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtmlSafe(it.name)}</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px;">${it.mode}</div>
+          </div>
+          <button class="toggle ${isVisible?'on':''}" data-toggle-bravo="${it.id}" style="flex-shrink:0;"></button>
+        </div>`;
+      }).join('');
+    }
+  }
+
+  // ---- Seção Meus Programas ----
   const list=document.getElementById('treinosVisList');
   if(!list)return;
   if(presets.length===0){
-    list.innerHTML='<p style="color:var(--muted);font-size:14px;text-align:center;margin-top:40px;">Você ainda não tem programas em "Meus Programas".</p>';
+    list.innerHTML='<p style="color:var(--muted);font-size:14px;">Você ainda não tem programas em "Meus Programas".</p>';
     return;
   }
   list.innerHTML=presets.map(p=>{
@@ -1173,6 +1219,14 @@ function renderTreinosVisList(){
   }).join('');
 }
 window.renderTreinosVisList=renderTreinosVisList;
+
+document.getElementById('treinosBravoList')?.addEventListener('click',e=>{
+  const id=e.target.dataset?.toggleBravo;
+  if(!id)return;
+  toggleHiddenBravo(id);
+  renderHome();
+  renderTreinosVisList();
+});
 
 document.getElementById('treinosVisList')?.addEventListener('click',e=>{
   const id=e.target.dataset?.toggleVisible;
