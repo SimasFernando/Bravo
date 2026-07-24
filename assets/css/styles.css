@@ -146,6 +146,7 @@
     background:var(--c,#aaa);
     border-radius:5px 0 0 5px;
     transition:width .35s cubic-bezier(.4,0,.2,1);
+    z-index:1;
   }
   .preset-card.selected .card-color-band{width:8px;}
 
@@ -215,6 +216,7 @@
   .card-exp-actions{
     position:absolute;right:14px;top:14px;
     display:flex;gap:6px;
+    z-index:1;
   }
   .preset-card:not(.selected) .card-exp-actions{display:none;}
   .btn-fav{flex-shrink:0;width:28px;height:28px;border-radius:50%;border:none;
