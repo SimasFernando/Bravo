@@ -647,8 +647,21 @@ function openSettingsFromMenu(){
     const hasGoogle=user?.providerData?.some(p=>p.providerId==='google.com');
     linkBtn.style.display=(user&&!user.isAnonymous&&!hasGoogle)?'block':'none';
   }
+  const currentTheme=localStorage.getItem('bravo_theme')||'dark';
+  document.querySelectorAll('#settingsModal [data-theme]').forEach(b=>{
+    b.classList.toggle('active',b.dataset.theme===currentTheme);
+  });
   document.getElementById('settingsModal').classList.add('open');
 }
+document.querySelectorAll('#settingsModal [data-theme]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const theme=btn.dataset.theme;
+    localStorage.setItem('bravo_theme',theme);
+    document.querySelectorAll('#settingsModal [data-theme]').forEach(b=>b.classList.toggle('active',b===btn));
+    const link=document.getElementById('themeStylesheet');
+    if(link)link.href=theme==='light'?'assets/css/styles-light.css':'assets/css/styles-dark.css';
+  });
+});
 function openAbout(){closeMenuForce();showScreen('aboutScreen');}
 function openBravoPlayFromMenu(){closeMenuForce();showScreen('home');selectAutoMode();}
 function openTreinoDoDiaFromMenu(){closeMenuForce();showScreen('home');selectBravoMarcado();}
