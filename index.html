@@ -30,11 +30,10 @@
     </div>
   </div>
 
-  <div class="home-welcome-block">
-    <div class="home-welcome-title">Bem-vinda, <strong id="homeWelcomeName">Marina</strong></div>
+  <div class="home-welcome-block" id="homeWelcomeBlock" style="display:none;">
+    <div class="home-welcome-title"><span id="homeWelcomeGreeting">Bem-vindo</span>, <strong id="homeWelcomeName"></strong></div>
     <div class="home-welcome-sub">O reconhecimento da sua evolução. <span style="color:var(--accent)">♥</span></div>
   </div>
-  <div id="homeWelcome" style="display:none"></div>
 
   <!-- HERO CTA CARD -->
   <div class="hero-card">
@@ -1166,15 +1165,8 @@
   });
   document.getElementById('btnHeroStats').addEventListener('click', function(){ show('progressScreen'); });
 
-  // Nome de boas-vindas: espelha #homeWelcome (preenchido pelo app) se existir
-  var welcomeSrc = document.getElementById('homeWelcome');
-  var welcomeName = document.getElementById('homeWelcomeName');
-  if(welcomeSrc && welcomeName){
-    var moWelcome = new MutationObserver(function(){
-      if(welcomeSrc.textContent.trim()) welcomeName.textContent = welcomeSrc.textContent.trim();
-    });
-    moWelcome.observe(welcomeSrc,{childList:true,characterData:true,subtree:true});
-  }
+  // Nome de boas-vindas: agora é o próprio renderHome() do app que
+  // preenche #homeWelcomeName direto — não precisa mais espelhar.
 
   // Espelha contador de série no header do timer ("X de Y séries")
   ['progSerieCur','progSerieTotal'].forEach(function(id){
