@@ -135,7 +135,7 @@ const BRAVO_MARCADO={id:'_bravoMarcado',name:'Treino do Dia',color:'#F04E23',mod
 
 function selectBravoMarcado(){
   selectedId='_bravoMarcado';autoModeSelected=false;
-  document.getElementById('autoCard').classList.remove('selected');
+  document.getElementById('autoCard')?.classList.remove('selected');
   renderHome();
 }
 
@@ -384,7 +384,7 @@ function renderHome(){
       if(e.target.dataset.dup){duplicatePreset(e.target.dataset.dup);return;}
       if(e.target.closest('.drag-handle'))return;
       selectedId=p.id;autoModeSelected=false;
-      document.getElementById('autoCard').classList.remove('selected');
+      document.getElementById('autoCard')?.classList.remove('selected');
       renderHome();
     });
     list.appendChild(card);
