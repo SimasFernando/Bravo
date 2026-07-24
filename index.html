@@ -9,13 +9,14 @@
     <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
     <link rel="apple-touch-icon" href="favicon.png">
     <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="assets/css/styles.css">
     <script>
-      // Aplica o tema salvo ANTES da página desenhar, pra não dar aquele
-      // "flash" de tema errado por uma fração de segundo. Escuro é o padrão.
+      // Aplica o tema salvo ANTES da página desenhar (evita flash de tema
+      // errado). Escuro é o padrão — só adiciona a classe se for claro.
       (function(){
-        var theme = localStorage.getItem('bravo_theme') || 'dark';
-        var href = theme === 'light' ? 'assets/css/styles-light.css' : 'assets/css/styles-dark.css';
-        document.write('<link rel="stylesheet" id="themeStylesheet" href="'+href+'">');
+        if((localStorage.getItem('bravo_theme')||'dark')==='light'){
+          document.documentElement.classList.add('theme-light');
+        }
       })();
     </script>
 </head>
@@ -30,11 +31,7 @@
 
     <div style="display:flex;gap:8px;align-items:center">
       <button class="btn-icon" id="btnCalendar"><img src="ic_agenda.png" alt="Calendário"></button>
-      <button class="btn-icon" id="btnInbox" style="position:relative;">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-        <span id="inboxBadge" class="hidden" style="position:absolute;top:2px;right:2px;background:var(--accent);color:#fff;font-size:10px;font-weight:700;border-radius:10px;min-width:16px;height:16px;display:flex;align-items:center;justify-content:center;padding:0 3px;">0</span>
-      </button>
-      <button class="btn-icon" id="btnMenu" style="display:none">☰</button>
+      <button class="btn-icon" id="btnMenu">☰</button>
     </div>
   </div>
 
@@ -63,7 +60,7 @@
 <!-- PROGRESSO -->
 <div class="screen hidden" id="progressScreen">
   <div class="prog-header">
-    <div class="prog-title">PROGRESSO</div>
+    <div class="prog-title">REGISTROS</div>
     <button class="btn-icon" id="btnProgressCalendar"><img src="ic_agenda.png" alt="Calendário"></button>
   </div>
   <div class="prog-tabs">
@@ -131,11 +128,12 @@
   </button>
   <button class="nav-item" id="navProgress">
     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>
-    <span>Progresso</span>
+    <span>Registros</span>
   </button>
-  <button class="nav-item" id="navPerfil">
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
-    <span>Perfil</span>
+  <button class="nav-item" id="navMessages">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+    <span id="navMessagesBadge" class="nav-item-badge hidden">0</span>
+    <span>Mensagens</span>
   </button>
 </div>
 
@@ -1130,20 +1128,20 @@
     document.querySelectorAll('.nav-item').forEach(function(b){ b.classList.remove('active'); });
     if(id==='home') document.getElementById('navHome').classList.add('active');
     if(id==='progressScreen') document.getElementById('navProgress').classList.add('active');
+    if(id==='inboxScreen') document.getElementById('navMessages').classList.add('active');
   }
   function syncBottomNav(){
     var nav = document.getElementById('bottomNav');
     var visible = Array.prototype.find.call(document.querySelectorAll('.screen'), function(s){ return !s.classList.contains('hidden'); });
-    var showOn = ['home','progressScreen'];
+    var showOn = ['home','progressScreen','inboxScreen'];
     if(nav) nav.style.display = (visible && showOn.indexOf(visible.id) !== -1) ? 'flex' : 'none';
     if(visible) setActiveNav(visible.id);
   }
   document.getElementById('navHome').addEventListener('click', function(){ show('home'); });
   document.getElementById('navProgress').addEventListener('click', function(){ show('progressScreen'); });
   document.getElementById('navTreinos').addEventListener('click', function(){ show('home'); });
-  document.getElementById('navPerfil').addEventListener('click', function(){
-    var m = document.getElementById('btnMenu');
-    if(m) m.click();
+  document.getElementById('navMessages').addEventListener('click', function(){
+    if(typeof window.openInbox==='function') window.openInbox();
   });
 
   var mo = new MutationObserver(syncBottomNav);
