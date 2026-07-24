@@ -63,55 +63,43 @@
     <div class="prog-title">REGISTROS</div>
     <button class="btn-icon" id="btnProgressCalendar"><img src="ic_agenda.png" alt="Calendário"></button>
   </div>
-  <div class="prog-tabs">
-    <button class="prog-tab active" data-range="semana">Semana</button>
-    <button class="prog-tab" data-range="mes">Mês</button>
-    <button class="prog-tab" data-range="ano">Ano</button>
-  </div>
 
-  <div class="prog-card">
-    <div class="prog-card-label">Treinos realizados</div>
-    <div class="prog-card-row">
-      <div class="prog-big-num" id="progWorkoutsNum">18</div>
-      <div class="prog-axis-num">10</div>
+  <div class="cal-stat-section">
+    <div class="cal-stat-section-title"><img src="ic_agenda.png?v=202506" alt="">TREINOS</div>
+    <div class="cal-poder-grid">
+      <div class="cal-poder-item">
+        <div class="cal-poder-value" id="prog2TreinosMes">–</div>
+        <div class="cal-poder-label">Treinos no mês</div>
+      </div>
+      <div class="cal-poder-item">
+        <div class="cal-poder-value" id="prog2TreinosAno">–</div>
+        <div class="cal-poder-label">Treinos no ano</div>
+      </div>
     </div>
-    <div class="prog-card-sub">essa semana</div>
-    <div class="prog-bars" id="progBarsChart">
-      <div class="prog-bar-col"><div class="prog-bar" style="height:28%"></div><span>S</span></div>
-      <div class="prog-bar-col"><div class="prog-bar" style="height:22%"></div><span>T</span></div>
-      <div class="prog-bar-col"><div class="prog-bar" style="height:46%"></div><span>Q</span></div>
-      <div class="prog-bar-col"><div class="prog-bar" style="height:60%"></div><span>Q</span></div>
-      <div class="prog-bar-col"><div class="prog-bar active" style="height:100%"></div><span>S</span></div>
-      <div class="prog-bar-col"><div class="prog-bar" style="height:18%"></div><span>S</span></div>
-      <div class="prog-bar-col"><div class="prog-bar" style="height:10%"></div><span>D</span></div>
-    </div>
-    <div class="prog-axis-row"><span>0</span><span>5</span></div>
   </div>
-
-  <div class="prog-card">
-    <div class="prog-card-label">Frequência</div>
-    <div class="prog-card-row">
-      <div class="prog-big-num" id="progFreqNum">4,2</div>
-      <div class="prog-badge-up">+12%</div>
-    </div>
-    <div class="prog-card-sub">treinos/semana</div>
-    <svg class="prog-line-chart" viewBox="0 0 300 90" preserveAspectRatio="none">
-      <line x1="0" y1="34" x2="300" y2="34" stroke="var(--surface2)" stroke-width="1" stroke-dasharray="3 4"/>
-      <path d="M0,55 C15,40 30,65 45,50 C60,35 75,20 90,32 C105,44 120,60 135,45 C150,30 165,15 180,28 C195,40 210,55 225,42 C240,30 255,20 270,30 C280,36 290,32 300,30" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/>
-    </svg>
-    <div class="prog-axis-row"><span>0</span><span>3</span><span>6</span></div>
-  </div>
-
-  <div class="prog-mini-row">
-    <div class="prog-mini-card">
-      <div class="prog-mini-label">Volume total</div>
-      <div class="prog-mini-num-row"><span class="prog-mini-num">12.540</span><span class="prog-mini-icon">⊕</span></div>
-      <div class="prog-mini-sub">kg levantados</div>
-    </div>
-    <div class="prog-mini-card">
-      <div class="prog-mini-label">Tempo total</div>
-      <div class="prog-mini-num-row"><span class="prog-mini-num">8h 42m</span><span class="prog-mini-icon">🕐</span></div>
-      <div class="prog-mini-sub">essa semana</div>
+  <div class="cal-stat-section">
+    <div class="cal-stat-section-title"><img src="ic_execucao.png?v=202506" alt="">PODER BRAVO</div>
+    <div class="cal-poder-grid">
+      <div class="cal-poder-item">
+        <div class="cal-poder-value" id="prog2PoderMonthSum">–</div>
+        <div class="cal-poder-label">Poder do mês</div>
+      </div>
+      <div class="cal-poder-item">
+        <div class="cal-poder-value" id="prog2PoderYearSum">–</div>
+        <div class="cal-poder-label">Poder do ano</div>
+      </div>
+      <div class="cal-poder-item">
+        <div class="cal-poder-value" id="prog2PoderMonthAvg">–</div>
+        <div class="cal-poder-label">Média por treino</div>
+      </div>
+      <div class="cal-poder-item">
+        <div class="cal-poder-value" id="prog2PoderMonthRecord">–</div>
+        <div class="cal-poder-label">Recorde do mês</div>
+      </div>
+      <div class="cal-poder-item">
+        <div class="cal-poder-value" id="prog2PoderAllRecord">–</div>
+        <div class="cal-poder-label">Recorde histórico</div>
+      </div>
     </div>
   </div>
 </div>
@@ -1138,7 +1126,11 @@
     if(visible) setActiveNav(visible.id);
   }
   document.getElementById('navHome').addEventListener('click', function(){ show('home'); });
-  document.getElementById('navProgress').addEventListener('click', function(){ show('progressScreen'); });
+  document.getElementById('navProgress').addEventListener('click', function(){
+    show('progressScreen');
+    if(typeof window.renderCalActivityStats==='function')window.renderCalActivityStats();
+    if(typeof window.renderCalPoderStats==='function')window.renderCalPoderStats();
+  });
   document.getElementById('navTreinos').addEventListener('click', function(){ show('home'); });
   document.getElementById('navMessages').addEventListener('click', function(){
     if(typeof window.openInbox==='function') window.openInbox();
