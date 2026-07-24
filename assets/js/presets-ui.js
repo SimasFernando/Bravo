@@ -7,6 +7,11 @@ const PALETTE=[
   {hex:'#FF6B9D',name:'Rosa'},
 ];
 const EX_LETTERS=['A','B','C','D','E','F'];
+// Ícones de linha fina (mesmo padrão dos ícones da barra inferior)
+const ICON_STAR_OUTLINE='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.9 5.88 6.49.94-4.7 4.58 1.11 6.47L12 17.9l-5.8 3.05 1.11-6.47-4.7-4.58 6.49-.94L12 3z"/></svg>';
+const ICON_STAR_FILLED='<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.9 5.88 6.49.94-4.7 4.58 1.11 6.47L12 17.9l-5.8 3.05 1.11-6.47-4.7-4.58 6.49-.94L12 3z"/></svg>';
+const ICON_EDIT='<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
+const ICON_EYE='<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>';
 function escapeHtmlSafe(str){
   return String(str||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
@@ -186,10 +191,12 @@ function renderHome(){
   bravoList.innerHTML='';
   const bravoOrder=loadBravoOrder();
   const hiddenBravo=loadHiddenBravoIds();
-  // All bravo cards: Bravo Play (auto) + BRAVO_CARDS entries
+  // Todos os cards da seção Programas Bravo: Bravo Play (auto) + BRAVO_CARDS
+  // fixos + programas do admin — todos no mesmo sistema de ordem/arraste.
   const allBravoCards=[
-    {id:'_autoMode',name:'Bravo Play',color:'#F04E23'},
-    ...BRAVO_CARDS.map(c=>({id:'_bravo_'+c.id,name:c.name,color:c.color,_data:c}))
+    {id:'_autoMode',type:'auto',name:'Bravo Play',color:'#F04E23'},
+    ...BRAVO_CARDS.map(c=>({id:'_bravo_'+c.id,type:'fixed',name:c.name,color:c.color,_data:c})),
+    ...(window._adminPrograms||[]).map(ap=>({id:'_admin_'+ap.id,type:'admin',name:ap.name,color:ap.locked?'#666':(ap.color||'#F04E23'),_data:ap})),
   ].filter(bc=>!hiddenBravo.includes(bc.id));
   // Sort by persisted order
   allBravoCards.sort((a,b)=>{
@@ -200,14 +207,14 @@ function renderHome(){
     return ia-ib;
   });
   allBravoCards.forEach(bc=>{
-    const isAuto=bc.id==='_autoMode';
-    const cardSel=isAuto?(autoModeSelected&&!selectedId):(selectedId==='_bravoMarcado');
     const bCard=document.createElement('div');
-    bCard.className='preset-card'+(cardSel?' selected':'');
-    bCard.style.setProperty('--c',bc.color);
-    bCard.style.setProperty('--cr',hexToRgb(bc.color));
     bCard.dataset.bravoId=bc.id;
-    if(isAuto){
+
+    if(bc.type==='auto'){
+      const cardSel=autoModeSelected&&!selectedId;
+      bCard.className='preset-card'+(cardSel?' selected':'');
+      bCard.style.setProperty('--c',bc.color);
+      bCard.style.setProperty('--cr',hexToRgb(bc.color));
       bCard.id='autoCard';
       bCard.innerHTML=`
         <div class="card-color-band"></div>
@@ -228,8 +235,16 @@ function renderHome(){
           <div class="card-exp-obs">Descanso calculado pelo esforço. Siga no seu ritmo.</div>
         </div>`;
       bCard.addEventListener('click',e=>{if(e.target.closest('.drag-handle'))return;selectAutoMode();});
-    } else {
+      bravoList.appendChild(bCard);
+      return;
+    }
+
+    if(bc.type==='fixed'){
       const d=bc._data;
+      const cardSel=selectedId==='_bravoMarcado';
+      bCard.className='preset-card'+(cardSel?' selected':'');
+      bCard.style.setProperty('--c',bc.color);
+      bCard.style.setProperty('--cr',hexToRgb(bc.color));
       bCard.id='bravoMarcadoCard';
       bCard.innerHTML=`
         <div class="card-color-band"></div>
@@ -254,27 +269,24 @@ function renderHome(){
           <div class="card-exp-obs">${d.obs||''}</div>
         </div>
         <div class="card-exp-actions">
-          <button class="btn-view" data-view="_bravoMarcado" title="Visualizar">👁</button>
+          <button class="btn-view" data-view="_bravoMarcado" title="Visualizar">${ICON_EYE}</button>
         </div>`;
       bCard.addEventListener('click',e=>{
         if(e.target.closest('.drag-handle'))return;
         if(e.target.dataset.view){openEdit(null,{viewOnly:true,sourceObj:d});return;}
         selectBravoMarcado();
       });
+      bravoList.appendChild(bCard);
+      return;
     }
-    bravoList.appendChild(bCard);
-  });
 
-  // ---- Programas Bravo criados no painel admin (professor) ----
-  // Caminho separado de propósito: não entra no sistema de arrastar/
-  // reordenar nem no de seleção pra treinar direto — o aluno só pode
-  // copiar pra "Meus Programas" e treinar por lá, igual sempre fez.
-  (window._adminPrograms || []).filter(ap=>!hiddenBravo.includes('_admin_'+ap.id)).forEach(ap => {
+    // type==='admin' — Programas Bravo criados no painel admin (professor)
+    const ap=bc._data;
     const exCount = ap.mode === 'circuit' ? ap.exCount : (ap.mode === 'brain' ? ap.brainExCount : ap.normalExCount);
     const secondaryLabel = ap.mode === 'circuit' ? 'rounds' : 'séries';
     const secondaryVal = ap.mode === 'circuit' ? ap.rounds : (ap.mode === 'brain' ? ap.brainSeries : ap.cycles);
     const modeBadge = { normal: 'CLÁSSICO', circuit: 'CIRCUITO', brain: 'BRAVO' }[ap.mode] || '';
-    const adminSelId = '_admin_' + ap.id;
+    const adminSelId = bc.id;
     const cardSel = selectedId === adminSelId;
 
     // Pills com os detalhes do programa, no mesmo padrão dos outros cards
@@ -310,14 +322,14 @@ function renderHome(){
                </div>`;
     }
 
-    const aCard = document.createElement('div');
-    aCard.className = 'preset-card' + (cardSel ? ' selected' : '');
-    aCard.dataset.id = adminSelId;
-    aCard.style.setProperty('--c', ap.locked ? '#666' : (ap.color || '#F04E23'));
-    aCard.style.setProperty('--cr', hexToRgb(ap.locked ? '#666' : (ap.color || '#F04E23')));
-    aCard.innerHTML = `
+    bCard.className = 'preset-card' + (cardSel ? ' selected' : '');
+    bCard.dataset.id = adminSelId;
+    bCard.style.setProperty('--c', ap.locked ? '#666' : (ap.color || '#F04E23'));
+    bCard.style.setProperty('--cr', hexToRgb(ap.locked ? '#666' : (ap.color || '#F04E23')));
+    bCard.innerHTML = `
       <div class="card-color-band"></div>
       <div class="card-collapsed-row">
+        <div class="drag-handle" title="Arrastar para reordenar">⠿</div>
         <div class="card-collapsed-name">${ap.locked ? '🔒 ' : ''}${escapeHtmlSafe(ap.name)}</div>
         <div class="card-collapsed-meta"><img class="meta-icon" src="ic_noexe.png?v=202506" alt="">${exCount||0} ex<span class="meta-sep">·</span><img class="meta-icon" src="ic_noseries.png?v=202506" alt="">${secondaryVal||0} ${secondaryLabel}</div>
       </div>
@@ -327,15 +339,16 @@ function renderHome(){
         <div class="card-exp-pills">${aPills}</div>
         <div class="card-exp-obs">${ap.locked ? 'Programa bloqueado. Fale com seu professor para liberar.' : (ap.obs||'')}</div>
       </div>
-      <div class="card-exp-actions"><button class="btn-view" data-view="${ap.id}" title="Visualizar">👁</button></div>
+      <div class="card-exp-actions"><button class="btn-view" data-view="${ap.id}" title="Visualizar">${ICON_EYE}</button></div>
     `;
-    aCard.addEventListener('click', e => {
+    bCard.addEventListener('click', e => {
+      if (e.target.closest('.drag-handle')) return;
       if (e.target.dataset.view) { openEdit(null,{viewOnly:true,sourceObj:ap}); return; }
       selectedId = adminSelId; autoModeSelected = false;
       document.getElementById('autoCard')?.classList.remove('selected');
       renderHome();
     });
-    bravoList.appendChild(aCard);
+    bravoList.appendChild(bCard);
   });
 
   const list=document.getElementById('userPresetList');list.innerHTML='';
@@ -396,8 +409,8 @@ function renderHome(){
     const favActive=p.fav?'active':'';
     // brain mode in Meus Programas: show duplicate instead of edit
     // All presets in Meus Programas are editable (including brain copies)
-    const actionsHTML=`<button class="btn-fav ${favActive}" data-fav="${p.id}" title="Favorito">★</button>
-         <button class="btn-edit" data-edit="${p.id}" title="Editar">✏</button>`;
+    const actionsHTML=`<button class="btn-fav ${favActive}" data-fav="${p.id}" title="Favorito">${p.fav?ICON_STAR_FILLED:ICON_STAR_OUTLINE}</button>
+         <button class="btn-edit" data-edit="${p.id}" title="Editar">${ICON_EDIT}</button>`;
 
     card.dataset.id=p.id;
     card.innerHTML=`
