@@ -163,11 +163,17 @@ function renderHome(){
   // Welcome name
   const userData=JSON.parse(localStorage.getItem('bravo_user')||'null');
   const welcome=document.getElementById('homeWelcome');
+  const welcomeBlock=document.getElementById('homeWelcomeBlock');
+  const welcomeGreeting=document.getElementById('homeWelcomeGreeting');
+  const welcomeName=document.getElementById('homeWelcomeName');
   if(userData?.name?.trim()){
-    welcome.style.display='block';
-    welcome.textContent='Bem-vindo, '+userData.name.trim();
+    if(welcome){welcome.style.display='block';welcome.textContent='Bem-vindo, '+userData.name.trim();}
+    if(welcomeBlock)welcomeBlock.style.display='block';
+    if(welcomeGreeting)welcomeGreeting.textContent=(userData.gender==='F')?'Bem-vinda':'Bem-vindo';
+    if(welcomeName)welcomeName.textContent=userData.name.trim();
   } else {
-    welcome.style.display='none';
+    if(welcome)welcome.style.display='none';
+    if(welcomeBlock)welcomeBlock.style.display='none';
   }
 
   // Render Programas Bravo dinamicamente (com drag & drop)
