@@ -254,11 +254,11 @@ function renderHome(){
           <div class="card-exp-obs">${d.obs||''}</div>
         </div>
         <div class="card-exp-actions">
-          <button class="btn-dup" data-dup="_bravoMarcado" title="Copiar para Meus Programas">⧉</button>
+          <button class="btn-view" data-view="_bravoMarcado" title="Visualizar">👁</button>
         </div>`;
       bCard.addEventListener('click',e=>{
         if(e.target.closest('.drag-handle'))return;
-        if(e.target.dataset.dup){duplicatePreset(e.target.dataset.dup);return;}
+        if(e.target.dataset.view){openEdit(null,{viewOnly:true,sourceObj:d});return;}
         selectBravoMarcado();
       });
     }
@@ -274,9 +274,45 @@ function renderHome(){
     const secondaryLabel = ap.mode === 'circuit' ? 'rounds' : 'séries';
     const secondaryVal = ap.mode === 'circuit' ? ap.rounds : (ap.mode === 'brain' ? ap.brainSeries : ap.cycles);
     const modeBadge = { normal: 'CLÁSSICO', circuit: 'CIRCUITO', brain: 'BRAVO' }[ap.mode] || '';
+    const adminSelId = '_admin_' + ap.id;
+    const cardSel = selectedId === adminSelId;
+
+    // Pills com os detalhes do programa, no mesmo padrão dos outros cards
+    let aPills = '';
+    if (ap.mode === 'circuit') {
+      aPills = `<div class="card-exp-pill-row">
+                 <div class="card-exp-pill"><img class="pill-icon" src="ic_noexe.png?v=202506" alt="">${ap.exCount||0} ex</div>
+                 <div class="card-exp-pill"><img class="pill-icon" src="ic_norodadas.png?v=202506" alt="">${ap.rounds||0} rodadas</div>
+               </div>
+               <div class="card-exp-pill-row">
+                 <div class="card-exp-pill"><img class="pill-icon" src="ic_preparacao.png?v=202506" alt="">${fmtSec(ap.prep||0)} prep</div>
+                 <div class="card-exp-pill"><img class="pill-icon" src="ic_execucao.png?v=202506" alt="">${fmtSec(ap.action||0)} exec</div>
+                 <div class="card-exp-pill"><img class="pill-icon" src="ic_recuperacao.png?v=202506" alt="">${fmtSec(ap.rest||0)} desc</div>
+               </div>`;
+    } else if (ap.mode === 'brain') {
+      aPills = `<div class="card-exp-pill-row">
+                 <div class="card-exp-pill"><img class="pill-icon" src="ic_noexe.png?v=202506" alt="">${ap.brainExCount||0} ex</div>
+                 <div class="card-exp-pill"><img class="pill-icon" src="ic_noseries.png?v=202506" alt="">${ap.brainSeries||0} séries</div>
+               </div>
+               <div class="card-exp-pill-row">
+                 <div class="card-exp-pill"><img class="pill-icon" src="ic_preparacao.png?v=202506" alt="">${fmtSec(ap.brainPrep||15)} prep</div>
+                 <div class="card-exp-pill"><img class="pill-icon" src="ic_execucao.png?v=202506" alt="">${fmtSec(ap.brainAction||40)} exec</div>
+               </div>`;
+    } else {
+      aPills = `<div class="card-exp-pill-row">
+                 <div class="card-exp-pill"><img class="pill-icon" src="ic_noexe.png?v=202506" alt="">${ap.normalExCount||0} ex</div>
+                 <div class="card-exp-pill"><img class="pill-icon" src="ic_noseries.png?v=202506" alt="">${ap.cycles||0} séries</div>
+               </div>
+               <div class="card-exp-pill-row">
+                 <div class="card-exp-pill"><img class="pill-icon" src="ic_preparacao.png?v=202506" alt="">${fmtSec(ap.prep||0)} prep</div>
+                 <div class="card-exp-pill"><img class="pill-icon" src="ic_execucao.png?v=202506" alt="">${fmtSec(ap.action||0)} exec</div>
+                 <div class="card-exp-pill"><img class="pill-icon" src="ic_recuperacao.png?v=202506" alt="">${fmtSec(ap.rest||0)} desc</div>
+               </div>`;
+    }
 
     const aCard = document.createElement('div');
-    aCard.className = 'preset-card';
+    aCard.className = 'preset-card' + (cardSel ? ' selected' : '');
+    aCard.dataset.id = adminSelId;
     aCard.style.setProperty('--c', ap.locked ? '#666' : (ap.color || '#F04E23'));
     aCard.style.setProperty('--cr', hexToRgb(ap.locked ? '#666' : (ap.color || '#F04E23')));
     aCard.innerHTML = `
@@ -288,14 +324,16 @@ function renderHome(){
       <div class="card-expanded">
         <div class="card-exp-badge"><img class="meta-icon" src="ic_play.png?v=202506" alt="">${modeBadge}</div>
         <div class="card-exp-name">${escapeHtmlSafe(ap.name)}</div>
+        <div class="card-exp-pills">${aPills}</div>
         <div class="card-exp-obs">${ap.locked ? 'Programa bloqueado. Fale com seu professor para liberar.' : (ap.obs||'')}</div>
       </div>
-      ${ap.locked ? '' : `<div class="card-exp-actions"><button class="btn-dup" data-admin-dup="${ap.id}" title="Copiar para Meus Programas">⧉</button></div>`}
+      <div class="card-exp-actions"><button class="btn-view" data-view="${ap.id}" title="Visualizar">👁</button></div>
     `;
     aCard.addEventListener('click', e => {
-      if (ap.locked) { if (typeof showToast === 'function') showToast('Programa bloqueado. Fale com seu professor.'); return; }
-      if (e.target.dataset.adminDup) { duplicatePreset('_admin_' + e.target.dataset.adminDup); return; }
-      aCard.classList.toggle('selected');
+      if (e.target.dataset.view) { openEdit(null,{viewOnly:true,sourceObj:ap}); return; }
+      selectedId = adminSelId; autoModeSelected = false;
+      document.getElementById('autoCard')?.classList.remove('selected');
+      renderHome();
     });
     bravoList.appendChild(aCard);
   });
@@ -572,9 +610,29 @@ function selectAutoMode(){
   renderHome();
 }
 renderHome();
+// Resolve o "programa" correspondente a um id de seleção, seja ele um
+// preset do usuário (Meus Programas), o Treino do Dia fixo, ou um
+// programa do painel admin (_admin_<id>). Usado pelo timer-core.js pra
+// tocar Clássico/Circuito/Bravo independente de onde o programa vive.
+function resolveSelectedProgram(id){
+  if(!id) return null;
+  if(id==='_bravoMarcado') return BRAVO_MARCADO;
+  if(id.startsWith('_admin_')){
+    const adminId=id.slice('_admin_'.length);
+    return (window._adminPrograms||[]).find(x=>x.id===adminId)||null;
+  }
+  return presets.find(x=>x.id===id)||null;
+}
+
 function startTreinar(){
   getAC();
   if(autoModeSelected&&!selectedId) startAutoMode();
+  else if(selectedId&&selectedId.startsWith('_admin_')){
+    const ap=resolveSelectedProgram(selectedId);
+    if(!ap||ap.locked)return; // bloqueado: botão já aparece como "Liberar", não deveria chegar aqui
+    if(ap.mode==='brain') startBrainMode(ap);
+    else startTimer();
+  }
   else if(selectedId==='_bravoMarcado') startBrainMode(BRAVO_MARCADO);
   else {
     const p=presets.find(x=>x.id===selectedId);
@@ -590,10 +648,16 @@ function injectTreinarBtn(){
   // Determine what's selected
   let targetEl=null;
   let color='#F04E23';
+  let adminLocked=false;
 
   if(selectedId==='_bravoMarcado'){
     targetEl=document.getElementById('bravoMarcadoCard');
     color=BRAVO_MARCADO?.color||'#F04E23';
+  } else if(selectedId&&selectedId.startsWith('_admin_')){
+    const ap=(window._adminPrograms||[]).find(x=>x.id===selectedId.slice('_admin_'.length));
+    adminLocked=!!ap?.locked;
+    color=adminLocked?'#666':(ap?.color||'#F04E23');
+    targetEl=document.querySelector(`.preset-card[data-id="${selectedId}"]`);
   } else if(selectedId){
     const p=presets.find(x=>x.id===selectedId);
     color=p?.color||'#F04E23';
@@ -607,12 +671,22 @@ function injectTreinarBtn(){
 
   const btn=document.createElement('button');
   btn.className='btn-treinar';
-  btn.setAttribute('aria-label','Iniciar treino');
+  btn.setAttribute('aria-label',adminLocked?'Liberar programa':'Iniciar treino');
   btn.style.setProperty('--c',color);
-  btn.style.background='#F04E23';
+  btn.style.background=adminLocked?'#666':'#F04E23';
   btn.style.color='#fff';
-  btn.innerHTML=`<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>TREINAR`;
-  btn.addEventListener('click',(e)=>{e.stopPropagation();startTreinar();});
+  btn.innerHTML=adminLocked
+    ?`<svg viewBox="0 0 24 24"><path d="M12 17a2 2 0 002-2 2 2 0 00-2-2 2 2 0 00-2 2 2 2 0 002 2zm6-9h-1V6a5 5 0 00-10 0v2H6a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V10a2 2 0 00-2-2zm-6-4a3 3 0 013 3v2H9V6a3 3 0 013-3z"/></svg>LIBERAR`
+    :`<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>TREINAR`;
+  btn.addEventListener('click',(e)=>{
+    e.stopPropagation();
+    if(adminLocked){
+      // TODO: por enquanto não faz nada. Depois: abrir link de venda/liberação
+      // configurado pelo professor no painel admin para este programa.
+      return;
+    }
+    startTreinar();
+  });
 
   // Find the expanded details container inside the card
   const anchor=targetEl.querySelector('.card-expanded')||targetEl;
@@ -998,10 +1072,28 @@ function updateNormalExerciseInputs(){
   if(n>1) initExDragDrop(container,'nfEx');
 }
 
-function openEdit(id){
-  editingId=id;
-  const p=id?presets.find(x=>x.id===id):null;
-  document.getElementById('editTitle').textContent=id?'EDITAR':'NOVO PROGRAMA';
+// Aplica/remove o modo somente-leitura na tela de edição, usada também
+// como tela de "Visualizar" para Programas Bravo (fixos e do admin).
+function setEditReadOnly(readOnly){
+  const editScreen=document.getElementById('edit');
+  editScreen.classList.toggle('view-only',readOnly);
+  const colorGroup=document.getElementById('colorPicker')?.closest('.field-group');
+  if(colorGroup) colorGroup.style.display=readOnly?'none':'';
+  editScreen.querySelectorAll('input.field-input, textarea.field-textarea').forEach(el=>{
+    el.readOnly=readOnly;
+    el.tabIndex=readOnly?-1:0;
+  });
+  const clearObsBtn=editScreen.querySelector('button[onclick="clearObs()"]');
+  if(clearObsBtn) clearObsBtn.style.display=readOnly?'none':'';
+  document.getElementById('btnSave').style.display=readOnly?'none':'';
+  if(readOnly) document.getElementById('btnDeleteEdit').style.display='none';
+}
+
+function openEdit(id,opts={}){
+  const {viewOnly=false,sourceObj=null}=opts;
+  editingId=viewOnly?null:id;
+  const p=sourceObj||(id?presets.find(x=>x.id===id):null);
+  document.getElementById('editTitle').textContent=viewOnly?'VISUALIZAR':(id?'EDITAR':'NOVO PROGRAMA');
   document.getElementById('efName').value=p?.name??'';
   document.getElementById('efObs').value=p?.obs??'';
   clearYtTemp();
@@ -1036,8 +1128,9 @@ function openEdit(id){
     if(p?.normalExercises){p.normalExercises.forEach((name,i)=>{const inp=document.getElementById('nfEx'+i);if(inp)inp.value=name;});}
     setTimeout(()=>loadYtTemp('nfEx',p?.normalExerciseVideos||[]),50);
   }
-  document.getElementById('btnDeleteEdit').style.display=id?'block':'none';
+  document.getElementById('btnDeleteEdit').style.display=(id&&!viewOnly)?'block':'none';
   showScreen('edit');
+  setEditReadOnly(viewOnly);
 }
 document.getElementById('btnEditBack').onclick=()=>showScreen('home');
 document.getElementById('btnDeleteEdit').onclick=()=>{

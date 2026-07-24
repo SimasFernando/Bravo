@@ -20,7 +20,7 @@ function releaseWakeLock(){if(wakeLock){wakeLock.release();wakeLock=null;}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&tmr.running)acquireWakeLock();});
 
 function startTimer(){
-  const p=presets.find(x=>x.id===selectedId);if(!p)return;
+  const p=resolveSelectedProgram(selectedId);if(!p)return;
   tmr.preset=p;tmr.running=true;tmr.isCircuit=(p.mode==='circuit');tmr.color=p.color||'#00E676';
   applyProgColor(tmr.color);
   if(tmr.isCircuit){
@@ -168,7 +168,7 @@ function phaseStart(){
   beep(tmr.phase==='action'?1200:800,.15,.6);
   // Vídeo: já aparece na fase de preparação e continua na execução (não reaparece no descanso)
   if(tmr.phase==='prep'||tmr.phase==='action'){
-    const p=presets.find(x=>x.id===selectedId);
+    const p=resolveSelectedProgram(selectedId);
     const idx=tmr.exIndex||0;
     const vids=tmr.isCircuit?p?.exerciseVideos:p?.normalExerciseVideos;
     const names=tmr.isCircuit?p?.exercises:p?.normalExercises;
