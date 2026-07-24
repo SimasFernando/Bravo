@@ -58,6 +58,16 @@
 </div>
 
 <!-- PROGRESSO -->
+<div class="screen hidden" id="treinosScreen">
+  <div class="prog-header">
+    <div class="prog-title">TREINOS</div>
+  </div>
+  <div style="color:var(--muted);font-size:13px;margin:-8px 0 16px;">
+    Escolha quais programas aparecem na tela inicial. Nenhum é apagado — só sai da vista.
+  </div>
+  <div id="treinosVisList" style="display:flex;flex-direction:column;gap:10px;overflow-y:auto;flex:1;padding-bottom:90px;"></div>
+</div>
+
 <div class="screen hidden" id="progressScreen">
   <div class="prog-header">
     <div class="prog-title">REGISTROS</div>
@@ -1117,11 +1127,12 @@
     if(id==='home') document.getElementById('navHome').classList.add('active');
     if(id==='progressScreen') document.getElementById('navProgress').classList.add('active');
     if(id==='inboxScreen') document.getElementById('navMessages').classList.add('active');
+    if(id==='treinosScreen') document.getElementById('navTreinos').classList.add('active');
   }
   function syncBottomNav(){
     var nav = document.getElementById('bottomNav');
     var visible = Array.prototype.find.call(document.querySelectorAll('.screen'), function(s){ return !s.classList.contains('hidden'); });
-    var showOn = ['home','progressScreen','inboxScreen'];
+    var showOn = ['home','progressScreen','inboxScreen','treinosScreen'];
     if(nav) nav.style.display = (visible && showOn.indexOf(visible.id) !== -1) ? 'flex' : 'none';
     if(visible) setActiveNav(visible.id);
   }
@@ -1131,7 +1142,10 @@
     if(typeof window.renderCalActivityStats==='function')window.renderCalActivityStats();
     if(typeof window.renderCalPoderStats==='function')window.renderCalPoderStats();
   });
-  document.getElementById('navTreinos').addEventListener('click', function(){ show('home'); });
+  document.getElementById('navTreinos').addEventListener('click', function(){
+    show('treinosScreen');
+    if(typeof window.renderTreinosVisList==='function')window.renderTreinosVisList();
+  });
   document.getElementById('navMessages').addEventListener('click', function(){
     if(typeof window.openInbox==='function') window.openInbox();
   });
