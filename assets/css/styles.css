@@ -170,6 +170,7 @@
     font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;
     color:var(--accent);flex:1;
   }
+  html.theme-light .card-collapsed-name{color:var(--text);}
   .card-collapsed-meta{
     font-size:11px;color:var(--text);letter-spacing:.5px;
     display:flex;align-items:center;gap:4px;flex-shrink:0;
@@ -194,6 +195,7 @@
     font-size:36px;letter-spacing:1px;line-height:1;
     color:var(--accent);
   }
+  html.theme-light .card-exp-name{color:var(--text);}
   .card-exp-pills{
     display:flex;flex-direction:column;gap:8px;margin-top:8px;
   }
