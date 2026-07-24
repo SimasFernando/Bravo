@@ -81,6 +81,11 @@ function renderCalActivityStats(records){
   document.getElementById('calTreinosMes').textContent = monthCount;
   document.getElementById('calTreinosAno').textContent = yearCount;
   document.getElementById('calStatTreinosInline').textContent = monthCount;
+  // Mesma fonte de dados, espelhada na tela "Registros" (item 6.2) —
+  // qualquer mudança aqui vale pros dois lugares automaticamente.
+  const p2mes=document.getElementById('prog2TreinosMes'), p2ano=document.getElementById('prog2TreinosAno');
+  if(p2mes)p2mes.textContent=monthCount;
+  if(p2ano)p2ano.textContent=yearCount;
 }
 
 // Recalcula e exibe as estatísticas de Poder Bravo a partir de todos os treinos salvos.
@@ -113,6 +118,13 @@ function renderCalPoderStats(records){
   document.getElementById('calPoderMonthRecord').textContent= monthCount>0 ? monthRecord : '–';
   document.getElementById('calPoderAllRecord').textContent  = allTimeRecord>0 ? allTimeRecord : '–';
   document.getElementById('calStatPoderInline').textContent = monthCount>0 ? monthSum : '0';
+  // Espelha na tela "Registros" (mesma fonte, item 6.2)
+  const p2=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val;};
+  p2('prog2PoderMonthSum',   monthCount>0 ? monthSum : '–');
+  p2('prog2PoderYearSum',    yearSum>0 ? yearSum : '–');
+  p2('prog2PoderMonthAvg',   monthCount>0 ? monthAvg : '–');
+  p2('prog2PoderMonthRecord',monthCount>0 ? monthRecord : '–');
+  p2('prog2PoderAllRecord',  allTimeRecord>0 ? allTimeRecord : '–');
 }
 function showCalDetail(dateStr,rec){
   _calDetailDateStr = dateStr;
