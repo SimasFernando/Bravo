@@ -196,7 +196,9 @@ function renderHome(){
   const allBravoCards=[
     {id:'_autoMode',type:'auto',name:'Bravo Play',color:'#F04E23'},
     ...BRAVO_CARDS.map(c=>({id:'_bravo_'+c.id,type:'fixed',name:c.name,color:c.color,_data:c})),
-    ...(window._adminPrograms||[]).map(ap=>({id:'_admin_'+ap.id,type:'admin',name:ap.name,color:ap.locked?'#666':(ap.color||'#F04E23'),_data:ap})),
+    ...(window._adminPrograms||[])
+      .filter(ap=>!ap.hidden || ap.locked===false)
+      .map(ap=>({id:'_admin_'+ap.id,type:'admin',name:ap.name,color:ap.locked?'#666':(ap.color||'#F04E23'),_data:ap})),
   ].filter(bc=>!hiddenBravo.includes(bc.id));
   // Sort by persisted order
   allBravoCards.sort((a,b)=>{
@@ -282,11 +284,73 @@ function renderHome(){
 
     // type==='admin' — Programas Bravo criados no painel admin (professor)
     const ap=bc._data;
+    const isGroup = Array.isArray(ap.workouts) && ap.workouts.length > 0;
+    const adminSelId = bc.id;
+
+    if (isGroup) {
+      const cardSel = false; // cards de múltiplos treinos não usam o fluxo de seleção+botão flutuante
+      bCard.className = 'preset-card';
+      bCard.dataset.id = adminSelId;
+      bCard.style.setProperty('--c', ap.locked ? '#666' : (ap.color || '#F04E23'));
+      bCard.style.setProperty('--cr', hexToRgb(ap.locked ? '#666' : (ap.color || '#F04E23')));
+
+      let groupBody = '';
+      if (ap.locked) {
+        groupBody = `
+          <div class="card-exp-obs">Programa bloqueado — ${ap.workouts.length} treinos. Toque em Liberar para desbloquear todos de uma vez.</div>
+          <div class="card-exp-actions" style="margin-top:10px;">
+            <button class="btn-view" data-group-unlock="${ap.id}" style="width:auto;padding:0 16px;border-radius:999px;background:#666;color:#fff;display:flex;align-items:center;gap:6px;">🔒 LIBERAR</button>
+          </div>`;
+      } else {
+        groupBody = `
+          <div class="card-exp-obs">${escapeHtmlSafe(ap.obs||'')}</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">
+            ${ap.workouts.map((w,i)=>`
+              <button class="btn-treinar" data-group-workout="_admin_${ap.id}__w${i}" style="position:static;width:100%;justify-content:center;--c:${ap.color||'#F04E23'};background:${ap.color||'#F04E23'};">
+                <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>${escapeHtmlSafe(w.label||('TREINO '+(EX_LETTERS[i]||(i+1))))}
+              </button>
+            `).join('')}
+          </div>`;
+      }
+
+      bCard.innerHTML = `
+        <div class="card-color-band"></div>
+        <div class="card-collapsed-row">
+          <div class="drag-handle" title="Arrastar para reordenar">⠿</div>
+          <div class="card-collapsed-name">${ap.locked ? '🔒 ' : ''}${escapeHtmlSafe(ap.name)}</div>
+          <div class="card-collapsed-meta"><img class="meta-icon" src="ic_noexe.png?v=202506" alt="">${ap.workouts.length} treinos</div>
+        </div>
+        <div class="card-expanded">
+          <div class="card-exp-badge"><img class="meta-icon" src="ic_play.png?v=202506" alt="">MÚLTIPLOS TREINOS</div>
+          <div class="card-exp-name">${escapeHtmlSafe(ap.name)}</div>
+          ${groupBody}
+        </div>
+      `;
+      bCard.addEventListener('click', e => {
+        if (e.target.closest('.drag-handle')) return;
+        if (e.target.closest('[data-group-workout]')) {
+          e.stopPropagation();
+          selectedId = e.target.closest('[data-group-workout]').dataset.groupWorkout;
+          autoModeSelected = false;
+          startTreinar();
+          return;
+        }
+        if (e.target.closest('[data-group-unlock]')) {
+          e.stopPropagation();
+          if (ap.salesLink) window.open(ap.salesLink,'_blank','noopener');
+          else alert('Programa bloqueado. Fale com seu professor para liberar.');
+          return;
+        }
+        bCard.classList.toggle('selected');
+      });
+      bravoList.appendChild(bCard);
+      return;
+    }
+
     const exCount = ap.mode === 'circuit' ? ap.exCount : (ap.mode === 'brain' ? ap.brainExCount : ap.normalExCount);
     const secondaryLabel = ap.mode === 'circuit' ? 'rounds' : 'séries';
     const secondaryVal = ap.mode === 'circuit' ? ap.rounds : (ap.mode === 'brain' ? ap.brainSeries : ap.cycles);
     const modeBadge = { normal: 'CLÁSSICO', circuit: 'CIRCUITO', brain: 'BRAVO' }[ap.mode] || '';
-    const adminSelId = bc.id;
     const cardSel = selectedId === adminSelId;
 
     // Pills com os detalhes do programa, no mesmo padrão dos outros cards
@@ -634,8 +698,17 @@ function resolveSelectedProgram(id){
   if(!id) return null;
   if(id==='_bravoMarcado') return BRAVO_MARCADO;
   if(id.startsWith('_admin_')){
-    const adminId=id.slice('_admin_'.length);
-    return (window._adminPrograms||[]).find(x=>x.id===adminId)||null;
+    const rest=id.slice('_admin_'.length);
+    const wMatch=rest.match(/^(.+)__w(\d+)$/);
+    if(wMatch){
+      const adminId=wMatch[1], wIdx=parseInt(wMatch[2],10);
+      const ap=(window._adminPrograms||[]).find(x=>x.id===adminId);
+      const w=ap?.workouts?.[wIdx];
+      if(!ap||!w) return null;
+      const { workouts, ...apRest } = ap;
+      return { ...apRest, ...w, name: w.label ? `${ap.name} — ${w.label}` : ap.name };
+    }
+    return (window._adminPrograms||[]).find(x=>x.id===rest)||null;
   }
   return presets.find(x=>x.id===id)||null;
 }
@@ -644,9 +717,12 @@ function startTreinar(){
   getAC();
   if(autoModeSelected&&!selectedId) startAutoMode();
   else if(selectedId&&selectedId.startsWith('_admin_')){
-    const ap=resolveSelectedProgram(selectedId);
+    const baseId=selectedId.slice('_admin_'.length).split('__w')[0];
+    const ap=(window._adminPrograms||[]).find(x=>x.id===baseId);
     if(!ap||ap.locked)return; // bloqueado: botão já aparece como "Liberar", não deveria chegar aqui
-    if(ap.mode==='brain') startBrainMode(ap);
+    const playable=resolveSelectedProgram(selectedId);
+    if(!playable)return;
+    if(playable.mode==='brain') startBrainMode(playable);
     else startTimer();
   }
   else if(selectedId==='_bravoMarcado') startBrainMode(BRAVO_MARCADO);
@@ -665,15 +741,18 @@ function injectTreinarBtn(){
   let targetEl=null;
   let color='#F04E23';
   let adminLocked=false;
+  let adminSalesLink=null;
 
   if(selectedId==='_bravoMarcado'){
     targetEl=document.getElementById('bravoMarcadoCard');
     color=BRAVO_MARCADO?.color||'#F04E23';
-  } else if(selectedId&&selectedId.startsWith('_admin_')){
+  } else if(selectedId&&selectedId.startsWith('_admin_')&&!selectedId.includes('__w')){
     const ap=(window._adminPrograms||[]).find(x=>x.id===selectedId.slice('_admin_'.length));
+    if(Array.isArray(ap?.workouts)&&ap.workouts.length) return; // cards de grupo têm seus próprios botões, não usam o flutuante
     adminLocked=!!ap?.locked;
     color=adminLocked?'#666':(ap?.color||'#F04E23');
     targetEl=document.querySelector(`.preset-card[data-id="${selectedId}"]`);
+    adminSalesLink=ap?.salesLink||null;
   } else if(selectedId){
     const p=presets.find(x=>x.id===selectedId);
     color=p?.color||'#F04E23';
@@ -697,8 +776,8 @@ function injectTreinarBtn(){
   btn.addEventListener('click',(e)=>{
     e.stopPropagation();
     if(adminLocked){
-      // TODO: por enquanto não faz nada. Depois: abrir link de venda/liberação
-      // configurado pelo professor no painel admin para este programa.
+      if(adminSalesLink) window.open(adminSalesLink,'_blank','noopener');
+      else alert('Programa bloqueado. Fale com seu professor para liberar.');
       return;
     }
     startTreinar();
