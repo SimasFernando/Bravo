@@ -90,20 +90,11 @@
 
         <div id="adminProgramForm" class="hidden" style="background:var(--surface);border:1px solid var(--surface2);border-radius:12px;padding:16px;margin-bottom:20px;">
           <div class="field-group" style="margin-bottom:12px;">
-            <label class="field-label">Modo</label>
-            <div class="mode-toggle" style="grid-template-columns:1fr 1fr 1fr;">
-              <button type="button" class="mode-btn active" data-mode="normal">⏱ Clássico</button>
-              <button type="button" class="mode-btn" data-mode="circuit">🔄 Circuito</button>
-              <button type="button" class="mode-btn" data-mode="brain">Bravo</button>
-            </div>
-            <input type="hidden" id="progMode" value="normal">
-          </div>
-          <div class="field-group" style="margin-bottom:12px;">
             <label class="field-label">Nome do programa</label>
             <input class="field-input" id="progName">
           </div>
           <div class="field-group" style="margin-bottom:12px;">
-            <label class="field-label">Observações (dicas, carga, etc.)</label>
+            <label class="field-label">Descrição (dicas, carga, etc.)</label>
             <textarea class="field-input" id="progObs" rows="3" style="resize:vertical;"></textarea>
           </div>
 
@@ -119,45 +110,69 @@
             <div style="font-size:12px;color:var(--muted);margin-top:4px;">Prepara o programa pra liberação automática quando a compra acontecer na Hotmart. Ainda não libera nada sozinho — isso depende da integração via webhook, que vem depois.</div>
           </div>
 
-          <div id="progFieldsNormal" class="prog-fields">
-            <div class="field-group" style="margin-bottom:12px;">
-              <label class="field-label">Nº Exercícios</label>
-              <input class="field-input" type="number" id="progNormalExCount" value="1" min="1" max="12">
-            </div>
-            <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
-              <div class="field-group"><label class="field-label">Séries</label><input class="field-input" type="number" id="progCycles" value="3"></div>
-              <div class="field-group"><label class="field-label">Preparação (s)</label><input class="field-input" type="number" id="progPrep" value="10"></div>
-              <div class="field-group"><label class="field-label">Execução (s)</label><input class="field-input" type="number" id="progAction" value="40"></div>
-              <div class="field-group"><label class="field-label">Recuperação (s)</label><input class="field-input" type="number" id="progRest" value="20"></div>
-            </div>
-            <div id="progNormalExList"></div>
+          <div class="field-group" style="margin-bottom:12px;padding:10px 12px;background:var(--surface2);border-radius:8px;">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin:0;">
+              <input type="checkbox" id="progMultiToggle" style="width:16px;height:16px;">
+              <span class="field-label" style="margin:0;">Múltiplos treinos (ex: Treino A, Treino B, Treino C dentro do mesmo programa)</span>
+            </label>
           </div>
 
-          <div id="progFieldsCircuit" class="prog-fields hidden">
+          <div id="progSingleFields">
             <div class="field-group" style="margin-bottom:12px;">
-              <label class="field-label">Nº Exercícios</label>
-              <input class="field-input" type="number" id="progExCount" value="4" min="1" max="12">
+              <label class="field-label">Modo</label>
+              <div class="mode-toggle" style="grid-template-columns:1fr 1fr 1fr;">
+                <button type="button" class="mode-btn active" data-mode="normal">⏱ Clássico</button>
+                <button type="button" class="mode-btn" data-mode="circuit">🔄 Circuito</button>
+                <button type="button" class="mode-btn" data-mode="brain">Bravo</button>
+              </div>
+              <input type="hidden" id="progMode" value="normal">
             </div>
-            <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
-              <div class="field-group"><label class="field-label">Rodadas</label><input class="field-input" type="number" id="progRounds" value="3"></div>
-              <div class="field-group"><label class="field-label">Preparação (s)</label><input class="field-input" type="number" id="progCPrep" value="10"></div>
-              <div class="field-group"><label class="field-label">Execução (s)</label><input class="field-input" type="number" id="progCAction" value="30"></div>
-              <div class="field-group"><label class="field-label">Intervalo entre exercícios (s)</label><input class="field-input" type="number" id="progCRest" value="0"></div>
+
+            <div id="progFieldsNormal" class="prog-fields">
+              <div class="field-group" style="margin-bottom:12px;">
+                <label class="field-label">Nº Exercícios</label>
+                <input class="field-input" type="number" id="progNormalExCount" value="1" min="1" max="12">
+              </div>
+              <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+                <div class="field-group"><label class="field-label">Séries</label><input class="field-input" type="number" id="progCycles" value="3"></div>
+                <div class="field-group"><label class="field-label">Preparação (s)</label><input class="field-input" type="number" id="progPrep" value="10"></div>
+                <div class="field-group"><label class="field-label">Execução (s)</label><input class="field-input" type="number" id="progAction" value="40"></div>
+                <div class="field-group"><label class="field-label">Recuperação (s)</label><input class="field-input" type="number" id="progRest" value="20"></div>
+              </div>
+              <div id="progNormalExList"></div>
             </div>
-            <div id="progCircuitExList"></div>
+
+            <div id="progFieldsCircuit" class="prog-fields hidden">
+              <div class="field-group" style="margin-bottom:12px;">
+                <label class="field-label">Nº Exercícios</label>
+                <input class="field-input" type="number" id="progExCount" value="4" min="1" max="12">
+              </div>
+              <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+                <div class="field-group"><label class="field-label">Rodadas</label><input class="field-input" type="number" id="progRounds" value="3"></div>
+                <div class="field-group"><label class="field-label">Preparação (s)</label><input class="field-input" type="number" id="progCPrep" value="10"></div>
+                <div class="field-group"><label class="field-label">Execução (s)</label><input class="field-input" type="number" id="progCAction" value="30"></div>
+                <div class="field-group"><label class="field-label">Intervalo entre exercícios (s)</label><input class="field-input" type="number" id="progCRest" value="0"></div>
+              </div>
+              <div id="progCircuitExList"></div>
+            </div>
+
+            <div id="progFieldsBrain" class="prog-fields hidden">
+              <div class="field-group" style="margin-bottom:12px;">
+                <label class="field-label">Nº Exercícios</label>
+                <input class="field-input" type="number" id="progBrainExCount" value="2" min="1" max="12">
+              </div>
+              <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+                <div class="field-group"><label class="field-label">Séries</label><input class="field-input" type="number" id="progBrainSeries" value="3"></div>
+                <div class="field-group"><label class="field-label">Preparação (s)</label><input class="field-input" type="number" id="progBrainPrep" value="15"></div>
+                <div class="field-group"><label class="field-label">Execução (s)</label><input class="field-input" type="number" id="progBrainAction" value="40"></div>
+              </div>
+              <div id="progBrainExList"></div>
+            </div>
           </div>
 
-          <div id="progFieldsBrain" class="prog-fields hidden">
-            <div class="field-group" style="margin-bottom:12px;">
-              <label class="field-label">Nº Exercícios</label>
-              <input class="field-input" type="number" id="progBrainExCount" value="2" min="1" max="12">
-            </div>
-            <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
-              <div class="field-group"><label class="field-label">Séries</label><input class="field-input" type="number" id="progBrainSeries" value="3"></div>
-              <div class="field-group"><label class="field-label">Preparação (s)</label><input class="field-input" type="number" id="progBrainPrep" value="15"></div>
-              <div class="field-group"><label class="field-label">Execução (s)</label><input class="field-input" type="number" id="progBrainAction" value="40"></div>
-            </div>
-            <div id="progBrainExList"></div>
+          <div id="progWorkoutsBuilder" class="hidden">
+            <div id="progWorkoutsList"></div>
+            <button type="button" class="admin-btn" id="progAddWorkoutBtn" style="background:var(--surface2);margin-bottom:12px;">+ ADICIONAR TREINO</button>
           </div>
 
           <div style="display:flex;gap:8px;margin-top:16px;">
