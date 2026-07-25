@@ -288,8 +288,8 @@ function renderHome(){
     const adminSelId = bc.id;
 
     if (isGroup) {
-      const cardSel = false; // cards de múltiplos treinos não usam o fluxo de seleção+botão flutuante
-      bCard.className = 'preset-card';
+      const cardSel = selectedId === adminSelId;
+      bCard.className = 'preset-card' + (cardSel ? ' selected' : '');
       bCard.dataset.id = adminSelId;
       bCard.style.setProperty('--c', ap.locked ? '#666' : (ap.color || '#F04E23'));
       bCard.style.setProperty('--cr', hexToRgb(ap.locked ? '#666' : (ap.color || '#F04E23')));
@@ -298,6 +298,14 @@ function renderHome(){
       if (ap.locked) {
         groupBody = `
           <div class="card-exp-obs">Programa bloqueado — ${ap.workouts.length} treinos. Toque em Liberar para desbloquear todos de uma vez.</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">
+            ${ap.workouts.map((w,i)=>`
+              <div style="display:flex;gap:8px;align-items:center;">
+                <div style="flex:1;opacity:.7;font-size:14px;padding:8px 0;">🔒 ${escapeHtmlSafe(w.label||('Treino '+(EX_LETTERS[i]||(i+1))))}</div>
+                <button class="btn-view" data-group-view="_admin_${ap.id}__w${i}" title="Visualizar">${ICON_EYE}</button>
+              </div>
+            `).join('')}
+          </div>
           <div class="card-exp-actions" style="margin-top:10px;">
             <button class="btn-view" data-group-unlock="${ap.id}" style="width:auto;padding:0 16px;border-radius:999px;background:#666;color:#fff;display:flex;align-items:center;gap:6px;">🔒 LIBERAR</button>
           </div>`;
@@ -306,9 +314,12 @@ function renderHome(){
           <div class="card-exp-obs">${escapeHtmlSafe(ap.obs||'')}</div>
           <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">
             ${ap.workouts.map((w,i)=>`
-              <button class="btn-treinar" data-group-workout="_admin_${ap.id}__w${i}" style="position:static;width:100%;justify-content:center;--c:${ap.color||'#F04E23'};background:${ap.color||'#F04E23'};">
-                <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>${escapeHtmlSafe(w.label||('TREINO '+(EX_LETTERS[i]||(i+1))))}
-              </button>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <button class="btn-treinar" data-group-workout="_admin_${ap.id}__w${i}" style="flex:1;position:static;justify-content:center;--c:${ap.color||'#F04E23'};background:${ap.color||'#F04E23'};">
+                  <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>${escapeHtmlSafe(w.label||('Treino '+(EX_LETTERS[i]||(i+1))))}
+                </button>
+                <button class="btn-view" data-group-view="_admin_${ap.id}__w${i}" title="Visualizar">${ICON_EYE}</button>
+              </div>
             `).join('')}
           </div>`;
       }
@@ -321,7 +332,7 @@ function renderHome(){
           <div class="card-collapsed-meta"><img class="meta-icon" src="ic_noexe.png?v=202506" alt="">${ap.workouts.length} treinos</div>
         </div>
         <div class="card-expanded">
-          <div class="card-exp-badge"><img class="meta-icon" src="ic_play.png?v=202506" alt="">MÚLTIPLOS TREINOS</div>
+          <div class="card-exp-badge"><img class="meta-icon" src="ic_play.png?v=202506" alt="">${ap.workouts.length} TREINOS</div>
           <div class="card-exp-name">${escapeHtmlSafe(ap.name)}</div>
           ${groupBody}
         </div>
@@ -335,13 +346,21 @@ function renderHome(){
           startTreinar();
           return;
         }
+        if (e.target.closest('[data-group-view]')) {
+          e.stopPropagation();
+          const wid = e.target.closest('[data-group-view]').dataset.groupView;
+          openEdit(null, { viewOnly: true, sourceObj: resolveSelectedProgram(wid) });
+          return;
+        }
         if (e.target.closest('[data-group-unlock]')) {
           e.stopPropagation();
           if (ap.salesLink) window.open(ap.salesLink,'_blank','noopener');
           else alert('Programa bloqueado. Fale com seu professor para liberar.');
           return;
         }
-        bCard.classList.toggle('selected');
+        selectedId = adminSelId; autoModeSelected = false;
+        document.getElementById('autoCard')?.classList.remove('selected');
+        renderHome();
       });
       bravoList.appendChild(bCard);
       return;
