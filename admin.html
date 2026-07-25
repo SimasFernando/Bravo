@@ -107,6 +107,18 @@
             <textarea class="field-input" id="progObs" rows="3" style="resize:vertical;"></textarea>
           </div>
 
+          <div class="field-group" style="margin-bottom:12px;">
+            <label class="field-label">Link da página de venda (opcional)</label>
+            <input class="field-input" id="progSalesLink" type="url" placeholder="https://...">
+            <div style="font-size:12px;color:var(--muted);margin-top:4px;">Quando o programa estiver bloqueado, o botão "LIBERAR" no app leva o aluno pra esse link.</div>
+          </div>
+
+          <div class="field-group" style="margin-bottom:12px;">
+            <label class="field-label">Código do produto na Hotmart (opcional)</label>
+            <input class="field-input" id="progHotmartId" placeholder="ex: 1234567">
+            <div style="font-size:12px;color:var(--muted);margin-top:4px;">Prepara o programa pra liberação automática quando a compra acontecer na Hotmart. Ainda não libera nada sozinho — isso depende da integração via webhook, que vem depois.</div>
+          </div>
+
           <div id="progFieldsNormal" class="prog-fields">
             <div class="field-group" style="margin-bottom:12px;">
               <label class="field-label">Nº Exercícios</label>
