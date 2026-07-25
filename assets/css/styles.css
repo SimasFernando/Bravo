@@ -94,10 +94,10 @@
     content:'';
     position:absolute;inset:0;
     background:
-      radial-gradient(circle at 88% 0%, var(--c,#F04E23) 0%, transparent 60%),
-      radial-gradient(circle at 0% 110%, rgba(0,0,0,.9) 0%, transparent 65%);
-    opacity:.32;
-    filter:blur(18px) saturate(1.25);
+      radial-gradient(circle at 88% 0%, var(--c,#F04E23) 0%, transparent 45%),
+      radial-gradient(circle at 0% 110%, rgba(0,0,0,.9) 0%, transparent 55%);
+    opacity:.2;
+    filter:blur(30px) saturate(1.1);
     transition:opacity .35s;
     z-index:0;
     pointer-events:none;
@@ -128,7 +128,7 @@
     background:var(--card-collapsed-bg);
     border:1px solid var(--card-collapsed-border);
   }
-  .preset-card:not(.selected)::before{opacity:.16;filter:blur(14px) saturate(1.1);}
+  .preset-card:not(.selected)::before{opacity:.1;filter:blur(24px) saturate(1.05);}
   html.theme-light .preset-card:not(.selected)::before{opacity:1;filter:none;}
   /* Expanded / selected state */
   .preset-card.selected{
@@ -480,7 +480,7 @@
       var(--bg-deep);
   }
   .timer-main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:78px 20px 28px;position:relative;isolation:isolate;}
-  .exec-top-bar{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;gap:12px;padding:18px 16px;z-index:5;}
+  .exec-top-bar{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 16px;z-index:5;}
   .exec-top-btn{width:36px;height:36px;border-radius:50%;background:var(--surface);border:none;color:var(--text);display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;font-size:16px;box-shadow:0 2px 8px rgba(0,0,0,.06);}
   .exec-top-titles{flex:1;text-align:center;}
   .exec-top-title{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1.5px;color:var(--text);}
@@ -857,6 +857,7 @@
   #progressScreen{padding:24px 20px 100px;gap:14px;overflow-y:auto;}
   .prog-header{display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
   .prog-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;}
+  .prog-subtitle{font-size:13px;color:var(--muted);line-height:1.5;margin:8px 0 18px;}
   .prog-tabs{display:flex;background:var(--surface2);border-radius:14px;padding:4px;flex-shrink:0;}
   .prog-tab{flex:1;border:none;background:transparent;padding:10px;border-radius:11px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;transition:all .2s;}
   .prog-tab.active{background:var(--surface);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.08);}
