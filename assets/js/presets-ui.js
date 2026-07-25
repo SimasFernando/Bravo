@@ -315,8 +315,8 @@ function renderHome(){
           <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">
             ${ap.workouts.map((w,i)=>`
               <div style="display:flex;gap:8px;align-items:center;">
-                <button class="btn-treinar" data-group-workout="_admin_${ap.id}__w${i}" style="flex:1;position:static;justify-content:center;--c:${ap.color||'#F04E23'};background:${ap.color||'#F04E23'};">
-                  <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>${escapeHtmlSafe(w.label||('Treino '+(EX_LETTERS[i]||(i+1))))}
+                <button data-group-workout="_admin_${ap.id}__w${i}" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;border:none;border-radius:10px;padding:12px 14px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;background:${ap.color||'#F04E23'};">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>${escapeHtmlSafe(w.label||('Treino '+(EX_LETTERS[i]||(i+1))))}
                 </button>
                 <button class="btn-view" data-group-view="_admin_${ap.id}__w${i}" title="Visualizar">${ICON_EYE}</button>
               </div>
@@ -332,7 +332,7 @@ function renderHome(){
           <div class="card-collapsed-meta"><img class="meta-icon" src="ic_noexe.png?v=202506" alt="">${ap.workouts.length} treinos</div>
         </div>
         <div class="card-expanded">
-          <div class="card-exp-badge"><img class="meta-icon" src="ic_play.png?v=202506" alt="">${ap.workouts.length} TREINOS</div>
+          <div class="card-exp-badge"><img class="meta-icon" src="ic_play.png?v=202506" alt="">PROGRAMA</div>
           <div class="card-exp-name">${escapeHtmlSafe(ap.name)}</div>
           ${groupBody}
         </div>
