@@ -6,6 +6,15 @@
 // circuit/brain). Isso é o que vai permitir, no próximo passo,
 // que um programa atribuído a um aluno "vire" um preset dele
 // sem precisar de nenhuma lógica de conversão.
+//
+// Um programa pode ter um único treino (campos direto no
+// documento, como sempre foi) OU múltiplos treinos, guardados
+// em `workouts: [{label, mode, ...campos do modo}, ...]`. Nesse
+// segundo caso o programa inteiro continua sendo UM documento só
+// — um único id, um único access/locked/salesLink — então tudo
+// que já existe (liberar, ocultar, excluir) funciona igual sem
+// mudança nenhuma. Só a apresentação no app muda: em vez de um
+// botão TREINAR, mostra um botão por treino.
 // ============================================================
 import { collection, getDocs, doc, setDoc, deleteDoc }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
@@ -13,6 +22,7 @@ import { collection, getDocs, doc, setDoc, deleteDoc }
 const EX_LETTERS = ['A','B','C','D','E','F','G','H','I','J','K','L'];
 let _programs = null;
 let editingId = null;
+let _workoutIdx = 0; // contador de blocos de treino na sessão atual do formulário
 
 function isValidYtUrl(url) {
   if (!url) return true; // vazio é válido (campo opcional)
@@ -40,6 +50,7 @@ const BRAVO_ORANGE = '#F04E23';
 // ---- geração dinâmica dos campos: nome + link do YouTube por exercício ----
 function renderExerciseInputs(containerId, prefix, count, existingNames, existingVideos) {
   const el = document.getElementById(containerId);
+  if (!el) return;
   let html = '';
   for (let i = 0; i < count; i++) {
     const nameVal = existingNames?.[i] || '';
@@ -58,6 +69,9 @@ function renderExerciseInputs(containerId, prefix, count, existingNames, existin
   el.innerHTML = html;
 }
 
+// ============================================================
+// FORMULÁRIO — modo único (comportamento original)
+// ============================================================
 document.getElementById('progNormalExCount')?.addEventListener('input', (e) => {
   renderExerciseInputs('progNormalExList', 'progNfEx', parseInt(e.target.value) || 1);
 });
@@ -67,30 +81,208 @@ document.getElementById('progExCount')?.addEventListener('input', (e) => {
 document.getElementById('progBrainExCount')?.addEventListener('input', (e) => {
   renderExerciseInputs('progBrainExList', 'progBEx', parseInt(e.target.value) || 1);
 });
-document.querySelectorAll('#adminViewPrograms .mode-btn').forEach(btn => {
+document.querySelectorAll('#progSingleFields .mode-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     const mode = btn.dataset.mode;
-    document.querySelectorAll('#adminViewPrograms .mode-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('#progSingleFields .mode-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('progMode').value = mode;
 
-    document.querySelectorAll('.prog-fields').forEach(f => window.adminHide(f));
+    document.querySelectorAll('#progSingleFields .prog-fields').forEach(f => window.adminHide(f));
     const map = { normal: 'progFieldsNormal', circuit: 'progFieldsCircuit', brain: 'progFieldsBrain' };
     window.adminShow(document.getElementById(map[mode]));
   });
 });
 
+// ============================================================
+// FORMULÁRIO — múltiplos treinos
+// ============================================================
+document.getElementById('progMultiToggle')?.addEventListener('change', (e) => {
+  const multi = e.target.checked;
+  if (multi) {
+    window.adminHide(document.getElementById('progSingleFields'));
+    window.adminShow(document.getElementById('progWorkoutsBuilder'));
+    if (!document.getElementById('progWorkoutsList').children.length) {
+      addWorkoutBlock(null);
+      addWorkoutBlock(null);
+    }
+  } else {
+    window.adminShow(document.getElementById('progSingleFields'));
+    window.adminHide(document.getElementById('progWorkoutsBuilder'));
+  }
+});
+
+document.getElementById('progAddWorkoutBtn')?.addEventListener('click', () => {
+  addWorkoutBlock(null);
+});
+
+function addWorkoutBlock(existing) {
+  const idx = _workoutIdx++;
+  const container = document.getElementById('progWorkoutsList');
+  const mode = existing?.mode || 'normal';
+  const div = document.createElement('div');
+  div.id = `progWorkoutBlock${idx}`;
+  div.style.cssText = 'border:1px solid var(--surface2);border-radius:10px;padding:12px;margin-bottom:12px;';
+  div.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:8px;gap:8px;">
+      <div class="field-group" style="flex:1;margin-bottom:0;">
+        <label class="field-label">Nome do treino</label>
+        <input class="field-input" id="progW${idx}_label" value="${escapeHtml(existing?.label || '')}" placeholder="ex: Treino A">
+      </div>
+      <button type="button" data-remove-workout="${idx}" style="background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;white-space:nowrap;padding-bottom:8px;">Remover</button>
+    </div>
+    <div class="mode-toggle" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:8px;">
+      <button type="button" data-workout-mode-btn data-widx="${idx}" data-mode="normal" class="mode-btn${mode === 'normal' ? ' active' : ''}">⏱ Clássico</button>
+      <button type="button" data-workout-mode-btn data-widx="${idx}" data-mode="circuit" class="mode-btn${mode === 'circuit' ? ' active' : ''}">🔄 Circuito</button>
+      <button type="button" data-workout-mode-btn data-widx="${idx}" data-mode="brain" class="mode-btn${mode === 'brain' ? ' active' : ''}">Bravo</button>
+    </div>
+    <input type="hidden" id="progW${idx}_mode" value="${mode}">
+    <div id="progW${idx}_fields">
+      <div id="progW${idx}_FieldsNormal" class="prog-fields${mode === 'normal' ? '' : ' hidden'}">
+        <div class="field-group" style="margin-bottom:8px;">
+          <label class="field-label">Nº Exercícios</label>
+          <input class="field-input" type="number" id="progW${idx}_NormalExCount" value="${existing?.normalExCount || 1}" min="1" max="12">
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
+          <div class="field-group"><label class="field-label">Séries</label><input class="field-input" type="number" id="progW${idx}_Cycles" value="${existing?.cycles ?? 3}"></div>
+          <div class="field-group"><label class="field-label">Preparação (s)</label><input class="field-input" type="number" id="progW${idx}_Prep" value="${existing?.prep ?? 10}"></div>
+          <div class="field-group"><label class="field-label">Execução (s)</label><input class="field-input" type="number" id="progW${idx}_Action" value="${existing?.action ?? 40}"></div>
+          <div class="field-group"><label class="field-label">Recuperação (s)</label><input class="field-input" type="number" id="progW${idx}_Rest" value="${existing?.rest ?? 20}"></div>
+        </div>
+        <div id="progW${idx}_NormalExList"></div>
+      </div>
+      <div id="progW${idx}_FieldsCircuit" class="prog-fields${mode === 'circuit' ? '' : ' hidden'}">
+        <div class="field-group" style="margin-bottom:8px;">
+          <label class="field-label">Nº Exercícios</label>
+          <input class="field-input" type="number" id="progW${idx}_ExCount" value="${existing?.exCount || 4}" min="1" max="12">
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
+          <div class="field-group"><label class="field-label">Rodadas</label><input class="field-input" type="number" id="progW${idx}_Rounds" value="${existing?.rounds ?? 3}"></div>
+          <div class="field-group"><label class="field-label">Preparação (s)</label><input class="field-input" type="number" id="progW${idx}_CPrep" value="${existing?.prep ?? 10}"></div>
+          <div class="field-group"><label class="field-label">Execução (s)</label><input class="field-input" type="number" id="progW${idx}_CAction" value="${existing?.action ?? 30}"></div>
+          <div class="field-group"><label class="field-label">Intervalo (s)</label><input class="field-input" type="number" id="progW${idx}_CRest" value="${existing?.rest ?? 0}"></div>
+        </div>
+        <div id="progW${idx}_CircuitExList"></div>
+      </div>
+      <div id="progW${idx}_FieldsBrain" class="prog-fields${mode === 'brain' ? '' : ' hidden'}">
+        <div class="field-group" style="margin-bottom:8px;">
+          <label class="field-label">Nº Exercícios</label>
+          <input class="field-input" type="number" id="progW${idx}_BrainExCount" value="${existing?.brainExCount || 2}" min="1" max="12">
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
+          <div class="field-group"><label class="field-label">Séries</label><input class="field-input" type="number" id="progW${idx}_BrainSeries" value="${existing?.brainSeries ?? 3}"></div>
+          <div class="field-group"><label class="field-label">Preparação (s)</label><input class="field-input" type="number" id="progW${idx}_BrainPrep" value="${existing?.brainPrep ?? 15}"></div>
+          <div class="field-group"><label class="field-label">Execução (s)</label><input class="field-input" type="number" id="progW${idx}_BrainAction" value="${existing?.brainAction ?? 40}"></div>
+        </div>
+        <div id="progW${idx}_BrainExList"></div>
+      </div>
+    </div>
+  `;
+  container.appendChild(div);
+  renderExerciseInputs(`progW${idx}_NormalExList`, `progW${idx}_NfEx`, existing?.normalExCount || 1, existing?.normalExercises, existing?.normalExerciseVideos);
+  renderExerciseInputs(`progW${idx}_CircuitExList`, `progW${idx}_CEx`, existing?.exCount || 4, existing?.exercises, existing?.exerciseVideos);
+  renderExerciseInputs(`progW${idx}_BrainExList`, `progW${idx}_BEx`, existing?.brainExCount || 2, existing?.brainExercises, existing?.brainExerciseVideos);
+}
+
+document.getElementById('progWorkoutsList')?.addEventListener('click', (e) => {
+  const modeBtn = e.target.closest('[data-workout-mode-btn]');
+  if (modeBtn) {
+    const idx = modeBtn.dataset.widx;
+    const mode = modeBtn.dataset.mode;
+    document.querySelectorAll(`[data-workout-mode-btn][data-widx="${idx}"]`).forEach(b => b.classList.toggle('active', b === modeBtn));
+    document.getElementById(`progW${idx}_mode`).value = mode;
+    document.querySelectorAll(`#progW${idx}_fields .prog-fields`).forEach(f => window.adminHide(f));
+    const map = { normal: `progW${idx}_FieldsNormal`, circuit: `progW${idx}_FieldsCircuit`, brain: `progW${idx}_FieldsBrain` };
+    window.adminShow(document.getElementById(map[mode]));
+    return;
+  }
+  const removeBtn = e.target.closest('[data-remove-workout]');
+  if (removeBtn) {
+    document.getElementById(`progWorkoutBlock${removeBtn.dataset.removeWorkout}`)?.remove();
+  }
+});
+
+document.getElementById('progWorkoutsList')?.addEventListener('input', (e) => {
+  const id = e.target.id || '';
+  const m = id.match(/^progW(\d+)_(NormalExCount|ExCount|BrainExCount)$/);
+  if (!m) return;
+  const idx = m[1];
+  if (m[2] === 'NormalExCount') renderExerciseInputs(`progW${idx}_NormalExList`, `progW${idx}_NfEx`, parseInt(e.target.value) || 1);
+  else if (m[2] === 'ExCount') renderExerciseInputs(`progW${idx}_CircuitExList`, `progW${idx}_CEx`, parseInt(e.target.value) || 1);
+  else if (m[2] === 'BrainExCount') renderExerciseInputs(`progW${idx}_BrainExList`, `progW${idx}_BEx`, parseInt(e.target.value) || 1);
+});
+
+function readWorkoutBlock(idx) {
+  const label = document.getElementById(`progW${idx}_label`)?.value.trim() || '';
+  const mode = document.getElementById(`progW${idx}_mode`)?.value || 'normal';
+  let w = { label, mode };
+  const videoUrls = [];
+
+  if (mode === 'normal') {
+    const count = parseInt(document.getElementById(`progW${idx}_NormalExCount`)?.value) || 1;
+    const exercises = [], videos = [];
+    for (let i = 0; i < count; i++) {
+      exercises.push(document.getElementById(`progW${idx}_NfEx${i}`)?.value.trim() || EX_LETTERS[i]);
+      const v = document.getElementById(`progW${idx}_NfExYt${i}`)?.value.trim() || '';
+      videos.push(v); videoUrls.push(v);
+    }
+    w = { ...w,
+      normalExCount: count,
+      cycles: parseInt(document.getElementById(`progW${idx}_Cycles`)?.value) || 1,
+      prep: parseInt(document.getElementById(`progW${idx}_Prep`)?.value) || 0,
+      action: parseInt(document.getElementById(`progW${idx}_Action`)?.value) || 0,
+      rest: parseInt(document.getElementById(`progW${idx}_Rest`)?.value) || 0,
+      normalExercises: exercises, normalExerciseVideos: videos
+    };
+  } else if (mode === 'circuit') {
+    const count = parseInt(document.getElementById(`progW${idx}_ExCount`)?.value) || 1;
+    const exercises = [], videos = [];
+    for (let i = 0; i < count; i++) {
+      exercises.push(document.getElementById(`progW${idx}_CEx${i}`)?.value.trim() || EX_LETTERS[i]);
+      const v = document.getElementById(`progW${idx}_CExYt${i}`)?.value.trim() || '';
+      videos.push(v); videoUrls.push(v);
+    }
+    w = { ...w,
+      exCount: count,
+      rounds: parseInt(document.getElementById(`progW${idx}_Rounds`)?.value) || 1,
+      prep: parseInt(document.getElementById(`progW${idx}_CPrep`)?.value) || 0,
+      action: parseInt(document.getElementById(`progW${idx}_CAction`)?.value) || 0,
+      rest: parseInt(document.getElementById(`progW${idx}_CRest`)?.value) || 0,
+      exercises, exerciseVideos: videos
+    };
+  } else {
+    const count = parseInt(document.getElementById(`progW${idx}_BrainExCount`)?.value) || 1;
+    const exercises = [], videos = [];
+    for (let i = 0; i < count; i++) {
+      exercises.push(document.getElementById(`progW${idx}_BEx${i}`)?.value.trim() || ('Exercício ' + (i + 1)));
+      const v = document.getElementById(`progW${idx}_BExYt${i}`)?.value.trim() || '';
+      videos.push(v); videoUrls.push(v);
+    }
+    w = { ...w,
+      brainExCount: count,
+      brainSeries: parseInt(document.getElementById(`progW${idx}_BrainSeries`)?.value) || 1,
+      brainAction: parseInt(document.getElementById(`progW${idx}_BrainAction`)?.value) || 0,
+      brainPrep: parseInt(document.getElementById(`progW${idx}_BrainPrep`)?.value) || 0,
+      brainExercises: exercises, brainExerciseVideos: videos
+    };
+  }
+  return { workout: w, videoUrls };
+}
+
+// ============================================================
+// RESET / NOVO / EDITAR
+// ============================================================
 function resetForm() {
   editingId = null;
   const saveBtn = document.getElementById('progSaveBtn');
   if (saveBtn) saveBtn.textContent = 'SALVAR PROGRAMA';
   document.getElementById('progMode').value = 'normal';
-  document.querySelectorAll('#adminViewPrograms .mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === 'normal'));
+  document.querySelectorAll('#progSingleFields .mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === 'normal'));
   document.getElementById('progName').value = '';
   document.getElementById('progObs').value = '';
   document.getElementById('progSalesLink').value = '';
   document.getElementById('progHotmartId').value = '';
-  document.querySelectorAll('.prog-fields').forEach(f => window.adminHide(f));
+  document.querySelectorAll('#progSingleFields .prog-fields').forEach(f => window.adminHide(f));
   window.adminShow(document.getElementById('progFieldsNormal'));
   document.getElementById('progNormalExCount').value = 1;
   document.getElementById('progExCount').value = 4;
@@ -98,6 +290,12 @@ function resetForm() {
   renderExerciseInputs('progNormalExList', 'progNfEx', 1);
   renderExerciseInputs('progCircuitExList', 'progCEx', 4);
   renderExerciseInputs('progBrainExList', 'progBEx', 2);
+
+  document.getElementById('progMultiToggle').checked = false;
+  document.getElementById('progWorkoutsList').innerHTML = '';
+  _workoutIdx = 0;
+  window.adminShow(document.getElementById('progSingleFields'));
+  window.adminHide(document.getElementById('progWorkoutsBuilder'));
 }
 
 document.getElementById('adminProgramNewBtn')?.addEventListener('click', () => {
@@ -109,41 +307,57 @@ function editProgram(p) {
   editingId = p.id;
   const saveBtn = document.getElementById('progSaveBtn');
   if (saveBtn) saveBtn.textContent = 'SALVAR ALTERAÇÕES';
-  const mode = p.mode || 'normal';
-  document.getElementById('progMode').value = mode;
-  document.querySelectorAll('#adminViewPrograms .mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
-  document.querySelectorAll('.prog-fields').forEach(f => window.adminHide(f));
-  const map = { normal: 'progFieldsNormal', circuit: 'progFieldsCircuit', brain: 'progFieldsBrain' };
-  window.adminShow(document.getElementById(map[mode]));
 
   document.getElementById('progName').value = p.name || '';
   document.getElementById('progObs').value = p.obs || '';
   document.getElementById('progSalesLink').value = p.salesLink || '';
   document.getElementById('progHotmartId').value = p.hotmartProductId || '';
 
-  if (mode === 'normal') {
-    const count = p.normalExCount || 1;
-    document.getElementById('progNormalExCount').value = count;
-    document.getElementById('progCycles').value = p.cycles ?? 3;
-    document.getElementById('progPrep').value = p.prep ?? 10;
-    document.getElementById('progAction').value = p.action ?? 40;
-    document.getElementById('progRest').value = p.rest ?? 20;
-    renderExerciseInputs('progNormalExList', 'progNfEx', count, p.normalExercises, p.normalExerciseVideos);
-  } else if (mode === 'circuit') {
-    const count = p.exCount || 4;
-    document.getElementById('progExCount').value = count;
-    document.getElementById('progRounds').value = p.rounds ?? 3;
-    document.getElementById('progCPrep').value = p.prep ?? 10;
-    document.getElementById('progCAction').value = p.action ?? 30;
-    document.getElementById('progCRest').value = p.rest ?? 0;
-    renderExerciseInputs('progCircuitExList', 'progCEx', count, p.exercises, p.exerciseVideos);
+  document.getElementById('progWorkoutsList').innerHTML = '';
+  _workoutIdx = 0;
+
+  const isMulti = Array.isArray(p.workouts) && p.workouts.length > 0;
+  document.getElementById('progMultiToggle').checked = isMulti;
+
+  if (isMulti) {
+    window.adminHide(document.getElementById('progSingleFields'));
+    window.adminShow(document.getElementById('progWorkoutsBuilder'));
+    p.workouts.forEach(w => addWorkoutBlock(w));
   } else {
-    const count = p.brainExCount || 2;
-    document.getElementById('progBrainExCount').value = count;
-    document.getElementById('progBrainSeries').value = p.brainSeries ?? 3;
-    document.getElementById('progBrainPrep').value = p.brainPrep ?? 15;
-    document.getElementById('progBrainAction').value = p.brainAction ?? 40;
-    renderExerciseInputs('progBrainExList', 'progBEx', count, p.brainExercises, p.brainExerciseVideos);
+    window.adminShow(document.getElementById('progSingleFields'));
+    window.adminHide(document.getElementById('progWorkoutsBuilder'));
+
+    const mode = p.mode || 'normal';
+    document.getElementById('progMode').value = mode;
+    document.querySelectorAll('#progSingleFields .mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+    document.querySelectorAll('#progSingleFields .prog-fields').forEach(f => window.adminHide(f));
+    const map = { normal: 'progFieldsNormal', circuit: 'progFieldsCircuit', brain: 'progFieldsBrain' };
+    window.adminShow(document.getElementById(map[mode]));
+
+    if (mode === 'normal') {
+      const count = p.normalExCount || 1;
+      document.getElementById('progNormalExCount').value = count;
+      document.getElementById('progCycles').value = p.cycles ?? 3;
+      document.getElementById('progPrep').value = p.prep ?? 10;
+      document.getElementById('progAction').value = p.action ?? 40;
+      document.getElementById('progRest').value = p.rest ?? 20;
+      renderExerciseInputs('progNormalExList', 'progNfEx', count, p.normalExercises, p.normalExerciseVideos);
+    } else if (mode === 'circuit') {
+      const count = p.exCount || 4;
+      document.getElementById('progExCount').value = count;
+      document.getElementById('progRounds').value = p.rounds ?? 3;
+      document.getElementById('progCPrep').value = p.prep ?? 10;
+      document.getElementById('progCAction').value = p.action ?? 30;
+      document.getElementById('progCRest').value = p.rest ?? 0;
+      renderExerciseInputs('progCircuitExList', 'progCEx', count, p.exercises, p.exerciseVideos);
+    } else {
+      const count = p.brainExCount || 2;
+      document.getElementById('progBrainExCount').value = count;
+      document.getElementById('progBrainSeries').value = p.brainSeries ?? 3;
+      document.getElementById('progBrainPrep').value = p.brainPrep ?? 15;
+      document.getElementById('progBrainAction').value = p.brainAction ?? 40;
+      renderExerciseInputs('progBrainExList', 'progBEx', count, p.brainExercises, p.brainExerciseVideos);
+    }
   }
 
   window.adminShow(document.getElementById('adminProgramForm'));
@@ -154,77 +368,100 @@ document.getElementById('progCancelBtn')?.addEventListener('click', () => {
   window.adminHide(document.getElementById('adminProgramForm'));
 });
 
+// ============================================================
+// SALVAR
+// ============================================================
 document.getElementById('progSaveBtn')?.addEventListener('click', async () => {
   const name = document.getElementById('progName').value.trim();
   if (!name) { alert('Preencha o nome do programa'); return; }
   const obs = document.getElementById('progObs').value.trim();
-  const mode = document.getElementById('progMode').value;
   const salesLink = document.getElementById('progSalesLink').value.trim();
   if (salesLink && !isValidHttpUrl(salesLink)) {
     alert('O link da página de venda parece inválido. Confira e tente de novo.');
     return;
   }
   const hotmartProductId = document.getElementById('progHotmartId').value.trim();
+  const isMulti = document.getElementById('progMultiToggle').checked;
 
-  let data = { name, obs, mode, color: BRAVO_ORANGE, salesLink: salesLink || null, hotmartProductId: hotmartProductId || null };
-  let allVideoUrls = [];
+  let data = { name, obs, color: BRAVO_ORANGE, salesLink: salesLink || null, hotmartProductId: hotmartProductId || null };
 
-  if (mode === 'normal') {
-    const normalExCount = parseInt(document.getElementById('progNormalExCount').value) || 1;
-    const normalExercises = [];
-    const normalExerciseVideos = [];
-    for (let i = 0; i < normalExCount; i++) {
-      normalExercises.push(document.getElementById('progNfEx' + i)?.value.trim() || EX_LETTERS[i]);
-      const v = document.getElementById('progNfExYt' + i)?.value.trim() || '';
-      normalExerciseVideos.push(v);
-      allVideoUrls.push(v);
+  if (isMulti) {
+    const blocks = [...document.querySelectorAll('#progWorkoutsList > div')];
+    if (blocks.length === 0) { alert('Adicione pelo menos um treino.'); return; }
+    const workouts = [];
+    const allVideoUrls = [];
+    for (const block of blocks) {
+      const idx = block.id.replace('progWorkoutBlock', '');
+      const { workout, videoUrls } = readWorkoutBlock(idx);
+      if (!workout.label) workout.label = `Treino ${EX_LETTERS[workouts.length] || (workouts.length + 1)}`;
+      workouts.push(workout);
+      allVideoUrls.push(...videoUrls);
     }
-    data = { ...data,
-      cycles: parseInt(document.getElementById('progCycles').value) || 1,
-      prep: parseInt(document.getElementById('progPrep').value) || 0,
-      action: parseInt(document.getElementById('progAction').value) || 0,
-      rest: parseInt(document.getElementById('progRest').value) || 0,
-      normalExCount, normalExercises, normalExerciseVideos
-    };
-  } else if (mode === 'circuit') {
-    const exCount = parseInt(document.getElementById('progExCount').value) || 1;
-    const exercises = [];
-    const exerciseVideos = [];
-    for (let i = 0; i < exCount; i++) {
-      exercises.push(document.getElementById('progCEx' + i)?.value.trim() || EX_LETTERS[i]);
-      const v = document.getElementById('progCExYt' + i)?.value.trim() || '';
-      exerciseVideos.push(v);
-      allVideoUrls.push(v);
+    const invalid = allVideoUrls.some(v => v && !isValidYtUrl(v));
+    if (invalid) { alert('Um dos links do YouTube parece inválido. Confira e tente de novo.'); return; }
+    data = { ...data, mode: 'multi', workouts };
+  } else {
+    const mode = document.getElementById('progMode').value;
+    let allVideoUrls = [];
+
+    if (mode === 'normal') {
+      const normalExCount = parseInt(document.getElementById('progNormalExCount').value) || 1;
+      const normalExercises = [];
+      const normalExerciseVideos = [];
+      for (let i = 0; i < normalExCount; i++) {
+        normalExercises.push(document.getElementById('progNfEx' + i)?.value.trim() || EX_LETTERS[i]);
+        const v = document.getElementById('progNfExYt' + i)?.value.trim() || '';
+        normalExerciseVideos.push(v);
+        allVideoUrls.push(v);
+      }
+      data = { ...data, mode,
+        cycles: parseInt(document.getElementById('progCycles').value) || 1,
+        prep: parseInt(document.getElementById('progPrep').value) || 0,
+        action: parseInt(document.getElementById('progAction').value) || 0,
+        rest: parseInt(document.getElementById('progRest').value) || 0,
+        normalExCount, normalExercises, normalExerciseVideos
+      };
+    } else if (mode === 'circuit') {
+      const exCount = parseInt(document.getElementById('progExCount').value) || 1;
+      const exercises = [];
+      const exerciseVideos = [];
+      for (let i = 0; i < exCount; i++) {
+        exercises.push(document.getElementById('progCEx' + i)?.value.trim() || EX_LETTERS[i]);
+        const v = document.getElementById('progCExYt' + i)?.value.trim() || '';
+        exerciseVideos.push(v);
+        allVideoUrls.push(v);
+      }
+      data = { ...data, mode,
+        exCount,
+        rounds: parseInt(document.getElementById('progRounds').value) || 1,
+        prep: parseInt(document.getElementById('progCPrep').value) || 0,
+        action: parseInt(document.getElementById('progCAction').value) || 0,
+        rest: parseInt(document.getElementById('progCRest').value) || 0,
+        exercises, exerciseVideos
+      };
+    } else { // brain
+      const brainExCount = parseInt(document.getElementById('progBrainExCount').value) || 1;
+      const brainExercises = [];
+      const brainExerciseVideos = [];
+      for (let i = 0; i < brainExCount; i++) {
+        brainExercises.push(document.getElementById('progBEx' + i)?.value.trim() || ('Exercício ' + (i + 1)));
+        const v = document.getElementById('progBExYt' + i)?.value.trim() || '';
+        brainExerciseVideos.push(v);
+        allVideoUrls.push(v);
+      }
+      data = { ...data, mode,
+        brainExCount,
+        brainSeries: parseInt(document.getElementById('progBrainSeries').value) || 1,
+        brainAction: parseInt(document.getElementById('progBrainAction').value) || 0,
+        brainPrep: parseInt(document.getElementById('progBrainPrep').value) || 0,
+        brainExercises, brainExerciseVideos
+      };
     }
-    data = { ...data,
-      exCount,
-      rounds: parseInt(document.getElementById('progRounds').value) || 1,
-      prep: parseInt(document.getElementById('progCPrep').value) || 0,
-      action: parseInt(document.getElementById('progCAction').value) || 0,
-      rest: parseInt(document.getElementById('progCRest').value) || 0,
-      exercises, exerciseVideos
-    };
-  } else { // brain
-    const brainExCount = parseInt(document.getElementById('progBrainExCount').value) || 1;
-    const brainExercises = [];
-    const brainExerciseVideos = [];
-    for (let i = 0; i < brainExCount; i++) {
-      brainExercises.push(document.getElementById('progBEx' + i)?.value.trim() || ('Exercício ' + (i+1)));
-      const v = document.getElementById('progBExYt' + i)?.value.trim() || '';
-      brainExerciseVideos.push(v);
-      allVideoUrls.push(v);
-    }
-    data = { ...data,
-      brainExCount,
-      brainSeries: parseInt(document.getElementById('progBrainSeries').value) || 1,
-      brainAction: parseInt(document.getElementById('progBrainAction').value) || 0,
-      brainPrep: parseInt(document.getElementById('progBrainPrep').value) || 0,
-      brainExercises, brainExerciseVideos
-    };
+
+    const invalid = allVideoUrls.some(v => v && !isValidYtUrl(v));
+    if (invalid) { alert('Um dos links do YouTube parece inválido. Confira e tente de novo.'); return; }
+    data = { ...data, workouts: null };
   }
-
-  const invalid = allVideoUrls.some(v => v && !isValidYtUrl(v));
-  if (invalid) { alert('Um dos links do YouTube parece inválido. Confira e tente de novo.'); return; }
 
   const id = editingId || ('p_' + Date.now().toString(36));
   const isNew = !editingId;
@@ -238,8 +475,11 @@ document.getElementById('progSaveBtn')?.addEventListener('click', async () => {
   renderPrograms();
 });
 
+// ============================================================
+// LISTAGEM
+// ============================================================
 function modeLabel(mode) {
-  return { normal: 'Clássico', circuit: 'Circuito', brain: 'Bravo (Cérebro)' }[mode] || mode;
+  return { normal: 'Clássico', circuit: 'Circuito', brain: 'Bravo (Cérebro)', multi: 'Múltiplos treinos' }[mode] || mode;
 }
 
 function accessBadge(access) {
@@ -278,17 +518,23 @@ async function renderPrograms() {
 
   list.innerHTML = _programs.map(p => {
     const badge = accessBadge(p.access);
+    const isHidden = !!p.hidden;
+    const modeText = p.mode === 'multi' && Array.isArray(p.workouts)
+      ? `${modeLabel(p.mode)} (${p.workouts.length})`
+      : modeLabel(p.mode);
     return `
-    <div style="background:var(--surface);border:1px solid var(--surface2);border-radius:12px;padding:14px 16px;margin-bottom:10px;">
+    <div style="background:var(--surface);border:1px solid var(--surface2);border-radius:12px;padding:14px 16px;margin-bottom:10px;${isHidden ? 'opacity:.7;' : ''}">
       <div style="display:flex;justify-content:space-between;align-items:center;">
         <div style="font-size:15px;font-weight:600;">${escapeHtml(p.name)}</div>
         <div style="display:flex;gap:12px;">
           <button data-edit-program="${p.id}" style="background:none;border:none;color:var(--accent);font-size:13px;cursor:pointer;">Editar</button>
+          <button data-toggle-hidden="${p.id}" style="background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;">${isHidden ? 'Mostrar' : 'Ocultar'}</button>
           <button data-del-program="${p.id}" style="background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;">Excluir</button>
         </div>
       </div>
-      <div style="color:var(--muted);font-size:13px;margin-top:4px;">${modeLabel(p.mode)}${p.obs ? ' · ' + escapeHtml(p.obs) : ''}</div>
+      <div style="color:var(--muted);font-size:13px;margin-top:4px;">${modeText}${p.obs ? ' · ' + escapeHtml(p.obs) : ''}</div>
       <div style="font-size:12px;margin-top:6px;color:${badge.color};">● ${badge.text}</div>
+      <div style="font-size:12px;margin-top:4px;color:${isHidden ? 'var(--accent)' : 'var(--muted)'};">${isHidden ? '🙈 Oculto — some do menu de quem ainda não liberou, mas continua disponível pra quem já tem' : '👁 Visível no menu'}</div>
       <div style="font-size:12px;margin-top:4px;color:var(--muted);">${p.salesLink ? '🔗 Link de venda configurado' : '— Sem link de venda'}${p.hotmartProductId ? ' · 🏷 Hotmart: ' + escapeHtml(p.hotmartProductId) : ''}</div>
 
       <details style="margin-top:10px;">
@@ -328,9 +574,25 @@ document.getElementById('adminProgramList')?.addEventListener('click', async (e)
     return;
   }
 
+  const toggleId = e.target.dataset?.toggleHidden;
+  if (toggleId) {
+    const p = _programs?.find(x => x.id === toggleId);
+    if (!p) return;
+    const newHidden = !p.hidden;
+    await setDoc(doc(window._adminDb, 'programs', toggleId), { hidden: newHidden }, { merge: true });
+    p.hidden = newHidden;
+    renderPrograms();
+    return;
+  }
+
   const delId = e.target.dataset?.delProgram;
   if (delId) {
-    if (!confirm('Excluir este programa? Quem já tiver ele liberado deixa de ter acesso.')) return;
+    const ok = confirm(
+      'Excluir este programa apaga ele de vez, inclusive para quem já tinha liberado.\n\n' +
+      'Se você só quer tirar ele do menu de quem ainda não comprou (mas manter o acesso de quem já tem), use "Ocultar" em vez de excluir.\n\n' +
+      'Quer mesmo excluir?'
+    );
+    if (!ok) return;
     await deleteDoc(doc(window._adminDb, 'programs', delId));
     _programs = null;
     renderPrograms();
