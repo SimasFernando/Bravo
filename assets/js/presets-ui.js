@@ -273,7 +273,7 @@ function renderHome(){
         </div>`;
       bCard.addEventListener('click',e=>{
         if(e.target.closest('.drag-handle'))return;
-        if(e.target.dataset.view){openEdit(null,{viewOnly:true,sourceObj:d});return;}
+        if(e.target.closest('[data-view]')){openEdit(null,{viewOnly:true,sourceObj:d});return;}
         selectBravoMarcado();
       });
       bravoList.appendChild(bCard);
@@ -343,7 +343,7 @@ function renderHome(){
     `;
     bCard.addEventListener('click', e => {
       if (e.target.closest('.drag-handle')) return;
-      if (e.target.dataset.view) { openEdit(null,{viewOnly:true,sourceObj:ap}); return; }
+      if (e.target.closest('[data-view]')) { openEdit(null,{viewOnly:true,sourceObj:ap}); return; }
       selectedId = adminSelId; autoModeSelected = false;
       document.getElementById('autoCard')?.classList.remove('selected');
       renderHome();
@@ -430,9 +430,12 @@ function renderHome(){
         ${actionsHTML}
       </div>`;
     card.addEventListener('click',e=>{
-      if(e.target.dataset.fav){toggleFav(e.target.dataset.fav);return;}
-      if(e.target.dataset.edit){openEdit(e.target.dataset.edit);return;}
-      if(e.target.dataset.dup){duplicatePreset(e.target.dataset.dup);return;}
+      const favBtn=e.target.closest('[data-fav]');
+      if(favBtn){toggleFav(favBtn.dataset.fav);return;}
+      const editBtn=e.target.closest('[data-edit]');
+      if(editBtn){openEdit(editBtn.dataset.edit);return;}
+      const dupBtn=e.target.closest('[data-dup]');
+      if(dupBtn){duplicatePreset(dupBtn.dataset.dup);return;}
       if(e.target.closest('.drag-handle'))return;
       selectedId=p.id;autoModeSelected=false;
       document.getElementById('autoCard')?.classList.remove('selected');
@@ -902,7 +905,9 @@ document.getElementById('btnLoginForgotPw').onclick=async()=>{
 // completar perfil antes de seguir — sem travar quem quiser pular.
 async function afterAuthSuccess(){
   const userData=JSON.parse(localStorage.getItem('bravo_user')||'null')||{};
-  if(!userData.year&&!userData.gender){
+  if(!userData.name||(!userData.year&&!userData.gender)){
+    document.getElementById('cpNameGroup').style.display=userData.name?'none':'flex';
+    document.getElementById('cpName').value='';
     showScreen('completeProfileScreen');
     return;
   }
@@ -918,7 +923,7 @@ function finishToHomeOrPremium(){
   if(typeof renderHome==='function')renderHome();
 }
 
-// ---- COMPLETE PROFILE (ano/gênero, opcional, pós-login) ----
+// ---- COMPLETE PROFILE (nome/ano/gênero, opcional, pós-login) ----
 let selectedGenderCP='';
 function selectGenderCP(btn){
   selectedGenderCP=btn.dataset.g;
@@ -927,10 +932,12 @@ function selectGenderCP(btn){
 }
 document.getElementById('btnCompleteProfileSkip').onclick=()=>finishToHomeOrPremium();
 document.getElementById('btnCompleteProfileSave').onclick=()=>{
+  const name=document.getElementById('cpName').value.trim();
   const year=document.getElementById('cpYear').value.trim();
   const gender=selectedGenderCP;
   const current=JSON.parse(localStorage.getItem('bravo_user')||'null')||{};
   const data={...current};
+  if(name)data.name=name;
   if(year)data.year=year;
   if(gender)data.gender=gender;
   localStorage.setItem('bravo_user',JSON.stringify(data));

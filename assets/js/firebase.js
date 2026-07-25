@@ -247,8 +247,11 @@ async function _fbEnsureUserDoc(user) {
         phone: '',
         createdAt: serverTimestamp()
       }, { merge: true });
-    } else if (user.email && !snap.data().email) {
-      await setDoc(ref, { email: user.email }, { merge: true });
+    } else {
+      const patch = {};
+      if (user.email && !snap.data().email) patch.email = user.email;
+      if (user.displayName && !snap.data().name) patch.name = user.displayName;
+      if (Object.keys(patch).length) await setDoc(ref, patch, { merge: true });
     }
   } catch (e) { console.warn('fbEnsureUserDoc', e); }
 }
