@@ -221,6 +221,20 @@ window._fbDismissMessage = _fbDismissMessage;
 // registro em 'users', mesmo que nunca tenha passado pela tela de
 // Cadastro. Sem isso, ele fica invisível no painel admin. Não
 // sobrescreve dados já preenchidos pelo formulário de cadastro.
+// Reflete localmente (sem esperar o round-trip do Firestore) os dados que
+// já temos do provedor de login. Só sobrescreve campos vindos com valor —
+// nunca apaga nome/telefone/ano/gênero já salvos localmente.
+function _fbSyncLocalUser(patch) {
+  const current = JSON.parse(localStorage.getItem('bravo_user') || 'null') || {};
+  const merged = { ...current };
+  Object.keys(patch).forEach(k => { if (patch[k]) merged[k] = patch[k]; });
+  localStorage.setItem('bravo_user', JSON.stringify(merged));
+  if (merged.name || merged.email) localStorage.setItem('bravo_reg_done', '1');
+  if (typeof window.renderHome === 'function') window.renderHome();
+  return merged;
+}
+window._fbSyncLocalUser = _fbSyncLocalUser;
+
 async function _fbEnsureUserDoc(user) {
   if (!user || user.isAnonymous) return;
   try {
@@ -238,6 +252,17 @@ async function _fbEnsureUserDoc(user) {
     }
   } catch (e) { console.warn('fbEnsureUserDoc', e); }
 }
+
+// Busca o documento de perfil do usuário direto do Firestore — usado logo
+// após um login pra decidir, com dados frescos, se falta ano/gênero.
+async function _fbFetchUserProfile() {
+  if (!window._fbUid) return null;
+  try {
+    const snap = await getDoc(_userDoc());
+    return snap.exists() ? snap.data() : null;
+  } catch (e) { console.warn('fbFetchUserProfile', e); return null; }
+}
+window._fbFetchUserProfile = _fbFetchUserProfile;
 
 function _updateGoogleUI(user) {
   const label = document.getElementById('googleSignInLabel');
@@ -271,6 +296,8 @@ async function _fbGoogleSignIn() {
         const result = await linkWithPopup(currentUser, provider);
         window._fbUid = result.user.uid;
         localStorage.setItem('bravo_fb_uid', result.user.uid);
+        await _fbEnsureUserDoc(result.user);
+        _fbSyncLocalUser({ name: result.user.displayName || '', email: result.user.email || '' });
         if (status) status.textContent = 'Conta vinculada com sucesso!';
         _updateGoogleUI(result.user);
         showToast('Conectado com Google! Seus dados estão seguros 💪');
@@ -284,6 +311,9 @@ async function _fbGoogleSignIn() {
           await _fbMigrateAnonData(anonUid, result.user.uid);
           window._fbUid = result.user.uid;
           localStorage.setItem('bravo_fb_uid', result.user.uid);
+          await _fbEnsureUserDoc(result.user);
+          const cloudProfile = await _fbFetchUserProfile();
+          _fbSyncLocalUser(cloudProfile || { name: result.user.displayName || '', email: result.user.email || '' });
           if (status) status.textContent = 'Conta encontrada — dados sincronizados!';
           _updateGoogleUI(result.user);
           showToast('Conectado com Google! Seus dados estão seguros 💪');
@@ -295,6 +325,9 @@ async function _fbGoogleSignIn() {
       const result = await signInWithPopup(_fbAuth, provider);
       window._fbUid = result.user.uid;
       localStorage.setItem('bravo_fb_uid', result.user.uid);
+      await _fbEnsureUserDoc(result.user);
+      const cloudProfile = await _fbFetchUserProfile();
+      _fbSyncLocalUser(cloudProfile || { name: result.user.displayName || '', email: result.user.email || '' });
       if (status) status.textContent = 'Conectado com sucesso!';
       _updateGoogleUI(result.user);
       showToast('Conectado com Google! Seus dados estão seguros 💪');
@@ -429,6 +462,8 @@ async function _fbEmailLogin(email, password) {
     }
     window._fbUid = result.user.uid;
     localStorage.setItem('bravo_fb_uid', result.user.uid);
+    const cloudProfile = await _fbFetchUserProfile();
+    _fbSyncLocalUser(cloudProfile || { email: result.user.email || '' });
     return { ok: true };
   } catch (e) {
     console.warn('fbEmailLogin', e);

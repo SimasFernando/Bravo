@@ -772,14 +772,26 @@ function openIndicacoes(categoria){
   document.getElementById('indicacoesTitle').textContent=categoria;
   showScreen('indicacoesScreen');
 }
-function openRegisterFromMenu(){closeMenuForce();showScreen('registerScreen');if(window._fbAuthCurrentUser)_refreshGoogleUIIfPossible();}
-function openLoginFromMenu(){closeMenuForce();document.getElementById('loginStatus').textContent='';showScreen('loginScreen');}
+function openAccountFromMenu(){
+  closeMenuForce();
+  setAccountTab('signup');
+  showScreen('registerScreen');
+  if(window._fbAuthCurrentUser)_refreshGoogleUIIfPossible();
+}
+function setAccountTab(tab){
+  const isSignup=tab==='signup';
+  document.getElementById('acctTabSignup').classList.toggle('active',isSignup);
+  document.getElementById('acctTabLogin').classList.toggle('active',!isSignup);
+  document.getElementById('acctSignupFields').style.display=isSignup?'flex':'none';
+  document.getElementById('acctLoginFields').style.display=isSignup?'none':'flex';
+}
 
 // ---- PROGRAMA PREMIUM ----
 function openPremiumFromMenu(){
   closeMenuForce();
   if(!localStorage.getItem('bravo_reg_done')){
     localStorage.setItem('bravo_premium_pending','1');
+    setAccountTab('signup');
     showScreen('registerScreen');
     if(window._fbAuthCurrentUser)_refreshGoogleUIIfPossible();
     return;
@@ -805,12 +817,16 @@ document.getElementById('btnIndicacoesBack').onclick=()=>showScreen('home');
 document.getElementById('btnRegBack').onclick=()=>{localStorage.removeItem('bravo_premium_pending');showScreen('home');};
 const btnGoogleSignIn=document.getElementById('btnGoogleSignIn');
 if(btnGoogleSignIn){
-  btnGoogleSignIn.onclick=()=>{ if(window._fbGoogleSignIn) window._fbGoogleSignIn(); };
+  btnGoogleSignIn.onclick=async()=>{
+    if(!window._fbGoogleSignIn)return;
+    await window._fbGoogleSignIn();
+    if(window._fbUid&&!window._fbIsAnonymous) afterAuthSuccess();
+  };
 }
 let selectedGender='';
 function selectGender(btn){
   selectedGender=btn.dataset.g;
-  document.querySelectorAll('.btn-gender').forEach(b=>b.classList.remove('selected'));
+  document.querySelectorAll('#acctSignupFields .btn-gender').forEach(b=>b.classList.remove('selected'));
   btn.classList.add('selected');
 }
 document.getElementById('btnRegSave').onclick=async()=>{
@@ -842,30 +858,12 @@ document.getElementById('btnRegSave').onclick=async()=>{
   }
   btn.disabled=false;
   renderHome();
-  if(localStorage.getItem('bravo_premium_pending')){
-    localStorage.removeItem('bravo_premium_pending');
-    showToast('Cadastro salvo! Vamos começar 💪');
-    showScreen('premiumIntro');
-  } else {
-    showToast('Cadastro salvo! Bora treinar 💪');
-    showScreen('home');
-  }
+  // Preencheu manualmente: já tem os dados, não precisa da telinha de completar perfil
+  showToast('Cadastro salvo! Bora treinar 💪');
+  finishToHomeOrPremium();
 };
 
 // ---- LOGIN (recuperar conta em outro aparelho) ----
-document.getElementById('btnLoginBack').onclick=()=>showScreen('home');
-const btnGoogleSignInLogin=document.getElementById('btnGoogleSignInLogin');
-if(btnGoogleSignInLogin){
-  btnGoogleSignInLogin.onclick=async()=>{
-    if(!window._fbGoogleSignIn)return;
-    const status=document.getElementById('loginStatus');
-    status.textContent='Conectando...';
-    await window._fbGoogleSignIn();
-    status.textContent='';
-    showScreen('home');
-    if(typeof renderHome==='function')renderHome();
-  };
-}
 function _loginErrorMessage(code){
   if(code==='auth/invalid-credential'||code==='auth/wrong-password'||code==='auth/user-not-found')return 'E-mail ou senha incorretos.';
   if(code==='auth/invalid-email')return 'E-mail inválido.';
@@ -885,8 +883,7 @@ document.getElementById('btnLoginSubmit').onclick=async()=>{
   if(res.ok){
     status.textContent='';
     showToast('Login realizado! Seus dados foram sincronizados 💪');
-    showScreen('home');
-    if(typeof renderHome==='function')renderHome();
+    afterAuthSuccess();
   } else {
     status.textContent=_loginErrorMessage(res.code);
   }
@@ -898,6 +895,49 @@ document.getElementById('btnLoginForgotPw').onclick=async()=>{
   status.textContent='Enviando...';
   const res=window._fbResetPassword?await window._fbResetPassword(email):{ok:false};
   status.textContent=res.ok?'Enviamos um link para redefinir sua senha.':'Não foi possível enviar. Confira o e-mail.';
+};
+
+// Chamado depois de qualquer login bem-sucedido (Google ou e-mail).
+// Se ainda faltar ano/gênero no perfil, oferece a telinha rápida de
+// completar perfil antes de seguir — sem travar quem quiser pular.
+async function afterAuthSuccess(){
+  const userData=JSON.parse(localStorage.getItem('bravo_user')||'null')||{};
+  if(!userData.year&&!userData.gender){
+    showScreen('completeProfileScreen');
+    return;
+  }
+  finishToHomeOrPremium();
+}
+function finishToHomeOrPremium(){
+  if(localStorage.getItem('bravo_premium_pending')){
+    localStorage.removeItem('bravo_premium_pending');
+    showScreen('premiumIntro');
+  } else {
+    showScreen('home');
+  }
+  if(typeof renderHome==='function')renderHome();
+}
+
+// ---- COMPLETE PROFILE (ano/gênero, opcional, pós-login) ----
+let selectedGenderCP='';
+function selectGenderCP(btn){
+  selectedGenderCP=btn.dataset.g;
+  btn.parentElement.querySelectorAll('.btn-gender').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+document.getElementById('btnCompleteProfileSkip').onclick=()=>finishToHomeOrPremium();
+document.getElementById('btnCompleteProfileSave').onclick=()=>{
+  const year=document.getElementById('cpYear').value.trim();
+  const gender=selectedGenderCP;
+  const current=JSON.parse(localStorage.getItem('bravo_user')||'null')||{};
+  const data={...current};
+  if(year)data.year=year;
+  if(gender)data.gender=gender;
+  localStorage.setItem('bravo_user',JSON.stringify(data));
+  localStorage.setItem('bravo_reg_done','1');
+  if(window._fbSaveUser)window._fbSaveUser(data);
+  showToast('Perfil atualizado 💪');
+  finishToHomeOrPremium();
 };
 
 
@@ -917,6 +957,7 @@ function dismissRegPrompt(){
 }
 function openRegisterScreen(){
   document.getElementById('regPromptOverlay').classList.remove('open');
+  setAccountTab('signup');
   showScreen('registerScreen');
   _refreshGoogleUIIfPossible();
 }
