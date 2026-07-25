@@ -63,7 +63,7 @@
   <div class="prog-header">
     <div class="prog-title">TREINOS</div>
   </div>
-  <div style="color:var(--muted);font-size:13px;margin:-8px 0 16px;">
+  <div class="prog-subtitle">
     Escolha quais programas aparecem na tela inicial. Nenhum é apagado — só sai da vista.
   </div>
   <div style="overflow-y:auto;flex:1;padding-bottom:90px;">
@@ -213,10 +213,6 @@
 <div class="screen hidden" id="timer"><div class="timer-main exec-with-video ring-screen" id="timerMain">
     <div class="exec-top-bar">
       <button class="exec-top-btn" id="btnExecBack2" onclick="document.getElementById('btnTimerBack')?.click()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <div class="exec-top-titles">
-        <div class="exec-top-title">TREINO EM ANDAMENTO</div>
-        <div class="exec-top-sub" id="execTopSub"><span id="progSerieCur2">1</span> de <span id="progSerieTotal2">1</span> séries</div>
-      </div>
       <button class="exec-top-btn">⋯</button>
     </div>
     <div class="exec-main-col" style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:space-between;width:100%;flex:1;">
@@ -1027,7 +1023,11 @@
     <div class="reg-title">QUASE LÁ</div>
   </div>
   <div style="display:flex;flex-direction:column;gap:14px;padding:0 0 8px;">
-    <div class="reg-disclaimer" style="text-align:left;">Duas perguntas rápidas e opcionais pra personalizar seu treino.</div>
+    <div class="reg-disclaimer" style="text-align:left;">Duas ou três perguntas rápidas e opcionais pra personalizar seu treino.</div>
+    <div style="display:flex;flex-direction:column;gap:6px;" id="cpNameGroup">
+      <div class="reg-label">Como você quer ser chamado?</div>
+      <input class="reg-input" id="cpName" placeholder="Seu nome ou apelido" autocomplete="given-name">
+    </div>
     <div style="display:flex;flex-direction:column;gap:6px;">
       <div class="reg-label">Ano de nascimento <span style="color:var(--muted);font-size:10px">(opcional)</span></div>
       <input class="reg-input" id="cpYear" type="number" placeholder="Ex: 1990" min="1920" max="2010">
