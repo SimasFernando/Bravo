@@ -19,6 +19,16 @@ function isValidYtUrl(url) {
   return /(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/))([A-Za-z0-9_-]{11})/.test(url);
 }
 
+function isValidHttpUrl(url) {
+  if (!url) return true; // vazio é válido (campo opcional)
+  try {
+    const u = new URL(url);
+    return u.protocol === 'http:' || u.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
 function escapeHtml(str) {
   return String(str).replace(/[&<>"']/g, c => ({
     '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
@@ -72,10 +82,14 @@ document.querySelectorAll('#adminViewPrograms .mode-btn').forEach(btn => {
 
 function resetForm() {
   editingId = null;
+  const saveBtn = document.getElementById('progSaveBtn');
+  if (saveBtn) saveBtn.textContent = 'SALVAR PROGRAMA';
   document.getElementById('progMode').value = 'normal';
   document.querySelectorAll('#adminViewPrograms .mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === 'normal'));
   document.getElementById('progName').value = '';
   document.getElementById('progObs').value = '';
+  document.getElementById('progSalesLink').value = '';
+  document.getElementById('progHotmartId').value = '';
   document.querySelectorAll('.prog-fields').forEach(f => window.adminHide(f));
   window.adminShow(document.getElementById('progFieldsNormal'));
   document.getElementById('progNormalExCount').value = 1;
@@ -91,6 +105,51 @@ document.getElementById('adminProgramNewBtn')?.addEventListener('click', () => {
   window.adminShow(document.getElementById('adminProgramForm'));
 });
 
+function editProgram(p) {
+  editingId = p.id;
+  const saveBtn = document.getElementById('progSaveBtn');
+  if (saveBtn) saveBtn.textContent = 'SALVAR ALTERAÇÕES';
+  const mode = p.mode || 'normal';
+  document.getElementById('progMode').value = mode;
+  document.querySelectorAll('#adminViewPrograms .mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+  document.querySelectorAll('.prog-fields').forEach(f => window.adminHide(f));
+  const map = { normal: 'progFieldsNormal', circuit: 'progFieldsCircuit', brain: 'progFieldsBrain' };
+  window.adminShow(document.getElementById(map[mode]));
+
+  document.getElementById('progName').value = p.name || '';
+  document.getElementById('progObs').value = p.obs || '';
+  document.getElementById('progSalesLink').value = p.salesLink || '';
+  document.getElementById('progHotmartId').value = p.hotmartProductId || '';
+
+  if (mode === 'normal') {
+    const count = p.normalExCount || 1;
+    document.getElementById('progNormalExCount').value = count;
+    document.getElementById('progCycles').value = p.cycles ?? 3;
+    document.getElementById('progPrep').value = p.prep ?? 10;
+    document.getElementById('progAction').value = p.action ?? 40;
+    document.getElementById('progRest').value = p.rest ?? 20;
+    renderExerciseInputs('progNormalExList', 'progNfEx', count, p.normalExercises, p.normalExerciseVideos);
+  } else if (mode === 'circuit') {
+    const count = p.exCount || 4;
+    document.getElementById('progExCount').value = count;
+    document.getElementById('progRounds').value = p.rounds ?? 3;
+    document.getElementById('progCPrep').value = p.prep ?? 10;
+    document.getElementById('progCAction').value = p.action ?? 30;
+    document.getElementById('progCRest').value = p.rest ?? 0;
+    renderExerciseInputs('progCircuitExList', 'progCEx', count, p.exercises, p.exerciseVideos);
+  } else {
+    const count = p.brainExCount || 2;
+    document.getElementById('progBrainExCount').value = count;
+    document.getElementById('progBrainSeries').value = p.brainSeries ?? 3;
+    document.getElementById('progBrainPrep').value = p.brainPrep ?? 15;
+    document.getElementById('progBrainAction').value = p.brainAction ?? 40;
+    renderExerciseInputs('progBrainExList', 'progBEx', count, p.brainExercises, p.brainExerciseVideos);
+  }
+
+  window.adminShow(document.getElementById('adminProgramForm'));
+  document.getElementById('adminProgramForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 document.getElementById('progCancelBtn')?.addEventListener('click', () => {
   window.adminHide(document.getElementById('adminProgramForm'));
 });
@@ -100,8 +159,14 @@ document.getElementById('progSaveBtn')?.addEventListener('click', async () => {
   if (!name) { alert('Preencha o nome do programa'); return; }
   const obs = document.getElementById('progObs').value.trim();
   const mode = document.getElementById('progMode').value;
+  const salesLink = document.getElementById('progSalesLink').value.trim();
+  if (salesLink && !isValidHttpUrl(salesLink)) {
+    alert('O link da página de venda parece inválido. Confira e tente de novo.');
+    return;
+  }
+  const hotmartProductId = document.getElementById('progHotmartId').value.trim();
 
-  let data = { name, obs, mode, color: BRAVO_ORANGE };
+  let data = { name, obs, mode, color: BRAVO_ORANGE, salesLink: salesLink || null, hotmartProductId: hotmartProductId || null };
   let allVideoUrls = [];
 
   if (mode === 'normal') {
@@ -162,10 +227,10 @@ document.getElementById('progSaveBtn')?.addEventListener('click', async () => {
   if (invalid) { alert('Um dos links do YouTube parece inválido. Confira e tente de novo.'); return; }
 
   const id = editingId || ('p_' + Date.now().toString(36));
+  const isNew = !editingId;
   await setDoc(doc(window._adminDb, 'programs', id), {
     ...data,
-    createdAt: Date.now(),
-    createdBy: window._adminUid || null
+    ...(isNew ? { createdAt: Date.now(), createdBy: window._adminUid || null } : {})
   }, { merge: true });
 
   window.adminHide(document.getElementById('adminProgramForm'));
@@ -217,10 +282,14 @@ async function renderPrograms() {
     <div style="background:var(--surface);border:1px solid var(--surface2);border-radius:12px;padding:14px 16px;margin-bottom:10px;">
       <div style="display:flex;justify-content:space-between;align-items:center;">
         <div style="font-size:15px;font-weight:600;">${escapeHtml(p.name)}</div>
-        <button data-del-program="${p.id}" style="background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;">Excluir</button>
+        <div style="display:flex;gap:12px;">
+          <button data-edit-program="${p.id}" style="background:none;border:none;color:var(--accent);font-size:13px;cursor:pointer;">Editar</button>
+          <button data-del-program="${p.id}" style="background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;">Excluir</button>
+        </div>
       </div>
       <div style="color:var(--muted);font-size:13px;margin-top:4px;">${modeLabel(p.mode)}${p.obs ? ' · ' + escapeHtml(p.obs) : ''}</div>
       <div style="font-size:12px;margin-top:6px;color:${badge.color};">● ${badge.text}</div>
+      <div style="font-size:12px;margin-top:4px;color:var(--muted);">${p.salesLink ? '🔗 Link de venda configurado' : '— Sem link de venda'}${p.hotmartProductId ? ' · 🏷 Hotmart: ' + escapeHtml(p.hotmartProductId) : ''}</div>
 
       <details style="margin-top:10px;">
         <summary style="font-size:13px;color:var(--accent);cursor:pointer;">Atribuir</summary>
@@ -252,6 +321,13 @@ async function renderPrograms() {
 }
 
 document.getElementById('adminProgramList')?.addEventListener('click', async (e) => {
+  const editId = e.target.dataset?.editProgram;
+  if (editId) {
+    const p = _programs?.find(x => x.id === editId);
+    if (p) editProgram(p);
+    return;
+  }
+
   const delId = e.target.dataset?.delProgram;
   if (delId) {
     if (!confirm('Excluir este programa? Quem já tiver ele liberado deixa de ter acesso.')) return;
