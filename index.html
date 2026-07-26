@@ -1249,21 +1249,11 @@
     }
   };
 
-  // ---- Botão voltar (Android / gesto do navegador) fica dentro do app ----
-  // Antes, qualquer "voltar" do celular fechava o app direto, mesmo no meio
-  // de um treino.
-  //
-  // Importante: as telas de treino (timer, auto*, brain*) trocam sozinhas o
-  // tempo todo (prep -> execução -> descanso -> próximo exercício...), então
-  // NÃO dá pra empilhar uma entrada de histórico a cada troca — isso faria
-  // a pessoa ter que apertar voltar dezenas de vezes pra sair de um treino.
-  // Em vez disso: telas principais (Início/Treinos/Registros/Mensagens) têm
-  // uma entrada cada; qualquer outra tela (treino, timer, cadastro, sobre,
-  // etc.) conta como "dentro de um fluxo" e usa UMA entrada só, não importa
-  // quantas sub-telas passe por dentro. Voltar de dentro de um fluxo sempre
-  // aciona a saída "oficial" daquela tela (o mesmo botão Voltar/Sair que já
-  // existe nela, com toda a limpeza de timer/wakelock que ele já faz).
-  var TOP_LEVEL_SCREENS = ['home','treinosScreen','progressScreen','inboxScreen'];
+  // ---- Botão voltar (Android / gesto do navegador) ----
+  // Regra simples: voltar de QUALQUER tela leva direto pra tela inicial.
+  // Voltar estando na tela inicial fecha o app (comportamento padrão).
+  // Não tentamos restaurar telas específicas (Mensagens, Treinos, etc.) nem
+  // sub-passos de um treino — é sempre "home ou fecha", como pedido.
   var SCREEN_EXIT_BUTTON = {
     edit:'btnEditBack',
     timer:'btnTimerBack',
@@ -1284,7 +1274,7 @@
   };
 
   var lastPushedScreen = null;
-  var inFlow = false;
+  var awayFromHome = false;
 
   function getVisibleScreenId(){
     var visible = Array.prototype.find.call(document.querySelectorAll('.screen'), function(s){ return !s.classList.contains('hidden'); });
@@ -1296,9 +1286,8 @@
     var el = document.getElementById(id);
     if(el) el.classList.remove('hidden');
   }
-  // Saída de segurança: usada só quando a tela atual não tem um botão de
-  // saída conhecido (ex: telas intermediárias de reps/intensidade). Limpa
-  // os mesmos timers/wakelock/cor que os botões de saída já limpam.
+  // Saída de segurança: limpa os mesmos timers/wakelock/cor que os botões
+  // de saída de cada tela já limpam, pra telas sem botão de saída mapeado.
   function bravoForceExitToHome(){
     try{ if(typeof tmr!=='undefined') clearInterval(tmr._int); }catch(e){}
     try{ if(typeof auto!=='undefined') clearInterval(auto._int); }catch(e){}
@@ -1309,8 +1298,9 @@
     try{ if(typeof hideBravoFixed==='function') hideBravoFixed(); }catch(e){}
     if(typeof showScreen==='function') showScreen('home'); else showScreenById('home');
   }
-  function bravoBackFromFlow(){
+  function bravoBackToHome(){
     var id = getVisibleScreenId();
+    if(id === 'home') return;
     var btnId = SCREEN_EXIT_BUTTON[id];
     var btn = btnId && document.getElementById(btnId);
     if(btn){ btn.click(); return; }
@@ -1319,49 +1309,32 @@
 
   lastPushedScreen = getVisibleScreenId();
   if(!history.state){
-    history.replaceState({bravoScreen:lastPushedScreen}, '', location.href);
+    history.replaceState({bravoHome:true}, '', location.href);
   }
 
+  // Observa a troca de tela onde quer que ela aconteça (não importa qual
+  // arquivo disparou), pra saber quando a pessoa saiu da tela inicial.
   var navObserver = new MutationObserver(function(){
     var id = getVisibleScreenId();
     if(!id || id === lastPushedScreen) return;
     lastPushedScreen = id;
-    if(TOP_LEVEL_SCREENS.indexOf(id) !== -1){
-      history.pushState({bravoScreen:id}, '', location.href);
-      inFlow = false;
-    } else if(!inFlow){
-      history.pushState({bravoFlow:true}, '', location.href);
-      inFlow = true;
+    if(id === 'home'){
+      awayFromHome = false;
+    } else if(!awayFromHome){
+      // uma entrada só, não importa quantas sub-telas a pessoa passe
+      // enquanto estiver fora da tela inicial
+      history.pushState({bravoAway:true}, '', location.href);
+      awayFromHome = true;
     }
-    // se já estava inFlow e a nova tela também não é principal, não empilha
-    // nada — é só mais uma sub-tela automática do mesmo fluxo.
   });
   document.querySelectorAll('.screen').forEach(function(s){ navObserver.observe(s,{attributes:true,attributeFilter:['class']}); });
 
-  window.addEventListener('popstate', function(e){
-    var currentlyVisible = getVisibleScreenId();
-    var stillInFlow = TOP_LEVEL_SCREENS.indexOf(currentlyVisible) === -1;
-
-    if(stillInFlow){
-      // a pessoa apertou voltar estando dentro de um treino/fluxo — não
-      // tentamos restaurar a micro-tela anterior, só saímos com segurança
-      // pela saída oficial daquela tela.
-      inFlow = false;
-      bravoBackFromFlow();
-      return;
+  window.addEventListener('popstate', function(){
+    if(getVisibleScreenId() !== 'home'){
+      awayFromHome = false;
+      bravoBackToHome();
     }
-    if(!e.state){
-      return; // esgotou o histórico interno do app — deixa o navegador fechar
-    }
-    if(e.state.bravoFlow){
-      // marca de um fluxo que já tinha terminado (fantasma) — pula ela
-      history.back();
-      return;
-    }
-    if(e.state.bravoScreen){
-      showScreenById(e.state.bravoScreen);
-      lastPushedScreen = e.state.bravoScreen;
-    }
+    // se já estava na home, não faz nada — deixa o navegador seguir e fechar o app
   });
 })();
 </script>
