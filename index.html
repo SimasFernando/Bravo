@@ -925,6 +925,9 @@
       </button>
       <hr class="menu-divider">
       <div class="menu-section-label">App</div>
+      <button class="menu-item hidden" id="menuInstallBtn" onclick="installBravoApp()">
+        <span class="menu-item-icon-svg"><svg viewBox="0 0 24 24"><path d="M12 3v10.59l3.3-3.3L16.7 11.7 12 16.4l-4.7-4.7 1.4-1.42 3.3 3.3V3h2zM5 19h14v2H5v-2z"/></svg></span> Instalar aplicativo
+      </button>
       <button class="menu-item" onclick="openSettingsFromMenu()">
         <span class="menu-item-icon-svg"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.03 7.03 0 0 0-1.63-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.5.42l-.36 2.54c-.59.24-1.14.56-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.63 8.84a.5.5 0 0 0 .12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32c.14.24.42.34.68.22l2.39-.96c.5.38 1.04.7 1.63.94l.36 2.54c.05.28.27.42.5.42h3.84c.24 0 .46-.14.5-.42l.36-2.54c.59-.24 1.14-.56 1.63-.94l2.39.96c.26.1.54.02.68-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg></span> Configurações
       </button>
@@ -1202,6 +1205,50 @@
     new MutationObserver(function(){ dest.textContent = src.textContent; })
       .observe(src,{childList:true,characterData:true,subtree:true});
   });
+
+  // ---- Instalar aplicativo (item de menu) ----
+  // A maioria das pessoas não sabe que dá pra instalar o PWA, então
+  // mostramos um botão explícito em vez de depender delas acharem
+  // a opção escondida no menu do navegador.
+  function isStandaloneApp(){
+    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  }
+  function isIOSDevice(){
+    return /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+  }
+
+  var deferredInstallPrompt = null;
+  var installBtn = document.getElementById('menuInstallBtn');
+
+  if(installBtn && !isStandaloneApp()){
+    installBtn.classList.remove('hidden');
+  }
+
+  window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    if(installBtn) installBtn.classList.remove('hidden');
+  });
+
+  window.addEventListener('appinstalled', function(){
+    deferredInstallPrompt = null;
+    if(installBtn) installBtn.classList.add('hidden');
+  });
+
+  window.installBravoApp = function(){
+    if(deferredInstallPrompt){
+      deferredInstallPrompt.prompt();
+      deferredInstallPrompt.userChoice.then(function(){
+        deferredInstallPrompt = null;
+      });
+      return;
+    }
+    if(isIOSDevice()){
+      alert('Pra instalar o Bravo no seu iPhone:\n\n1. Toque no ícone de compartilhar (o quadrado com a seta pra cima), na barra do Safari\n2. Escolha "Adicionar à Tela de Início"\n3. Toque em "Adicionar"');
+    } else {
+      alert('Pra instalar o Bravo:\n\n1. Toque nos três pontinhos (⋮) no canto do navegador\n2. Escolha "Instalar aplicativo" ou "Adicionar à tela inicial"');
+    }
+  };
 })();
 </script>
 </body>
