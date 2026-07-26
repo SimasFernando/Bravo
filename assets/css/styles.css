@@ -105,9 +105,9 @@
   /* Tema claro: gradiente suave tingido pela cor do card (item 3) */
   html.theme-light .preset-card::before{
     background:
-      radial-gradient(120% 100% at 100% 0%, color-mix(in srgb, var(--c,#F05E00) 22%, white) 0%, transparent 55%),
-      radial-gradient(120% 120% at 0% 100%, color-mix(in srgb, var(--c,#F05E00) 34%, white) 0%, transparent 60%),
-      linear-gradient(160deg, white 0%, color-mix(in srgb, var(--c,#F05E00) 10%, white) 55%, color-mix(in srgb, var(--c,#F05E00) 30%, white) 100%);
+      radial-gradient(120% 160% at 0% 55%, color-mix(in srgb, var(--c,#F05E00) 55%, #fff 45%) 0%, transparent 52%),
+      radial-gradient(140% 160% at 18% 0%, color-mix(in srgb, var(--c,#F05E00) 30%, #fff 70%) 0%, transparent 62%),
+      linear-gradient(90deg, color-mix(in srgb, var(--c,#F05E00) 20%, #fff 80%) 0%, #fff 68%);
     opacity:1;
     filter:none;
   }
