@@ -855,6 +855,9 @@
 
   /* ==== TELA DE PROGRESSO / REGISTROS ==== */
   #progressScreen{padding:24px 20px 100px;gap:14px;overflow-y:auto;}
+  /* #treinosScreen não tinha padding próprio (só herdava .screen{inset:0}),
+     por isso o título ficava colado no topo, diferente do Registros. */
+  #treinosScreen{padding:24px 20px 0;}
   .prog-header{display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
   .prog-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;}
   .prog-subtitle{font-size:13px;color:var(--muted);line-height:1.5;margin:8px 0 18px;}
