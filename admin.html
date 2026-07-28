@@ -58,6 +58,7 @@
       <div class="admin-nav">
         <button class="active" data-view="home">Início</button>
         <button data-view="users">Usuários</button>
+        <button data-view="premium">Premium</button>
         <button data-view="groups">Grupos</button>
         <button data-view="programs">Programas Bravo</button>
         <button data-view="messages">Mensagens</button>
@@ -75,6 +76,11 @@
         <input class="field-input" id="adminUserSearch" placeholder="Buscar por nome, telefone ou e-mail" style="margin-bottom:16px;">
         <div id="adminUserCount" style="color:var(--muted);font-size:13px;margin-bottom:12px;"></div>
         <div id="adminUserList"></div>
+      </div>
+
+      <div id="adminViewPremium" class="hidden">
+        <div id="adminPremiumCount" style="color:var(--muted);font-size:13px;margin-bottom:12px;"></div>
+        <div id="adminPremiumList"></div>
       </div>
 
       <div id="adminViewGroups" class="hidden">
@@ -219,6 +225,8 @@
   <script src="assets/js/admin-nav.js"></script>
   <script type="module" src="assets/js/admin-auth.js"></script>
   <script type="module" src="assets/js/admin-users.js"></script>
+  <script type="module" src="assets/js/admin-premium.js"></script>
+  <script type="module" src="assets/js/admin-badges.js"></script>
   <script type="module" src="assets/js/admin-groups.js"></script>
   <script type="module" src="assets/js/admin-programs.js"></script>
   <script type="module" src="assets/js/admin-messages.js"></script>
