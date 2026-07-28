@@ -86,7 +86,19 @@ body{overflow:auto;}
 
 .admin-nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;}
 .admin-nav button{
+  position:relative;
   background:var(--surface2);border:none;color:var(--text);
   border-radius:10px;padding:10px 16px;font-size:13px;cursor:pointer;
 }
 .admin-nav button.active{background:var(--accent);}
+
+/* Badge de "novos cadastros" — bolinha vermelha no canto do botão */
+.admin-nav-badge{
+  position:absolute;top:-6px;right:-6px;
+  background:var(--phase-rest);color:#fff;
+  font-size:11px;font-weight:700;line-height:1;
+  min-width:18px;height:18px;border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+  padding:0 4px;
+  box-shadow:0 0 0 2px var(--bg);
+}
