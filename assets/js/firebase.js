@@ -198,6 +198,28 @@ async function _fbLoadMessages() {
 }
 window._fbLoadMessages = _fbLoadMessages;
 
+// ------------------------------------------------------------
+// Escolhas Bravo — indicações de produtos (link afiliado + texto
+// + vídeo opcional). Qualquer usuário logado pode ler (regra do
+// Firestore já permite); mais recentes primeiro.
+// ------------------------------------------------------------
+async function _fbLoadBravoOffers() {
+  try {
+    const snap = await getDocs(collection(_fbDb, 'bravoOffers'));
+    const all = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    all.sort((a, b) => {
+      const am = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
+      const bm = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
+      return bm - am;
+    });
+    return all;
+  } catch (e) {
+    console.warn('fbLoadBravoOffers', e);
+    return [];
+  }
+}
+window._fbLoadBravoOffers = _fbLoadBravoOffers;
+
 async function _fbMarkMessageRead(messageId) {
   if (!window._fbUid) return;
   try {
