@@ -231,6 +231,14 @@
             <input class="field-input" id="offerLink" placeholder="https://...">
           </div>
           <div class="field-group" style="margin-bottom:12px;">
+            <label class="field-label">Imagem</label>
+            <div style="display:flex;gap:8px;align-items:flex-start;">
+              <input class="field-input" id="offerImageUrl" placeholder="URL da imagem (ou clique em buscar)" style="flex:1;">
+              <button type="button" class="admin-btn" id="offerFetchPreviewBtn" style="white-space:nowrap;padding:0 14px;">BUSCAR DO LINK</button>
+            </div>
+            <img id="offerImagePreview" style="display:none;max-width:160px;border-radius:8px;margin-top:10px;" alt="">
+          </div>
+          <div class="field-group" style="margin-bottom:12px;">
             <label class="field-label">Texto</label>
             <textarea class="field-input" id="offerText" rows="4" style="resize:vertical;" placeholder="Por que você indica, como usar, etc."></textarea>
           </div>
