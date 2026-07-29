@@ -31,12 +31,15 @@ function renderBravoOffers(offers) {
     const embed = youtubeEmbedUrl(o.youtubeLink);
     return `
       <div style="background:var(--surface);border:1px solid var(--surface2);border-radius:16px;padding:18px;margin-bottom:16px;">
-        <div style="font-size:16px;font-weight:700;margin-bottom:8px;">${escapeHtmlOffer(o.title)}</div>
-        ${o.text ? `<div style="font-size:14px;color:var(--text);line-height:1.5;margin-bottom:14px;white-space:pre-wrap;">${escapeHtmlOffer(o.text)}</div>` : ''}
-        ${embed ? `<div style="position:relative;padding-top:56.25%;border-radius:12px;overflow:hidden;margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;">
+          <div style="font-size:16px;font-weight:700;flex:1;min-width:0;">${escapeHtmlOffer(o.title)}</div>
+          <a href="${o.link}" target="_blank" rel="noopener noreferrer sponsored" class="btn-offer-cta">VER PRODUTO</a>
+        </div>
+        ${o.imageUrl ? `<img src="${escapeHtmlOffer(o.imageUrl)}" style="width:100%;max-height:220px;object-fit:cover;border-radius:12px;margin-bottom:14px;" alt="" loading="lazy">` : ''}
+        ${o.text ? `<div style="font-size:14px;color:var(--text);line-height:1.5;margin-bottom:${embed ? '14px' : '0'};white-space:pre-wrap;">${escapeHtmlOffer(o.text)}</div>` : ''}
+        ${embed ? `<div style="position:relative;padding-top:56.25%;border-radius:12px;overflow:hidden;">
           <iframe src="${embed}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen loading="lazy"></iframe>
         </div>` : ''}
-        <a href="${o.link}" target="_blank" rel="noopener noreferrer sponsored" class="btn-save" style="display:block;text-align:center;text-decoration:none;">VER PRODUTO</a>
       </div>
     `;
   }).join('');
