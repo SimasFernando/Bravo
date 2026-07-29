@@ -219,6 +219,32 @@
 
         <div id="adminMessageList"></div>
       </div>
+
+      <div id="adminViewOffers" class="hidden">
+        <div style="background:var(--surface);border:1px solid var(--surface2);border-radius:12px;padding:16px;margin-bottom:20px;">
+          <div class="field-group" style="margin-bottom:12px;">
+            <label class="field-label">Nome do produto</label>
+            <input class="field-input" id="offerTitle" placeholder="Ex: Faixa elástica de resistência">
+          </div>
+          <div class="field-group" style="margin-bottom:12px;">
+            <label class="field-label">Link de afiliado</label>
+            <input class="field-input" id="offerLink" placeholder="https://...">
+          </div>
+          <div class="field-group" style="margin-bottom:12px;">
+            <label class="field-label">Texto</label>
+            <textarea class="field-input" id="offerText" rows="4" style="resize:vertical;" placeholder="Por que você indica, como usar, etc."></textarea>
+          </div>
+          <div class="field-group" style="margin-bottom:12px;">
+            <label class="field-label">Link do vídeo do YouTube (opcional)</label>
+            <input class="field-input" id="offerYoutube" placeholder="https://youtube.com/...">
+          </div>
+          <button class="admin-btn" id="offerSaveBtn">PUBLICAR</button>
+          <button class="admin-btn" id="offerCancelEditBtn" style="background:var(--surface2);display:none;">CANCELAR EDIÇÃO</button>
+          <div class="admin-status" id="offerStatus"></div>
+        </div>
+
+        <div id="adminOfferList"></div>
+      </div>
     </div>
   </div>
 
@@ -228,6 +254,7 @@
   <script type="module" src="assets/js/admin-premium.js"></script>
   <script type="module" src="assets/js/admin-badges.js"></script>
   <script type="module" src="assets/js/admin-groups.js"></script>
+  <script type="module" src="assets/js/admin-offers.js"></script>
   <script type="module" src="assets/js/admin-programs.js"></script>
   <script type="module" src="assets/js/admin-messages.js"></script>
 </body>

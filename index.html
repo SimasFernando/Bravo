@@ -903,21 +903,9 @@
         </button>
       </div>
       <hr class="menu-divider">
-      <button class="menu-accordion-toggle" id="accToggle-indicacoes" onclick="toggleMenuAccordion('indicacoes')">
-        <span class="menu-section-label">Escolhas Bravo</span>
-        <span class="menu-accordion-chevron">▾</span>
+      <button class="menu-item" onclick="openBravoOffers()">
+        <img class="menu-item-icon-img" src="ic_play.png?v=202506" alt=""> Escolhas Bravo
       </button>
-      <div class="menu-accordion-body" id="accBody-indicacoes">
-        <button class="menu-item" onclick="openIndicacoes('Equipamentos')">
-          <img class="menu-item-icon-img" src="ic_play.png?v=202506" alt=""> Equipamentos
-        </button>
-        <button class="menu-item" onclick="openIndicacoes('Gadgets')">
-          <img class="menu-item-icon-img" src="ic_play.png?v=202506" alt=""> Gadgets
-        </button>
-        <button class="menu-item" onclick="openIndicacoes('Vestuário')">
-          <img class="menu-item-icon-img" src="ic_play.png?v=202506" alt=""> Vestuário
-        </button>
-      </div>
       <hr class="menu-divider">
       <div class="menu-section-label">Projeto Bravo</div>
       <button class="menu-item" onclick="openAbout()">
@@ -1079,16 +1067,12 @@
   <div id="inboxList" style="padding:16px;overflow-y:auto;flex:1;"></div>
 </div>
 
-<div class="screen hidden" id="indicacoesScreen" style="flex-direction:column;">
+<div class="screen hidden" id="bravoOffersScreen" style="flex-direction:column;">
   <div class="about-header">
-    <button class="btn-ctrl" id="btnIndicacoesBack"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg><span class="ctrl-label">Voltar</span></button>
+    <button class="btn-ctrl" id="btnBravoOffersBack"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg><span class="ctrl-label">Voltar</span></button>
     <div class="about-title-main">ESCOLHAS BRAVO</div>
   </div>
-  <div class="about-logo-big">BRAVO</div>
-  <div class="about-tagline" id="indicacoesTitle">Equipamentos</div>
-  <div class="about-body">
-    Obrigado pela confiança.<br><br>Em breve estaremos colocando nossas melhores indicações aqui.
-  </div>
+  <div id="bravoOffersList" style="padding:16px;overflow-y:auto;flex:1;"></div>
 </div>
 
 <!-- PREMIUM PROGRAM — INTRO -->
@@ -1134,6 +1118,7 @@
 <script src="assets/js/timer-core.js"></script>
 <script src="assets/js/workout-modes.js"></script>
 <script src="assets/js/premium-misc.js"></script>
+<script src="assets/js/bravo-offers.js"></script>
 
 <!-- NEW: bottom nav + progresso tabs + hero CTA + exec header sync (layout update, isolado dos demais scripts) -->
 <script>
@@ -1267,7 +1252,7 @@
     calendarScreen:'btnCalBack',
     registerScreen:'btnRegBack',
     aboutScreen:'btnAboutBack',
-    indicacoesScreen:'btnIndicacoesBack',
+    bravoOffersScreen:'btnBravoOffersBack',
     premiumIntro:'btnPremiumIntroBack',
     premiumQuestion:'btnPremiumBack',
     premiumDone:'btnPremiumDoneBack'
