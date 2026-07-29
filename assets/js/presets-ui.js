@@ -821,7 +821,7 @@ document.getElementById('btnNew').onclick=()=>openEdit(null);
 document.getElementById('btnMenu').onclick=()=>document.getElementById('menuOverlay').classList.add('open');
 function closeMenu(e){if(e.target===document.getElementById('menuOverlay')){document.getElementById('menuOverlay').classList.remove('open');resetMenuAccordions();}}
 function closeMenuForce(){document.getElementById('menuOverlay').classList.remove('open');resetMenuAccordions();}
-const MENU_ACCORDIONS=['programas','indicacoes'];
+const MENU_ACCORDIONS=['programas'];
 function toggleMenuAccordion(name){
   const wasOpen=document.getElementById('accBody-'+name).classList.contains('open');
   MENU_ACCORDIONS.forEach(s=>{
@@ -868,11 +868,9 @@ document.querySelectorAll('#settingsModal [data-theme]').forEach(btn=>{
 function openAbout(){closeMenuForce();showScreen('aboutScreen');}
 function openBravoPlayFromMenu(){closeMenuForce();showScreen('home');selectAutoMode();}
 function openTreinoDoDiaFromMenu(){closeMenuForce();showScreen('home');selectBravoMarcado();}
-function openIndicacoes(categoria){
-  closeMenuForce();
-  document.getElementById('indicacoesTitle').textContent=categoria;
-  showScreen('indicacoesScreen');
-}
+// openIndicacoes foi substituída por openBravoOffers() (assets/js/bravo-offers.js) —
+// a tela Escolhas Bravo agora é uma página única, sem categorias.
+
 function openAccountFromMenu(){
   closeMenuForce();
   setAccountTab('signup');
@@ -912,7 +910,7 @@ function _refreshGoogleUIIfPossible(){
 
 // ---- ABOUT ----
 document.getElementById('btnAboutBack').onclick=()=>showScreen('home');
-document.getElementById('btnIndicacoesBack').onclick=()=>showScreen('home');
+document.getElementById('btnBravoOffersBack').onclick=()=>showScreen('home');
 
 // ---- REGISTER ----
 document.getElementById('btnRegBack').onclick=()=>{localStorage.removeItem('bravo_premium_pending');showScreen('home');};

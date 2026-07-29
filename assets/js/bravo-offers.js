@@ -43,7 +43,7 @@ function renderBravoOffers(offers) {
 }
 
 async function openBravoOffers() {
-  if (typeof closeMenu === 'function') closeMenu();
+  if (typeof closeMenuForce === 'function') closeMenuForce();
   if (typeof showScreen === 'function') showScreen('bravoOffersScreen'); else showScreenById('bravoOffersScreen');
   const list = document.getElementById('bravoOffersList');
   if (list) list.innerHTML = '<div class="about-body">Carregando...</div>';
@@ -55,7 +55,3 @@ async function openBravoOffers() {
     if (list) list.innerHTML = '<div class="about-body">Não foi possível carregar agora.</div>';
   }
 }
-
-document.getElementById('btnBravoOffersBack')?.addEventListener('click', () => {
-  if (typeof showScreen === 'function') showScreen('home'); else showScreenById('home');
-});
