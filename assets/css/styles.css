@@ -472,6 +472,19 @@
   .color-swatch{width:34px;height:34px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:transform .15s,border-color .15s;flex-shrink:0;}
   .color-swatch.selected{border-color:var(--accent);transform:scale(1.2);box-shadow:0 0 0 1px var(--surface);}
   .btn-save{height:52px;border-radius:26px;border:none;background:var(--accent);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;cursor:pointer;margin-top:4px;width:100%;box-shadow:0 4px 20px var(--accent-glow);}
+
+  /* Botão compacto do card "Escolhas Bravo" — fica ao lado do título,
+     centralizado horizontal E verticalmente (por isso flex, não
+     line-height como o .btn-save normal, que não funciona em <a>). */
+  .btn-offer-cta{
+    display:inline-flex;align-items:center;justify-content:center;
+    flex-shrink:0;white-space:nowrap;
+    padding:0 18px;height:38px;border-radius:19px;border:none;
+    background:var(--accent);color:#fff;
+    font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1.5px;
+    text-decoration:none;cursor:pointer;
+    box-shadow:0 4px 14px var(--accent-glow);
+  }
   /* ===== TELA DE TREINO — REDESIGN ===== */
   #timer{flex-direction:column!important;align-items:stretch;padding:0;
     background:
