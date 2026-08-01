@@ -4,9 +4,9 @@
 import { initializeApp }           from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, signInAnonymously, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, linkWithPopup,
          EmailAuthProvider, linkWithCredential, createUserWithEmailAndPassword, signInWithEmailAndPassword,
-         sendPasswordResetEmail, signOut }
+         sendPasswordResetEmail, signOut, deleteUser }
                                     from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { getFirestore, doc, getDoc, setDoc, serverTimestamp, collection, getDocs, query, where }
+import { getFirestore, doc, getDoc, setDoc, deleteDoc, serverTimestamp, collection, getDocs, query, where }
                                     from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 const _fbConfig = {
@@ -451,6 +451,32 @@ async function _fbLinkGoogleToCurrentAccount() {
 }
 window._fbLinkGoogleToCurrentAccount = _fbLinkGoogleToCurrentAccount;
 window._fbSignOut = async () => { try { await signOut(_fbAuth); } catch(e) { console.warn(e); } };
+
+// ---- EXCLUIR CONTA (direito de exclusão — LGPD / política das lojas de app) ----
+// Apaga os documentos do usuário no Firestore (perfil, presets, calendário)
+// e por fim a conta no Firebase Auth. Se o Firebase pedir login recente
+// (auth/requires-recent-login), devolve esse motivo pra UI pedir que a
+// pessoa entre de novo antes de tentar excluir outra vez.
+async function _fbDeleteAccount() {
+  const currentUser = _fbAuth.currentUser;
+  if (!currentUser || !window._fbUid) return { ok: false, reason: 'no-user' };
+  try {
+    await Promise.allSettled([
+      deleteDoc(_userDoc()),
+      deleteDoc(_presetsDoc()),
+      deleteDoc(_calDoc())
+    ]);
+    await deleteUser(currentUser);
+    return { ok: true };
+  } catch (e) {
+    if (e.code === 'auth/requires-recent-login') {
+      return { ok: false, reason: 'requires-recent-login' };
+    }
+    console.warn('fbDeleteAccount', e);
+    return { ok: false, reason: 'error' };
+  }
+}
+window._fbDeleteAccount = _fbDeleteAccount;
 
 // ---- LOGIN / CADASTRO POR E-MAIL E SENHA ----
 // Usado no Cadastro Rápido (opcional): vincula e-mail/senha ao usuário anônimo atual,
