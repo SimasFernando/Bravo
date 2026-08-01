@@ -943,6 +943,13 @@
     <div class="reg-title">MINHA CONTA</div>
   </div>
   <div style="display:flex;flex-direction:column;gap:14px;padding:0 0 8px;">
+    <div class="reg-consent-row" style="display:flex;align-items:flex-start;gap:10px;">
+      <input type="checkbox" id="regConsent" style="margin-top:3px;width:18px;height:18px;flex-shrink:0;accent-color:var(--accent, #F04E23);">
+      <label for="regConsent" style="font-size:12px;color:var(--muted);line-height:1.5;">
+        Li e aceito os <a href="#" id="linkOpenTerms" style="color:var(--text);text-decoration:underline;">Termos de Uso e a Política de Privacidade</a> do Bravo, incluindo o uso dos meus dados para acompanhamento dos treinos.
+      </label>
+    </div>
+    <div id="regConsentError" style="display:none;font-size:12px;color:#FF4444;text-align:center;">Você precisa aceitar os termos para criar uma conta.</div>
     <button class="btn-connect" id="btnGoogleSignIn">
       <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84c-.21 1.13-.84 2.09-1.8 2.73v2.27h2.91c1.7-1.57 2.69-3.88 2.69-6.64z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.91-2.27c-.81.54-1.84.86-3.05.86-2.34 0-4.33-1.58-5.04-3.71H.96v2.34C2.44 15.98 5.48 18 9 18z"/><path fill="#FBBC05" d="M3.96 10.7c-.18-.54-.28-1.11-.28-1.7s.1-1.16.28-1.7V4.96H.96A8.996 8.996 0 0 0 0 9c0 1.45.35 2.83.96 4.04l3-2.34z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0 5.48 0 2.44 2.02.96 4.96l3 2.34C4.67 5.16 6.66 3.58 9 3.58z"/></svg>
       <span id="googleSignInLabel">Entrar com Google</span>
@@ -1057,6 +1064,51 @@
     CREF 11360-G/SC<br>
     Especialista em Condicionamento Físico e Saúde
     <div class="about-badge">Projeto independente · Em constante evolução</div>
+  </div>
+</div>
+
+<!-- TERMOS DE USO E PRIVACIDADE -->
+<div class="screen hidden" id="termsScreen" style="flex-direction:column;">
+  <div class="about-header">
+    <button class="btn-ctrl" id="btnTermsBack"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg><span class="ctrl-label">Voltar</span></button>
+    <div class="about-title-main">TERMOS E PRIVACIDADE</div>
+  </div>
+  <div class="about-body" style="text-align:left;overflow-y:auto;flex:1;padding-bottom:24px;font-size:13px;line-height:1.7;">
+    <div style="font-size:11px;color:var(--muted);margin-bottom:16px;">Última atualização: agosto de 2026</div>
+
+    <strong>1. Sobre o Bravo</strong><br>
+    O Bravo é um aplicativo de acompanhamento de treinos desenvolvido por Fernando Simas (CREF 11360-G/SC). Ao criar uma conta, você concorda com estes Termos de Uso e com a forma como tratamos seus dados, descrita nesta Política de Privacidade.<br><br>
+
+    <strong>2. Quais dados coletamos</strong><br>
+    • Dados de cadastro: nome, WhatsApp, e-mail e senha (quando informados).<br>
+    • Dados opcionais: ano de nascimento e gênero.<br>
+    • Dados de uso e saúde: treinos realizados, frequência, duração, "Poder Bravo" e, se você conectar um monitor via Bluetooth, dados de frequência cardíaca.<br>
+    • Dados técnicos básicos de funcionamento do app (ex: preferências de tema, notificações).<br><br>
+
+    <strong>3. Para que usamos seus dados</strong><br>
+    • Manter seu histórico de treinos sincronizado entre aparelhos.<br>
+    • Gerar suas estatísticas e progresso dentro do app.<br>
+    • Enviar comunicações do próprio app (ex: novidades, lembretes) — sem spam.<br>
+    • Viabilizar o acesso a programas Premium, quando adquiridos.<br>
+    Não vendemos seus dados a terceiros.<br><br>
+
+    <strong>4. Com quem compartilhamos</strong><br>
+    Seus dados são armazenados em infraestrutura do Google Firebase. Em compras de programas Premium via Hotmart, apenas os dados necessários à confirmação da compra são processados pela plataforma de pagamento.<br><br>
+
+    <strong>5. Seus direitos (LGPD)</strong><br>
+    Você pode, a qualquer momento, solicitar a correção, exportação ou exclusão dos seus dados, entrando em contato pelos canais informados na tela "Sobre" do app. A exclusão da conta remove seu histórico de treinos salvo na nuvem.<br><br>
+
+    <strong>6. Isenção de responsabilidade sobre exercício físico</strong><br>
+    O Bravo é uma ferramenta de acompanhamento e organização de treinos, não substitui avaliação médica ou física individualizada. Antes de iniciar qualquer programa de exercícios, especialmente se você possui condições de saúde preexistentes, consulte um médico. O uso do app e a prática dos exercícios são de sua responsabilidade.<br><br>
+
+    <strong>7. Conta e segurança</strong><br>
+    Você é responsável por manter a confidencialidade da sua senha. Menores de 18 anos devem usar o app com supervisão de um responsável.<br><br>
+
+    <strong>8. Alterações</strong><br>
+    Estes termos podem ser atualizados conforme o app evolui. Mudanças relevantes serão comunicadas dentro do próprio aplicativo.<br><br>
+
+    <strong>9. Contato</strong><br>
+    Dúvidas sobre seus dados ou estes termos podem ser enviadas pelos canais de contato disponíveis na tela "Sobre".
   </div>
 </div>
 
@@ -1254,6 +1306,7 @@
     calendarScreen:'btnCalBack',
     registerScreen:'btnRegBack',
     aboutScreen:'btnAboutBack',
+    termsScreen:'btnTermsBack',
     bravoOffersScreen:'btnBravoOffersBack',
     premiumIntro:'btnPremiumIntroBack',
     premiumQuestion:'btnPremiumBack',
@@ -1272,6 +1325,32 @@
     document.querySelectorAll('.screen').forEach(function(s){ s.classList.add('hidden'); });
     var el = document.getElementById(id);
     if(el) el.classList.remove('hidden');
+  }
+
+  // ---- Termos de Uso / Consentimento LGPD ----
+  // Abre a tela de termos a partir do link no cadastro, e volta pra tela
+  // de cadastro ao apertar "voltar" (sem depender de outros arquivos JS).
+  var linkOpenTerms = document.getElementById('linkOpenTerms');
+  if(linkOpenTerms){
+    linkOpenTerms.addEventListener('click', function(e){
+      e.preventDefault();
+      showScreenById('termsScreen');
+    });
+  }
+  var btnTermsBack = document.getElementById('btnTermsBack');
+  if(btnTermsBack){
+    btnTermsBack.addEventListener('click', function(){
+      showScreenById('registerScreen');
+    });
+  }
+  var regConsentEl = document.getElementById('regConsent');
+  if(regConsentEl){
+    regConsentEl.addEventListener('change', function(){
+      if(!regConsentEl.checked) return;
+      var err = document.getElementById('regConsentError');
+      if(err) err.style.display = 'none';
+      regConsentEl.parentElement.style.outline = 'none';
+    });
   }
   // Saída de segurança: limpa os mesmos timers/wakelock/cor que os botões
   // de saída de cada tela já limpam, pra telas sem botão de saída mapeado.
