@@ -883,6 +883,12 @@ function setAccountTab(tab){
   document.getElementById('acctTabLogin').classList.toggle('active',!isSignup);
   document.getElementById('acctSignupFields').style.display=isSignup?'flex':'none';
   document.getElementById('acctLoginFields').style.display=isSignup?'none':'flex';
+  const consentRow=document.querySelector('.reg-consent-row');
+  if(consentRow)consentRow.style.display=isSignup?'flex':'none';
+  if(!isSignup){
+    const err=document.getElementById('regConsentError');
+    if(err)err.style.display='none';
+  }
 }
 
 // ---- PROGRAMA PREMIUM ----
@@ -917,8 +923,19 @@ document.getElementById('btnRegBack').onclick=()=>{localStorage.removeItem('brav
 const btnGoogleSignIn=document.getElementById('btnGoogleSignIn');
 if(btnGoogleSignIn){
   btnGoogleSignIn.onclick=async()=>{
+    // Só exige consentimento quando o botão está na tela de cadastro
+    // (criação de conta). Se já houver perfil salvo, é vínculo/relogin,
+    // não uma conta nova, então não bloqueia.
+    const consent=document.getElementById('regConsent');
+    if(consent&&consent.offsetParent!==null&&!consent.checked){
+      showToast('Você precisa aceitar os termos para criar uma conta');
+      consent.parentElement.style.outline='1px solid #FF4444';
+      consent.scrollIntoView({block:'center',behavior:'smooth'});
+      return;
+    }
     if(!window._fbGoogleSignIn)return;
     await window._fbGoogleSignIn();
+    if(window._fbSaveConsent)window._fbSaveConsent();
     if(window._fbUid&&!window._fbIsAnonymous) afterAuthSuccess();
   };
 }
@@ -931,6 +948,15 @@ function selectGender(btn){
 document.getElementById('btnRegSave').onclick=async()=>{
   const name=document.getElementById('regName').value.trim();
   const phone=document.getElementById('regPhone').value.trim();
+  const consent=document.getElementById('regConsent');
+  if(consent&&!consent.checked){
+    const err=document.getElementById('regConsentError');
+    if(err)err.style.display='block';
+    consent.parentElement.style.outline='1px solid #FF4444';
+    consent.scrollIntoView({block:'center',behavior:'smooth'});
+    showToast('Você precisa aceitar os termos para continuar');
+    return;
+  }
   if(!name){showToast('Informe como quer ser chamado');return;}
   if(!phone){showToast('Informe seu WhatsApp');return;}
   const email=document.getElementById('regEmail').value.trim();
@@ -946,6 +972,7 @@ document.getElementById('btnRegSave').onclick=async()=>{
   localStorage.setItem('bravo_user',JSON.stringify(data));
   localStorage.setItem('bravo_reg_done','1');
   if(window._fbSaveUser)window._fbSaveUser(data);
+  if(window._fbSaveConsent)window._fbSaveConsent();
   // E-mail e senha preenchidos: cria login por e-mail, permitindo recuperar os dados em outro aparelho depois
   if(email&&password){
     if(password.length<6){
@@ -953,6 +980,7 @@ document.getElementById('btnRegSave').onclick=async()=>{
     } else if(window._fbEmailSignUp){
       const res=await window._fbEmailSignUp(email,password);
       if(res&&res.ok&&res.status==='merged')showToast('Conta encontrada — dados sincronizados! 🔒');
+      if(window._fbSaveConsent)window._fbSaveConsent();
     }
   }
   btn.disabled=false;

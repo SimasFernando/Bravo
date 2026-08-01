@@ -22,6 +22,12 @@ const _fbApp  = initializeApp(_fbConfig);
 const _fbAuth = getAuth(_fbApp);
 const _fbDb   = getFirestore(_fbApp);
 
+// Versão vigente dos Termos de Uso / Política de Privacidade. Atualize esta
+// string sempre que o texto mudar de forma relevante — isso permite saber
+// quais usuários aceitaram uma versão antiga, caso seja preciso pedir
+// aceite novamente no futuro.
+const TERMS_VERSION = '2026-08-01';
+
 window._fbUid = null;
 
 function _userDoc()   { return doc(_fbDb, 'users',     window._fbUid); }
@@ -32,6 +38,19 @@ function _premiumDoc(){ return doc(_fbDb, 'premiumApplications', window._fbUid);
 async function _fbSaveUser(data) {
   if (!window._fbUid) return;
   try { await setDoc(_userDoc(), data, { merge: true }); } catch(e) { console.warn('fbSaveUser', e); }
+}
+async function _fbSaveConsent() {
+  // Registra o aceite dos Termos de Uso / Política de Privacidade.
+  // Chamado a partir do index.html quando o checkbox de consentimento
+  // está marcado, tanto no cadastro por e-mail quanto no login com Google.
+  if (!window._fbUid) return;
+  try {
+    await setDoc(_userDoc(), {
+      consentAccepted:   true,
+      consentAcceptedAt: serverTimestamp(),
+      consentVersion:    TERMS_VERSION
+    }, { merge: true });
+  } catch(e) { console.warn('fbSaveConsent', e); }
 }
 async function _fbSavePremiumApplication(answers) {
   if (!window._fbUid) return false;
@@ -105,6 +124,7 @@ async function _fbLoadAll() {
 }
 
 window._fbSaveUser     = _fbSaveUser;
+window._fbSaveConsent  = _fbSaveConsent;
 window._fbSavePresets  = _fbSavePresets;
 window._fbSaveCalendar = _fbSaveCalendar;
 window._fbSavePremiumApplication = _fbSavePremiumApplication;
