@@ -48,6 +48,10 @@ function escapeHtml(str) {
 const BRAVO_ORANGE = '#F04E23';
 
 // ---- geração dinâmica dos campos: nome + link do YouTube por exercício ----
+// O nome tem autocomplete na biblioteca (assets/js/admin-exercises.js): a
+// busca em si e o "+ adicionar à biblioteca" são tratados por delegação de
+// evento lá embaixo, então essa função só marca os elementos certos com
+// data-ex-* pra esses handlers encontrarem o que precisam.
 function renderExerciseInputs(containerId, prefix, count, existingNames, existingVideos) {
   const el = document.getElementById(containerId);
   if (!el) return;
@@ -55,19 +59,104 @@ function renderExerciseInputs(containerId, prefix, count, existingNames, existin
   for (let i = 0; i < count; i++) {
     const nameVal = existingNames?.[i] || '';
     const videoVal = existingVideos?.[i] || '';
-    html += `<div style="display:flex;gap:8px;align-items:flex-end;margin-bottom:8px;">
-      <div class="field-group" style="flex:1;">
-        <label class="field-label">Exercício ${EX_LETTERS[i] || (i+1)}</label>
-        <input class="field-input" id="${prefix}${i}" value="${escapeHtml(nameVal)}" placeholder="Nome do exercício">
-      </div>
-      <div class="field-group" style="flex:1;">
-        <label class="field-label">Link YouTube (opcional)</label>
-        <input class="field-input" id="${prefix}Yt${i}" value="${escapeHtml(videoVal)}" placeholder="https://youtube.com/...">
+    html += `<div class="ex-row" style="margin-bottom:8px;">
+      <div style="display:flex;gap:8px;align-items:flex-end;">
+        <div class="field-group ex-autocomplete-wrap" style="flex:1;">
+          <label class="field-label">Exercício ${EX_LETTERS[i] || (i+1)}</label>
+          <input class="field-input" id="${prefix}${i}" data-ex-name value="${escapeHtml(nameVal)}" placeholder="Digite pra buscar na biblioteca..." autocomplete="off">
+          <div class="ex-suggestions hidden" data-ex-suggestions></div>
+        </div>
+        <div class="field-group" style="flex:1;">
+          <label class="field-label">Link YouTube (opcional)</label>
+          <input class="field-input" id="${prefix}Yt${i}" data-ex-video value="${escapeHtml(videoVal)}" placeholder="https://youtube.com/...">
+        </div>
       </div>
     </div>`;
   }
   el.innerHTML = html;
+  window._ensureExerciseLibrary?.(); // aquece o cache assim que a lista aparece na tela
 }
+
+// ============================================================
+// AUTOCOMPLETE — sugestões da biblioteca de exercícios enquanto digita
+// ============================================================
+function normalizeSearch(str) {
+  return String(str || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+}
+
+function exerciseTagLabels(ex) {
+  const groupLabels = (ex.grupamentos || []).map(id => window._GRUPAMENTOS?.find(g => g.id === id)?.label || id);
+  const modLabels = (ex.modalidades || []).map(id => window._modalityList?.find(m => m.id === id)?.label || id);
+  return [...groupLabels, ...modLabels].join(' · ');
+}
+
+async function showExerciseSuggestions(input) {
+  const wrap = input.closest('.ex-autocomplete-wrap');
+  const box = wrap?.querySelector('[data-ex-suggestions]');
+  if (!box) return;
+  const term = normalizeSearch(input.value);
+  if (!term) { box.classList.add('hidden'); box.innerHTML = ''; return; }
+
+  await window._ensureExerciseLibrary?.();
+  const lib = window._exerciseLibrary || [];
+  const matches = lib.filter(ex => ex.nomeBusca.includes(term)).slice(0, 8);
+
+  let html = matches.map(ex => `
+    <div class="ex-suggestion-item" data-ex-pick="${ex.id}">
+      ${escapeHtml(ex.nome)}
+      ${exerciseTagLabels(ex) ? `<div class="ex-suggestion-tags">${escapeHtml(exerciseTagLabels(ex))}</div>` : ''}
+    </div>`).join('');
+
+  const exactMatch = lib.some(ex => ex.nomeBusca === term);
+  if (!exactMatch && input.value.trim()) {
+    html += `<div class="ex-suggestion-add" data-ex-add-new>+ Adicionar "${escapeHtml(input.value.trim())}" à biblioteca</div>`;
+  }
+
+  if (!html) { box.classList.add('hidden'); box.innerHTML = ''; return; }
+  box.innerHTML = html;
+  box.classList.remove('hidden');
+}
+
+document.addEventListener('input', (e) => {
+  const input = e.target.closest('[data-ex-name]');
+  if (input) showExerciseSuggestions(input);
+});
+
+document.addEventListener('focusout', (e) => {
+  const input = e.target.closest('[data-ex-name]');
+  if (!input) return;
+  // espera um instante pro clique numa sugestão registrar antes de esconder a lista
+  setTimeout(() => {
+    input.closest('.ex-autocomplete-wrap')?.querySelector('[data-ex-suggestions]')?.classList.add('hidden');
+  }, 150);
+});
+
+document.addEventListener('click', (e) => {
+  const pick = e.target.closest('[data-ex-pick]');
+  if (pick) {
+    const wrap = pick.closest('.ex-autocomplete-wrap');
+    const nameInput = wrap?.querySelector('[data-ex-name]');
+    const videoInput = nameInput?.closest('.ex-row')?.querySelector('[data-ex-video]');
+    const ex = (window._exerciseLibrary || []).find(x => x.id === pick.dataset.exPick);
+    if (nameInput && ex) nameInput.value = ex.nome;
+    if (videoInput && ex?.youtubeUrl && !videoInput.value) videoInput.value = ex.youtubeUrl;
+    wrap?.querySelector('[data-ex-suggestions]')?.classList.add('hidden');
+    return;
+  }
+  const addNew = e.target.closest('[data-ex-add-new]');
+  if (addNew) {
+    const wrap = addNew.closest('.ex-autocomplete-wrap');
+    const nameInput = wrap?.querySelector('[data-ex-name]');
+    wrap?.querySelector('[data-ex-suggestions]')?.classList.add('hidden');
+    if (nameInput) {
+      window._openExerciseQuickAdd?.(nameInput.value.trim(), (savedEx) => {
+        nameInput.value = savedEx.nome;
+        const videoInput = nameInput.closest('.ex-row')?.querySelector('[data-ex-video]');
+        if (videoInput && savedEx.youtubeUrl && !videoInput.value) videoInput.value = savedEx.youtubeUrl;
+      });
+    }
+  }
+});
 
 // ============================================================
 // FORMULÁRIO — modo único (comportamento original)
