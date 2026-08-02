@@ -1105,7 +1105,7 @@ function brainFinishWorkout(){
   speak('Treino concluído. Parabéns!');
   beep(880,.15,.6,'sine',0);beep(1100,.15,.6,'sine',.2);beep(1320,.3,.7,'sine',.4);
   vibrate([100,50,100,50,200]);
-  const label=brain.pendingMarkName||'Treino do Dia 🏋️';
+  const label=brain.pendingMarkName||'Treino';
   auto.pendingMarkName=label;
   document.getElementById('finishSub').textContent=label;
   showScreen('finish');
