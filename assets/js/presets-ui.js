@@ -21,12 +21,8 @@ const OBS_DEFAULTS={
   pesada:'Carga pesada: Usar uma carga que consiga realizar de 6 a 10 repetições dentro do tempo.',
   superpesada:'Carga super pesada: Usar uma carga que consiga realizar de 1 a 5 repetições dentro do tempo.',
 };
-// BRAVO_CARDS: fixed cards in 'Programas Bravo' section (not stored in presets)
-const BRAVO_CARDS=[
-  {id:'treinoDoDia',name:'Treino do Dia',color:'#F04E23',mode:'brain',brainExCount:5,brainSeries:3,brainAction:40,brainPrep:15,
-   brainExercises:['Polichinelo','Agachamento','Flexão de braços','Barra fixa','Abdominal'],
-   obs:'Descanso calculado pelo esforço. Exercícios e séries pré-definidos — o treino segue automaticamente.',_bravo:true},
-];
+// "Treino do Dia" fixo foi removido daqui em 08/2026 — recriado como
+// programa no painel admin (mesmo sistema usado por _adminPrograms).
 const FACTORY_DEFAULTS=[
   {id:'leve',name:'Carga Leve',color:'#90BE6D',mode:'normal',cycles:4,prep:30,action:60,rest:40,obs:OBS_DEFAULTS.leve},
   {id:'media',name:'Carga Média',color:'#F9C74F',mode:'normal',cycles:4,prep:30,action:45,rest:60,obs:OBS_DEFAULTS.media},
@@ -133,21 +129,9 @@ function toggleFav(id){
   renderHome();
 }
 
-// Data for Treino do Dia bravo card (used when selected)
-const BRAVO_MARCADO={id:'_bravoMarcado',name:'Treino do Dia',color:'#F04E23',mode:'brain',
-  brainExCount:5,brainSeries:3,brainAction:40,brainPrep:15,
-  brainExercises:['Polichinelo','Agachamento','Flexão de braços','Barra fixa','Abdominal'],_bravo:true};
-
-function selectBravoMarcado(){
-  selectedId='_bravoMarcado';autoModeSelected=false;
-  document.getElementById('autoCard')?.classList.remove('selected');
-  renderHome();
-}
-
 function duplicatePreset(id){
-  // Find source: could be in presets, be the bravo marcado, or an admin program
+  // Find source: could be in presets or an admin program
   let src=presets.find(p=>p.id===id);
-  if(!src && id==='_bravoMarcado') src=BRAVO_MARCADO;
   if(!src && id.startsWith('_admin_')){
     const adminId=id.slice('_admin_'.length);
     src=(window._adminPrograms||[]).find(p=>p.id===adminId);
@@ -191,11 +175,10 @@ function renderHome(){
   bravoList.innerHTML='';
   const bravoOrder=loadBravoOrder();
   const hiddenBravo=loadHiddenBravoIds();
-  // Todos os cards da seção Programas Bravo: Bravo Play (auto) + BRAVO_CARDS
-  // fixos + programas do admin — todos no mesmo sistema de ordem/arraste.
+  // Todos os cards da seção Programas Bravo: Bravo Play (auto) +
+  // programas do admin — todos no mesmo sistema de ordem/arraste.
   const allBravoCards=[
     {id:'_autoMode',type:'auto',name:'Bravo Play',color:'#F04E23'},
-    ...BRAVO_CARDS.map(c=>({id:'_bravo_'+c.id,type:'fixed',name:c.name,color:c.color,_data:c})),
     ...(window._adminPrograms||[])
       .filter(ap=>!ap.hidden || ap.locked===false)
       .map(ap=>({id:'_admin_'+ap.id,type:'admin',name:ap.name,color:ap.locked?'#666':(ap.color||'#F04E23'),_data:ap})),
@@ -237,47 +220,6 @@ function renderHome(){
           <div class="card-exp-obs">Descanso calculado pelo esforço. Siga no seu ritmo.</div>
         </div>`;
       bCard.addEventListener('click',e=>{if(e.target.closest('.drag-handle'))return;selectAutoMode();});
-      bravoList.appendChild(bCard);
-      return;
-    }
-
-    if(bc.type==='fixed'){
-      const d=bc._data;
-      const cardSel=selectedId==='_bravoMarcado';
-      bCard.className='preset-card'+(cardSel?' selected':'');
-      bCard.style.setProperty('--c',bc.color);
-      bCard.style.setProperty('--cr',hexToRgb(bc.color));
-      bCard.id='bravoMarcadoCard';
-      bCard.innerHTML=`
-        <div class="card-color-band"></div>
-        <div class="card-collapsed-row">
-          <div class="drag-handle" title="Arrastar para reordenar">⠿</div>
-          <div class="card-collapsed-name">${d.name}</div>
-          <div class="card-collapsed-meta"><img class="meta-icon" src="ic_noexe.png?v=202506" alt="">${d.brainExCount} ex<span class="meta-sep">·</span><img class="meta-icon" src="ic_noseries.png?v=202506" alt="">${d.brainSeries} sér</div>
-        </div>
-        <div class="card-expanded">
-          <div class="card-exp-badge"><img class="meta-icon" src="ic_play.png?v=202506" alt="">BRAVO</div>
-          <div class="card-exp-name">Treino do Dia</div>
-          <div class="card-exp-pills">
-            <div class="card-exp-pill-row">
-              <div class="card-exp-pill"><img class="pill-icon" src="ic_noexe.png?v=202506" alt="">${d.brainExCount} ex</div>
-              <div class="card-exp-pill"><img class="pill-icon" src="ic_noseries.png?v=202506" alt="">${d.brainSeries} séries</div>
-            </div>
-            <div class="card-exp-pill-row">
-              <div class="card-exp-pill"><img class="pill-icon" src="ic_preparacao.png?v=202506" alt="">${fmtSec(d.brainPrep||15)} prep</div>
-              <div class="card-exp-pill"><img class="pill-icon" src="ic_execucao.png?v=202506" alt="">${fmtSec(d.brainAction)} exec</div>
-            </div>
-          </div>
-          <div class="card-exp-obs">${d.obs||''}</div>
-        </div>
-        <div class="card-exp-actions">
-          <button class="btn-view" data-view="_bravoMarcado" title="Visualizar">${ICON_EYE}</button>
-        </div>`;
-      bCard.addEventListener('click',e=>{
-        if(e.target.closest('.drag-handle'))return;
-        if(e.target.closest('[data-view]')){openEdit(null,{viewOnly:true,sourceObj:d});return;}
-        selectBravoMarcado();
-      });
       bravoList.appendChild(bCard);
       return;
     }
@@ -537,7 +479,7 @@ function renderHome(){
 // ---- BRAVO CARDS ORDER ----
 function loadBravoOrder(){
   const s=localStorage.getItem('bravo_cards_order');
-  return s?JSON.parse(s):['_autoMode','_bravo_treinoDoDia'];
+  return s?JSON.parse(s):['_autoMode'];
 }
 function saveBravoOrder(order){localStorage.setItem('bravo_cards_order',JSON.stringify(order));}
 
@@ -710,12 +652,11 @@ function selectAutoMode(){
 }
 renderHome();
 // Resolve o "programa" correspondente a um id de seleção, seja ele um
-// preset do usuário (Meus Programas), o Treino do Dia fixo, ou um
-// programa do painel admin (_admin_<id>). Usado pelo timer-core.js pra
-// tocar Clássico/Circuito/Bravo independente de onde o programa vive.
+// preset do usuário (Meus Programas) ou um programa do painel admin
+// (_admin_<id>). Usado pelo timer-core.js pra tocar Clássico/Circuito/
+// Bravo independente de onde o programa vive.
 function resolveSelectedProgram(id){
   if(!id) return null;
-  if(id==='_bravoMarcado') return BRAVO_MARCADO;
   if(id.startsWith('_admin_')){
     const rest=id.slice('_admin_'.length);
     const wMatch=rest.match(/^(.+)__w(\d+)$/);
@@ -744,7 +685,6 @@ function startTreinar(){
     if(playable.mode==='brain') startBrainMode(playable);
     else startTimer();
   }
-  else if(selectedId==='_bravoMarcado') startBrainMode(BRAVO_MARCADO);
   else {
     const p=presets.find(x=>x.id===selectedId);
     if(p?.mode==='brain') startBrainMode(p);
@@ -762,10 +702,7 @@ function injectTreinarBtn(){
   let adminLocked=false;
   let adminSalesLink=null;
 
-  if(selectedId==='_bravoMarcado'){
-    targetEl=document.getElementById('bravoMarcadoCard');
-    color=BRAVO_MARCADO?.color||'#F04E23';
-  } else if(selectedId&&selectedId.startsWith('_admin_')&&!selectedId.includes('__w')){
+  if(selectedId&&selectedId.startsWith('_admin_')&&!selectedId.includes('__w')){
     const ap=(window._adminPrograms||[]).find(x=>x.id===selectedId.slice('_admin_'.length));
     if(Array.isArray(ap?.workouts)&&ap.workouts.length) return; // cards de grupo têm seus próprios botões, não usam o flutuante
     adminLocked=!!ap?.locked;
@@ -867,7 +804,9 @@ document.querySelectorAll('#settingsModal [data-theme]').forEach(btn=>{
 });
 function openAbout(){closeMenuForce();showScreen('aboutScreen');}
 function openBravoPlayFromMenu(){closeMenuForce();showScreen('home');selectAutoMode();}
-function openTreinoDoDiaFromMenu(){closeMenuForce();showScreen('home');selectBravoMarcado();}
+// openTreinoDoDiaFromMenu removida em 08/2026 junto com o card fixo —
+// o "Treino do Dia" recriado no painel admin aparece automaticamente na
+// lista de Programas Bravo da Home, sem precisar de atalho dedicado no menu.
 // openIndicacoes foi substituída por openBravoOffers() (assets/js/bravo-offers.js) —
 // a tela Escolhas Bravo agora é uma página única, sem categorias.
 
@@ -1453,7 +1392,6 @@ function renderTreinosVisList(){
     const hiddenBravo=loadHiddenBravoIds();
     const items=[
       {id:'_autoMode',name:'Bravo Play',color:'#F04E23',mode:''},
-      ...BRAVO_CARDS.map(c=>({id:'_bravo_'+c.id,name:c.name,color:c.color,mode:'Bravo'})),
       ...(window._adminPrograms||[]).map(ap=>({
         id:'_admin_'+ap.id,name:ap.name,color:ap.color||'#F04E23',
         mode:{normal:'Clássico',circuit:'Circuito',brain:'Bravo'}[ap.mode]||''
