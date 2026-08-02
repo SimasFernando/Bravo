@@ -460,12 +460,27 @@ window._fbSignOut = async () => { try { await signOut(_fbAuth); } catch(e) { con
 async function _fbDeleteAccount() {
   const currentUser = _fbAuth.currentUser;
   if (!currentUser || !window._fbUid) return { ok: false, reason: 'no-user' };
+  const uid = window._fbUid;
   try {
+    // Sub-coleção de mensagens lidas (não é apagada automaticamente
+    // quando o documento pai em /users/{uid} é excluído).
+    const inboxReadSnap = await getDocs(collection(_fbDb, 'users', uid, 'inboxRead'));
+    const inboxReadDeletes = inboxReadSnap.docs.map(d => deleteDoc(d.ref));
+
+    // Treinos registrados pelo usuário (coleção separada, filtrada por userId).
+    const treinosSnap = await getDocs(query(collection(_fbDb, 'treinos'), where('userId', '==', uid)));
+    const treinosDeletes = treinosSnap.docs.map(d => deleteDoc(d.ref));
+
     await Promise.allSettled([
+      ...inboxReadDeletes,
+      ...treinosDeletes,
       deleteDoc(_userDoc()),
       deleteDoc(_presetsDoc()),
-      deleteDoc(_calDoc())
+      deleteDoc(_calDoc()),
+      deleteDoc(doc(_fbDb, 'premiumApplications', uid)),
+      deleteDoc(doc(_fbDb, 'unlockedPrograms', uid))
     ]);
+
     await deleteUser(currentUser);
     return { ok: true };
   } catch (e) {
