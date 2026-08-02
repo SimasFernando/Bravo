@@ -85,8 +85,11 @@ async function ensureExerciseLibrary() {
     window._modalityList = _modalities;
   })();
 
-  await _loadPromise;
-  _loadPromise = null;
+  try {
+    await _loadPromise;
+  } finally {
+    _loadPromise = null; // libera pra uma nova tentativa, mesmo se essa deu erro
+  }
 }
 window._ensureExerciseLibrary = ensureExerciseLibrary;
 
@@ -164,9 +167,15 @@ function getActiveChipIds(containerEl, dataAttr) {
 // FORMULÁRIO PRINCIPAL (aba Exercícios)
 // ============================================================
 async function initMainForm() {
-  await ensureExerciseLibrary();
   const groupBox = document.getElementById('exGroupChips');
   const modBox = document.getElementById('exModalityChips');
+  try {
+    await ensureExerciseLibrary();
+  } catch (e) {
+    console.error('ensureExerciseLibrary falhou:', e);
+    if (groupBox) groupBox.innerHTML = `<span style="color:var(--phase-rest);font-size:13px;">Erro ao carregar: ${escapeHtml(e.code || e.message || 'desconhecido')}</span>`;
+    return;
+  }
   if (groupBox && !groupBox.dataset.bound) {
     renderChips(groupBox, GRUPAMENTOS, [], 'data-group-id');
     bindChipToggle(groupBox);
@@ -217,7 +226,13 @@ document.getElementById('exSaveBtn')?.addEventListener('click', async () => {
   const modalidades = getActiveChipIds(document.getElementById('exModalityChips'), 'data-modality-id');
 
   if (status) status.textContent = 'Salvando...';
-  await createOrUpdateExercise({ nome, youtubeUrl, grupamentos, modalidades }, editingExId);
+  try {
+    await createOrUpdateExercise({ nome, youtubeUrl, grupamentos, modalidades }, editingExId);
+  } catch (e) {
+    console.error('createOrUpdateExercise falhou:', e);
+    if (status) status.textContent = `Erro ao salvar: ${e.code || e.message || 'desconhecido'}`;
+    return;
+  }
   if (status) status.textContent = 'Salvo!';
   resetMainForm();
   renderExerciseList();
@@ -348,7 +363,14 @@ function openExerciseQuickAdd(prefillName, onSaved) {
       const grupamentos = getActiveChipIds(groupBox, 'data-group-id');
       const modalidades = getActiveChipIds(modBox, 'data-modality-id');
       status.textContent = 'Salvando...';
-      const saved = await createOrUpdateExercise({ nome, youtubeUrl, grupamentos, modalidades }, null);
+      let saved;
+      try {
+        saved = await createOrUpdateExercise({ nome, youtubeUrl, grupamentos, modalidades }, null);
+      } catch (e) {
+        console.error('quick-add falhou:', e);
+        status.textContent = `Erro ao salvar: ${e.code || e.message || 'desconhecido'}`;
+        return;
+      }
       close();
       onSaved?.(saved);
     });
