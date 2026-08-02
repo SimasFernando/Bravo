@@ -92,6 +92,49 @@ body{overflow:auto;}
 }
 .admin-nav button.active{background:var(--accent);}
 
+/* Biblioteca de exercícios — seleção múltipla de grupamento/modalidade */
+.chip-select{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{
+  padding:8px 14px;border-radius:20px;border:1px solid var(--surface2);
+  background:var(--surface2);color:var(--text);font-size:13px;cursor:pointer;
+  user-select:none;
+}
+.chip.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+
+.ex-lib-card{
+  background:var(--surface);border:1px solid var(--surface2);border-radius:12px;
+  padding:14px 16px;margin-bottom:10px;
+}
+.ex-lib-tag{
+  display:inline-block;font-size:11px;color:var(--muted);background:var(--surface2);
+  border-radius:6px;padding:2px 8px;margin:2px 4px 0 0;
+}
+
+/* Autocomplete de exercício (usado ao montar treinos em Programas Bravo) */
+.ex-autocomplete-wrap{position:relative;}
+.ex-suggestions{
+  position:absolute;top:100%;left:0;right:0;z-index:20;
+  background:var(--surface);border:1px solid var(--surface2);border-radius:10px;
+  margin-top:4px;max-height:220px;overflow-y:auto;
+  box-shadow:0 8px 24px rgba(0,0,0,.25);
+}
+.ex-suggestion-item{padding:10px 12px;font-size:13px;cursor:pointer;border-bottom:1px solid var(--surface2);}
+.ex-suggestion-item:last-child{border-bottom:none;}
+.ex-suggestion-item:hover{background:var(--surface2);}
+.ex-suggestion-tags{font-size:11px;color:var(--muted);margin-top:2px;}
+.ex-suggestion-add{padding:10px 12px;font-size:13px;cursor:pointer;color:var(--accent);font-weight:600;}
+
+/* Modal simples do quick-add "+ Adicionar à biblioteca" */
+.ex-modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;
+  display:flex;align-items:center;justify-content:center;padding:20px;
+}
+.ex-modal{
+  width:100%;max-width:360px;max-height:90vh;overflow-y:auto;
+  background:var(--surface);border:1px solid var(--surface2);
+  border-radius:var(--radius);padding:24px 20px;
+}
+
 /* Badge de "novos cadastros" — bolinha vermelha no canto do botão */
 .admin-nav-badge{
   position:absolute;top:-6px;right:-6px;
