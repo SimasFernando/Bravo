@@ -1071,14 +1071,22 @@ function extractYtId(url){
 function escHtml(s){
   const d=document.createElement('div');d.textContent=s||'';return d.innerHTML;
 }
-// Estado global do vídeo: garante que o vídeo só pausa/retoma por decisão do usuário,
-// mesmo quando o mesmo exercício passa da tela de preparação para a de execução.
-let videoCtrl={id:null,paused:false,label:''};
-function ytEmbedHtml(videoId,label){
+// Estado do vídeo por TELA (wrapId), não mais um estado global único.
+// Antes, prep e exec compartilhavam o mesmo controle — se o vídeo do 2º
+// exercício coincidisse (pelo `videoCtrl.id` global) com o que já estava
+// "lembrado", a tela de execução deixava de recriar o player e ficava
+// mostrando o vídeo/nome do exercício anterior, mesmo com o contador certo.
+// Agora cada wrap (brainPrepYtWrap, brainExecYtWrap, etc.) guarda seu
+// próprio {id,paused,label}, então uma tela nunca herda o estado da outra.
+let videoCtrls={};
+function getVideoCtrl(wrapId){
+  return videoCtrls[wrapId] || (videoCtrls[wrapId]={id:null,paused:false,label:''});
+}
+function ytEmbedHtml(videoId,label,paused){
   const params='autoplay=1&mute=1&loop=1&playlist='+videoId+'&controls=0&rel=0&modestbranding=1&playsinline=1&iv_load_policy=3&disablekb=1&fs=0&enablejsapi=1';
   return `<iframe src="https://www.youtube.com/embed/${videoId}?${params}" allow="autoplay; encrypted-media; picture-in-picture" frameborder="0"></iframe>`
     +(label?`<div class="yt-exname-overlay">${escHtml(label)}</div>`:'')
-    +`<div class="yt-tap-layer${videoCtrl.paused?' is-paused':''}" onclick="toggleVideoPlay(this)"><div class="yt-pause-badge"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>`;
+    +`<div class="yt-tap-layer${paused?' is-paused':''}" onclick="toggleVideoPlay(this)"><div class="yt-pause-badge"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>`;
 }
 function postYtCommand(wrap,func){
   const ifr=wrap&&wrap.querySelector('iframe');
@@ -1088,34 +1096,37 @@ function postYtCommand(wrap,func){
 function toggleVideoPlay(layer){
   const wrap=layer.closest('.yt-embed-wrap');
   if(!wrap)return;
-  videoCtrl.paused=!videoCtrl.paused;
-  layer.classList.toggle('is-paused',videoCtrl.paused);
-  postYtCommand(wrap,videoCtrl.paused?'pauseVideo':'playVideo');
+  const ctrl=getVideoCtrl(wrap.id);
+  ctrl.paused=!ctrl.paused;
+  layer.classList.toggle('is-paused',ctrl.paused);
+  postYtCommand(wrap,ctrl.paused?'pauseVideo':'playVideo');
 }
 function showYtEmbed(wrapId,videoId,containerId,label){
   const wrap=document.getElementById(wrapId);
   if(!wrap)return;
   const container=containerId?document.getElementById(containerId):wrap.parentElement;
+  const ctrl=getVideoCtrl(wrapId);
   if(!videoId){
     wrap.classList.remove('visible');
     wrap.style.display='none';
     if(container)container.classList.remove('has-video');
     wrap.innerHTML='';
-    videoCtrl.id=null;videoCtrl.paused=false;videoCtrl.label='';
+    ctrl.id=null;ctrl.paused=false;ctrl.label='';
     return;
   }
   if(container)container.classList.add('has-video');
   wrap.classList.add('visible');
   wrap.style.display='block';
-  if(videoCtrl.id!==videoId){
-    // Novo vídeo: começa a tocar automaticamente, em loop e mudo
-    videoCtrl.id=videoId;videoCtrl.paused=false;videoCtrl.label=label||'';
-    wrap.innerHTML=ytEmbedHtml(videoId,videoCtrl.label);
+  if(ctrl.id!==videoId){
+    // Vídeo novo pra ESTA tela: começa a tocar automaticamente, em loop e mudo
+    ctrl.id=videoId;ctrl.paused=false;ctrl.label=label||'';
+    wrap.innerHTML=ytEmbedHtml(videoId,ctrl.label,ctrl.paused);
   } else if(!wrap.querySelector('iframe')){
-    // Mesmo vídeo, mas esta tela ainda não tem o player (ex.: passou de preparação para execução):
-    // recria o player respeitando se o usuário havia pausado
-    wrap.innerHTML=ytEmbedHtml(videoId,videoCtrl.label||label||'');
-    if(videoCtrl.paused)setTimeout(()=>postYtCommand(wrap,'pauseVideo'),350);
+    // Mesmo vídeo nesta tela, mas ela ainda não tem o player (ex.: passou de
+    // preparação pra execução dentro do MESMO exercício): recria o player
+    // respeitando se o usuário havia pausado.
+    wrap.innerHTML=ytEmbedHtml(videoId,ctrl.label||label||'',ctrl.paused);
+    if(ctrl.paused)setTimeout(()=>postYtCommand(wrap,'pauseVideo'),350);
   }
 }
 let ytModalTarget={field:'',index:0};
