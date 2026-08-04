@@ -617,6 +617,7 @@ async function renderPrograms() {
         <div style="font-size:15px;font-weight:600;">${escapeHtml(p.name)}</div>
         <div style="display:flex;gap:12px;">
           <button data-edit-program="${p.id}" style="background:none;border:none;color:var(--accent);font-size:13px;cursor:pointer;">Editar</button>
+          <button data-dup-program="${p.id}" style="background:none;border:none;color:var(--accent);font-size:13px;cursor:pointer;">Duplicar</button>
           <button data-toggle-hidden="${p.id}" style="background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;">${isHidden ? 'Mostrar' : 'Ocultar'}</button>
           <button data-del-program="${p.id}" style="background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;">Excluir</button>
         </div>
@@ -660,6 +661,27 @@ document.getElementById('adminProgramList')?.addEventListener('click', async (e)
   if (editId) {
     const p = _programs?.find(x => x.id === editId);
     if (p) editProgram(p);
+    return;
+  }
+
+  const dupId = e.target.dataset?.dupProgram;
+  if (dupId) {
+    const p = _programs?.find(x => x.id === dupId);
+    if (!p) return;
+    const { id: _oldId, createdAt: _oldCreatedAt, createdBy: _oldCreatedBy, ...rest } = p;
+    const newId = 'p_' + Date.now().toString(36);
+    const newData = {
+      ...rest,
+      name: (p.name || 'Programa') + ' (cópia)',
+      // Fica oculto até você revisar a variação e decidir publicar — evita que
+      // a cópia apareça pros alunos antes de você ajustar o que precisa mudar.
+      hidden: true,
+      createdAt: Date.now(),
+      createdBy: window._adminUid || null
+    };
+    await setDoc(doc(window._adminDb, 'programs', newId), newData);
+    _programs.push({ id: newId, ...newData });
+    renderPrograms();
     return;
   }
 
