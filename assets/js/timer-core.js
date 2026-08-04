@@ -111,7 +111,7 @@ function nextCircuitPhase(){
     const lastEx=(tmr.exIndex>=p.exCount-1),lastRound=(tmr.round>=p.rounds);
     if(lastEx&&lastRound){clearInterval(tmr._int);setTimeout(()=>showFinish(p),600);return;}
     if(lastEx){tmr.exIndex=0;tmr.round++;updateCircuitRoundDots();tmr.phase='prep';tmr.seconds=p.prep;tmr.total=p.prep;phaseStart();}
-    else if(p.rest>0){tmr.phase='rest';tmr.seconds=p.rest;tmr.total=p.rest;phaseStart();}
+    else if(p.rest>0){tmr.phase='rest';tmr.seconds=p.rest;tmr.total=p.rest;phaseStart();updateCircuitExLabel(tmr.exIndex+1);}
     else{tmr.exIndex++;tmr.phase='action';tmr.seconds=p.action;tmr.total=p.action;phaseStart();updateCircuitExLabel();}
   } else {
     tmr.exIndex++;tmr.phase='action';tmr.seconds=p.action;tmr.total=p.action;phaseStart();updateCircuitExLabel();
@@ -120,9 +120,10 @@ function nextCircuitPhase(){
   updateTimerUI();
 }
 
-function updateCircuitExLabel(){
+function updateCircuitExLabel(idxOverride){
   const p=tmr.preset;
-  const name=(p.exercises?.[tmr.exIndex]||'').trim();
+  const idx=idxOverride!=null?idxOverride:tmr.exIndex;
+  const name=(p.exercises?.[idx]||'').trim();
   const el=document.getElementById('circuitExLabel');
   if(name){el.textContent=name;el.style.display='block';el.style.color='var(--prog)';}
   else{el.style.display='none';}
@@ -166,17 +167,22 @@ function phaseStart(){
   if(tmr.phase==='action')speak(tmr.isCircuit?('Exercício '+EX_LETTERS[tmr.exIndex]):(tmr.normalExCount>1?('Exercício '+EX_LETTERS[tmr.exIndex]):'Vamos!'));
   if(tmr.phase==='rest')speak('Recuperação.');
   beep(tmr.phase==='action'?1200:800,.15,.6);
-  // Vídeo: já aparece na fase de preparação e continua na execução (não reaparece no descanso)
-  if(tmr.phase==='prep'||tmr.phase==='action'){
-    const p=resolveSelectedProgram(selectedId);
-    const idx=tmr.exIndex||0;
-    const vids=tmr.isCircuit?p?.exerciseVideos:p?.normalExerciseVideos;
-    const names=tmr.isCircuit?p?.exercises:p?.normalExercises;
-    const vid=extractYtId(vids?.[idx]||'');
-    const label=(names?.[idx]||'').trim();
-    showYtEmbed('timerYtWrap',vid,'timerMain',label);
+  // Vídeo: aparece na preparação e na execução. Na TRANSIÇÃO do circuito
+  // (rest entre exercícios diferentes) já mostra o vídeo do PRÓXIMO
+  // exercício, como preview — igual o Bravo já faz na preparação. A
+  // recuperação do Clássico (rest entre séries do MESMO exercício)
+  // continua sem vídeo, porque não há "próximo" exercício ali.
+  const isCircuitTransition = tmr.isCircuit && tmr.phase === 'rest';
+  if (tmr.phase === 'prep' || tmr.phase === 'action' || isCircuitTransition) {
+    const p = resolveSelectedProgram(selectedId);
+    const idx = isCircuitTransition ? (tmr.exIndex + 1) : (tmr.exIndex || 0);
+    const vids = tmr.isCircuit ? p?.exerciseVideos : p?.normalExerciseVideos;
+    const names = tmr.isCircuit ? p?.exercises : p?.normalExercises;
+    const vid = extractYtId(vids?.[idx] || '');
+    const label = (names?.[idx] || '').trim();
+    showYtEmbed('timerYtWrap', vid, 'timerMain', label);
   } else {
-    showYtEmbed('timerYtWrap',null,'timerMain');
+    showYtEmbed('timerYtWrap', null, 'timerMain');
   }
   setGauge('timer',tmr.seconds,tmr.total,rc);
 }
