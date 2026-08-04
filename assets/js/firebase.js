@@ -406,8 +406,10 @@ async function _fbMigrateAnonData(anonUid, newUid) {
     if (aP.exists()) {
       const anonPresets = aP.data().presets || [];
       const newPresets = nP.exists() ? (nP.data().presets || []) : [];
-      if (anonPresets.length > newPresets.length) {
-        await setDoc(newPresetsDoc, { presets: anonPresets });
+      const mergedPresets = [...newPresets];
+      anonPresets.forEach(p => { if (!mergedPresets.find(m => m.id === p.id)) mergedPresets.push(p); });
+      if (mergedPresets.length !== newPresets.length) {
+        await setDoc(newPresetsDoc, { presets: mergedPresets });
       }
     }
     if (aC.exists()) {
@@ -420,6 +422,15 @@ async function _fbMigrateAnonData(anonUid, newUid) {
         await setDoc(newCalDoc, { records: merged });
       }
     }
+
+    // Depois de migrar tudo pro UID novo, apaga os documentos do UID
+    // anônimo antigo — sem isso, ele fica pra sempre como um cadastro
+    // "fantasma" duplicado (mesmo nome/e-mail) nas listas do admin.
+    await Promise.all([
+      aU.exists() ? deleteDoc(anonUserDoc).catch(() => {}) : null,
+      aP.exists() ? deleteDoc(anonPresetsDoc).catch(() => {}) : null,
+      aC.exists() ? deleteDoc(anonCalDoc).catch(() => {}) : null
+    ]);
   } catch (e) { console.warn('fbMigrateAnonData', e); }
 }
 
