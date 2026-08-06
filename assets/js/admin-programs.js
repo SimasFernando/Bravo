@@ -59,8 +59,18 @@ function renderExerciseInputs(containerId, prefix, count, existingNames, existin
   for (let i = 0; i < count; i++) {
     const nameVal = existingNames?.[i] || '';
     const videoVal = existingVideos?.[i] || '';
+    const canUp = i > 0;
+    const canDown = i < count - 1;
     html += `<div class="ex-row" style="margin-bottom:8px;">
       <div style="display:flex;gap:8px;align-items:flex-end;">
+        <div style="display:flex;flex-direction:column;gap:3px;padding-bottom:2px;">
+          <button type="button" data-ex-move="up" data-ex-move-prefix="${prefix}" data-ex-move-index="${i}" ${canUp ? '' : 'disabled'}
+            style="border:none;background:var(--surface2);border-radius:6px;width:26px;height:22px;line-height:1;cursor:${canUp ? 'pointer' : 'default'};opacity:${canUp ? '1' : '.3'};color:var(--text);font-size:11px;"
+            title="Mover para cima" aria-label="Mover exercício para cima">▲</button>
+          <button type="button" data-ex-move="down" data-ex-move-prefix="${prefix}" data-ex-move-index="${i}" ${canDown ? '' : 'disabled'}
+            style="border:none;background:var(--surface2);border-radius:6px;width:26px;height:22px;line-height:1;cursor:${canDown ? 'pointer' : 'default'};opacity:${canDown ? '1' : '.3'};color:var(--text);font-size:11px;"
+            title="Mover para baixo" aria-label="Mover exercício para baixo">▼</button>
+        </div>
         <div class="field-group ex-autocomplete-wrap" style="flex:1;">
           <label class="field-label">Exercício ${EX_LETTERS[i] || (i+1)}</label>
           <input class="field-input" id="${prefix}${i}" data-ex-name value="${escapeHtml(nameVal)}" placeholder="Digite pra buscar na biblioteca..." autocomplete="off">
@@ -75,6 +85,78 @@ function renderExerciseInputs(containerId, prefix, count, existingNames, existin
   }
   el.innerHTML = html;
   window._ensureExerciseLibrary?.(); // aquece o cache assim que a lista aparece na tela
+}
+
+// ---- reordenar exercícios: troca os VALORES (nome + vídeo) entre posições
+// adjacentes, sem mexer nos ids/DOM. Isso mantém intacta toda a lógica de
+// leitura por índice (salvar, editar, etc.) — só o conteúdo muda de lugar.
+function swapExerciseValues(prefix, i, j) {
+  const nameA = document.getElementById(prefix + i);
+  const nameB = document.getElementById(prefix + j);
+  const videoA = document.getElementById(prefix + 'Yt' + i);
+  const videoB = document.getElementById(prefix + 'Yt' + j);
+  if (!nameA || !nameB) return;
+  const tmpName = nameA.value;
+  nameA.value = nameB.value;
+  nameB.value = tmpName;
+  if (videoA && videoB) {
+    const tmpVideo = videoA.value;
+    videoA.value = videoB.value;
+    videoB.value = tmpVideo;
+  }
+}
+
+document.addEventListener('click', (e) => {
+  const moveBtn = e.target.closest('[data-ex-move]');
+  if (!moveBtn) return;
+  const dir = moveBtn.dataset.exMove;
+  const prefix = moveBtn.dataset.exMovePrefix;
+  const i = parseInt(moveBtn.dataset.exMoveIndex);
+  const j = dir === 'up' ? i - 1 : i + 1;
+  swapExerciseValues(prefix, i, j);
+});
+
+// ---- herança de exercícios ao trocar de modo (Clássico/Circuito/Bravo) ----
+// Cada modo guarda sua própria lista de campos, então trocar de modo por si
+// só não apaga nada — mas o modo novo começa com a lista dele, que pode
+// estar vazia. Isso fazia parecer que os exercícios tinham sido apagados.
+// Aqui a gente lê o que estava no modo anterior e replica pro modo novo.
+function modeFieldConf(mode, idx) {
+  const p = idx == null ? '' : `progW${idx}_`;
+  const map = {
+    normal:  { countId: idx == null ? 'progNormalExCount' : `${p}NormalExCount`, listId: idx == null ? 'progNormalExList' : `${p}NormalExList`, prefix: idx == null ? 'progNfEx' : `${p}NfEx` },
+    circuit: { countId: idx == null ? 'progExCount' : `${p}ExCount`, listId: idx == null ? 'progCircuitExList' : `${p}CircuitExList`, prefix: idx == null ? 'progCEx' : `${p}CEx` },
+    brain:   { countId: idx == null ? 'progBrainExCount' : `${p}BrainExCount`, listId: idx == null ? 'progBrainExList' : `${p}BrainExList`, prefix: idx == null ? 'progBEx' : `${p}BEx` },
+  };
+  return map[mode];
+}
+
+function readExerciseValues(prefix, count) {
+  const names = [], videos = [];
+  for (let i = 0; i < count; i++) {
+    names.push(document.getElementById(prefix + i)?.value.trim() || '');
+    videos.push(document.getElementById(prefix + 'Yt' + i)?.value.trim() || '');
+  }
+  return { names, videos };
+}
+
+// Lê os exercícios do modo atual (oldMode) e, se houver algo preenchido,
+// replica pro modo novo (newMode) antes da troca de visibilidade acontecer.
+// idx é null pro formulário de modo único, ou o índice do bloco no builder
+// de múltiplos treinos.
+function carryExercisesOnModeSwitch(oldMode, newMode, idx) {
+  if (oldMode === newMode) return;
+  const oldConf = modeFieldConf(oldMode, idx);
+  if (!oldConf) return;
+  const oldCount = parseInt(document.getElementById(oldConf.countId)?.value) || 0;
+  const { names, videos } = readExerciseValues(oldConf.prefix, oldCount);
+  if (!names.some(n => n)) return; // nada preenchido no modo anterior, não há o que herdar
+  const newConf = modeFieldConf(newMode, idx);
+  if (!newConf) return;
+  const newCount = Math.min(Math.max(names.length, 1), 12);
+  const countInput = document.getElementById(newConf.countId);
+  if (countInput) countInput.value = newCount;
+  renderExerciseInputs(newConf.listId, newConf.prefix, newCount, names, videos);
 }
 
 // ============================================================
@@ -173,6 +255,9 @@ document.getElementById('progBrainExCount')?.addEventListener('input', (e) => {
 document.querySelectorAll('#progSingleFields .mode-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     const mode = btn.dataset.mode;
+    const oldMode = document.getElementById('progMode').value;
+    carryExercisesOnModeSwitch(oldMode, mode, null);
+
     document.querySelectorAll('#progSingleFields .mode-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('progMode').value = mode;
@@ -278,6 +363,9 @@ document.getElementById('progWorkoutsList')?.addEventListener('click', (e) => {
   if (modeBtn) {
     const idx = modeBtn.dataset.widx;
     const mode = modeBtn.dataset.mode;
+    const oldMode = document.getElementById(`progW${idx}_mode`)?.value;
+    carryExercisesOnModeSwitch(oldMode, mode, idx);
+
     document.querySelectorAll(`[data-workout-mode-btn][data-widx="${idx}"]`).forEach(b => b.classList.toggle('active', b === modeBtn));
     document.getElementById(`progW${idx}_mode`).value = mode;
     document.querySelectorAll(`#progW${idx}_fields .prog-fields`).forEach(f => window.adminHide(f));
