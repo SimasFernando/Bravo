@@ -872,10 +872,8 @@ function startBrainMode(p){
   getAC();
   brain.preset=p;
   brain.totalExercises=p.brainExCount||2;
-  brain.totalSeries=p.brainSeries||3;
-  brain.actionSecs=p.brainAction||40;
-  brain.prepSecs=p.brainPrep||15;
   brain.exIndex=0;brain.serieNum=1;
+  applyBrainExerciseParams(); // aplica série/prep/execução considerando personalização do exercício 0
   brain.execOverflow=false;brain.running=true;
   brain.pendingMarkName=p.name;
   brain.poderBravoSum=0;
@@ -883,6 +881,28 @@ function startBrainMode(p){
   brain._cardColor=p.color||'#F04E23';
   acquireWakeLock();
   showBrainPrep(); // prep sempre no início
+}
+
+// Calcula série/prep/execução efetivos pro exercício `exIndex`: usa a
+// personalização daquele exercício quando existir, senão cai pros
+// parâmetros globais do programa.
+function brainEffectiveParams(exIndex){
+  const p=brain.preset||{};
+  const ov=p.brainExerciseOverrides?.[exIndex]||null;
+  return {
+    series: (ov&&ov.brainSeries!=null) ? ov.brainSeries : (p.brainSeries||3),
+    prep:   (ov&&ov.brainPrep!=null)   ? ov.brainPrep   : (p.brainPrep||15),
+    action: (ov&&ov.brainAction!=null) ? ov.brainAction : (p.brainAction||40),
+  };
+}
+
+// Atualiza brain.totalSeries/prepSecs/actionSecs pro exercício atual
+// (brain.exIndex). Chamar sempre que exIndex mudar.
+function applyBrainExerciseParams(){
+  const eff=brainEffectiveParams(brain.exIndex);
+  brain.totalSeries=eff.series;
+  brain.prepSecs=eff.prep;
+  brain.actionSecs=eff.action;
 }
 
 function brainExName(){
@@ -1089,6 +1109,7 @@ function onBrainRestDone(){
   } else if(after==='nextEx'){
     // novo exercício → mostra prep
     brain.exIndex++;brain.serieNum=1;
+    applyBrainExerciseParams(); // pode ter série/prep/execução diferentes se personalizado
     showBrainPrep();
   } else {
     // próxima série → vai DIRETO para exec (sem prep)
