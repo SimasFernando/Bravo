@@ -50,6 +50,7 @@
       <div class="admin-logo" style="font-size:18px;margin:0;">BRAVO ADMIN</div>
       <div style="display:flex;align-items:center;gap:12px;">
         <span class="admin-topbar-name" id="adminName"></span>
+        <button class="admin-logout" id="adminHardRefreshBtn" title="Limpa cache e recarrega">↻ Atualizar</button>
         <button class="admin-logout" id="adminLogoutBtn">Sair</button>
       </div>
     </div>
@@ -293,6 +294,28 @@
     </div>
   </div>
 
+  <script>
+    // Hard refresh — limpa Cache Storage e Service Workers (não mexe em
+    // localStorage/IndexedDB, então a sessão de login é preservada).
+    document.getElementById('adminHardRefreshBtn')?.addEventListener('click', async () => {
+      const btn = document.getElementById('adminHardRefreshBtn');
+      if (btn) { btn.disabled = true; btn.textContent = 'Atualizando...'; }
+      try {
+        if ('caches' in window) {
+          const keys = await caches.keys();
+          await Promise.all(keys.map(k => caches.delete(k)));
+        }
+        if ('serviceWorker' in navigator) {
+          const regs = await navigator.serviceWorker.getRegistrations();
+          await Promise.all(regs.map(r => r.unregister()));
+        }
+      } catch (e) {
+        console.warn('Hard refresh: limpeza falhou, recarregando mesmo assim.', e);
+      } finally {
+        location.href = location.pathname + '?t=' + Date.now();
+      }
+    });
+  </script>
   <script src="assets/js/admin-nav.js"></script>
   <script type="module" src="assets/js/admin-auth.js"></script>
   <script type="module" src="assets/js/admin-users.js"></script>
