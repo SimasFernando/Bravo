@@ -43,6 +43,10 @@ let _modalities = null;  // array em cache
 let _loadPromise = null;
 let editingExId = null;
 
+// filtros da biblioteca (aba de busca) — IDs selecionados, exige TODOS
+let filterGroupIds = [];
+let filterModalityIds = [];
+
 function escapeHtml(str) {
   return String(str).replace(/[&<>"']/g, c => ({
     '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
@@ -140,6 +144,7 @@ async function addModality(label) {
   _modalities = [..._modalities, mod];
   await setDoc(doc(window._adminDb, 'config', 'modalidades'), { list: _modalities }, { merge: true });
   window._modalityList = _modalities;
+  document.dispatchEvent(new CustomEvent('modalityListChanged'));
   return mod;
 }
 window._addModality = addModality;
@@ -185,7 +190,58 @@ async function initMainForm() {
     renderChips(modBox, _modalities, [], 'data-modality-id');
     if (!modBox.dataset.bound) { bindChipToggle(modBox); modBox.dataset.bound = '1'; }
   }
+  initFilterChips();
 }
+
+// ============================================================
+// FILTROS DA BIBLIOTECA (grupamento + modalidade, na busca)
+// ============================================================
+function initFilterChips() {
+  const filterGroupBox = document.getElementById('exFilterGroupChips');
+  const filterModBox = document.getElementById('exFilterModalityChips');
+  if (filterGroupBox && !filterGroupBox.dataset.bound) {
+    renderChips(filterGroupBox, GRUPAMENTOS, filterGroupIds, 'data-group-id');
+    filterGroupBox.addEventListener('click', (e) => {
+      const chip = e.target.closest('.chip');
+      if (!chip) return;
+      chip.classList.toggle('active');
+      filterGroupIds = getActiveChipIds(filterGroupBox, 'data-group-id');
+      updateFilterClearBtn();
+      renderExerciseList();
+    });
+    filterGroupBox.dataset.bound = '1';
+  }
+  if (filterModBox) {
+    renderChips(filterModBox, _modalities, filterModalityIds, 'data-modality-id');
+    if (!filterModBox.dataset.bound) {
+      filterModBox.addEventListener('click', (e) => {
+        const chip = e.target.closest('.chip');
+        if (!chip) return;
+        chip.classList.toggle('active');
+        filterModalityIds = getActiveChipIds(filterModBox, 'data-modality-id');
+        updateFilterClearBtn();
+        renderExerciseList();
+      });
+      filterModBox.dataset.bound = '1';
+    }
+  }
+  updateFilterClearBtn();
+}
+
+function updateFilterClearBtn() {
+  const btn = document.getElementById('exFilterClearBtn');
+  if (!btn) return;
+  btn.style.display = (filterGroupIds.length || filterModalityIds.length) ? 'inline-block' : 'none';
+}
+
+document.getElementById('exFilterClearBtn')?.addEventListener('click', () => {
+  filterGroupIds = [];
+  filterModalityIds = [];
+  renderChips(document.getElementById('exFilterGroupChips'), GRUPAMENTOS, [], 'data-group-id');
+  renderChips(document.getElementById('exFilterModalityChips'), _modalities || [], [], 'data-modality-id');
+  updateFilterClearBtn();
+  renderExerciseList();
+});
 
 document.getElementById('exAddModalityBtn')?.addEventListener('click', async () => {
   const input = document.getElementById('exNewModalityInput');
@@ -258,7 +314,12 @@ function renderExerciseList() {
   const countEl = document.getElementById('exLibraryCount');
   if (!list) return;
   const term = normalizeSearch(document.getElementById('exSearchInput')?.value || '');
-  const filtered = (_exercises || []).filter(ex => !term || ex.nomeBusca.includes(term));
+  const filtered = (_exercises || []).filter(ex => {
+    if (term && !ex.nomeBusca.includes(term)) return false;
+    if (filterGroupIds.length && !filterGroupIds.every(id => (ex.grupamentos || []).includes(id))) return false;
+    if (filterModalityIds.length && !filterModalityIds.every(id => (ex.modalidades || []).includes(id))) return false;
+    return true;
+  });
 
   if (countEl) countEl.textContent = `${filtered.length} exercício(s)`;
   if (filtered.length === 0) {
@@ -287,6 +348,11 @@ function renderExerciseList() {
 }
 
 document.getElementById('exSearchInput')?.addEventListener('input', renderExerciseList);
+
+document.addEventListener('modalityListChanged', () => {
+  const filterModBox = document.getElementById('exFilterModalityChips');
+  if (filterModBox) renderChips(filterModBox, _modalities, filterModalityIds, 'data-modality-id');
+});
 
 document.getElementById('exLibraryList')?.addEventListener('click', async (e) => {
   const editId = e.target.dataset?.exEdit;
