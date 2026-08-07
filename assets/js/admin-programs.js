@@ -156,7 +156,11 @@ function renderExerciseInputs(containerId, prefix, count, existingNames, existin
         </div>
         <div class="field-group ex-autocomplete-wrap" style="flex:1;">
           <label class="field-label">Exercício ${EX_LETTERS[i] || (i+1)}</label>
-          <input class="field-input" id="${prefix}${i}" data-ex-name value="${escapeHtml(nameVal)}" placeholder="Digite pra buscar na biblioteca..." autocomplete="off">
+          <div style="display:flex;gap:6px;">
+            <input class="field-input" id="${prefix}${i}" data-ex-name value="${escapeHtml(nameVal)}" placeholder="Digite pra buscar na biblioteca..." autocomplete="off" style="flex:1;">
+            <button type="button" data-ex-lib-open title="Escolher da biblioteca" aria-label="Escolher da biblioteca"
+              style="flex-shrink:0;border:none;background:var(--surface2);border-radius:8px;width:42px;font-size:16px;cursor:pointer;color:var(--text);">🔍</button>
+          </div>
           <div class="ex-suggestions hidden" data-ex-suggestions></div>
         </div>
         <div class="field-group" style="flex:1;">
@@ -515,6 +519,155 @@ document.addEventListener('input', (e) => {
   if (input) showExerciseSuggestions(input);
 });
 
+// ============================================================
+// MODAL "ESCOLHER DA BIBLIOTECA" — busca + filtro por grupamento/modalidade
+// ============================================================
+let _pickerTargetWrap = null;
+let _pickerFilterGroupIds = [];
+let _pickerFilterModalityIds = [];
+
+function ensurePickerModal() {
+  if (document.getElementById('exPickerOverlay')) return;
+
+  const overlay = document.createElement('div');
+  overlay.className = 'ex-modal-overlay hidden';
+  overlay.id = 'exPickerOverlay';
+  overlay.innerHTML = `
+    <div class="ex-modal" style="max-width:540px;width:92%;max-height:88vh;overflow-y:auto;">
+      <div class="admin-logo" style="font-size:18px;margin-bottom:14px;">Escolher exercício</div>
+
+      <input class="field-input" id="exPickerSearch" placeholder="Buscar por nome..." autocomplete="off" style="margin-bottom:14px;">
+
+      <label class="field-label">Grupamento muscular</label>
+      <div id="exPickerGroupChips" class="chip-select"></div>
+
+      <label class="field-label" style="margin-top:12px;display:block;">Modalidade</label>
+      <div id="exPickerModalityChips" class="chip-select"></div>
+
+      <div id="exPickerCount" style="color:var(--muted);font-size:13px;margin:14px 0 8px;"></div>
+      <div id="exPickerList" style="max-height:38vh;overflow-y:auto;"></div>
+
+      <div style="display:flex;gap:8px;margin-top:16px;">
+        <button type="button" class="admin-btn" id="exPickerCloseBtn" style="background:var(--surface2);flex:1;">FECHAR</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeExercisePicker(); });
+  overlay.querySelector('#exPickerCloseBtn').addEventListener('click', closeExercisePicker);
+  overlay.querySelector('#exPickerSearch').addEventListener('input', renderPickerList);
+
+  const groupBox = overlay.querySelector('#exPickerGroupChips');
+  groupBox.addEventListener('click', (e) => {
+    const chip = e.target.closest('.chip');
+    if (!chip) return;
+    chip.classList.toggle('active');
+    _pickerFilterGroupIds = [...groupBox.querySelectorAll('.chip.active')].map(c => c.getAttribute('data-group-id'));
+    renderPickerList();
+  });
+
+  const modBox = overlay.querySelector('#exPickerModalityChips');
+  modBox.addEventListener('click', (e) => {
+    const chip = e.target.closest('.chip');
+    if (!chip) return;
+    chip.classList.toggle('active');
+    _pickerFilterModalityIds = [...modBox.querySelectorAll('.chip.active')].map(c => c.getAttribute('data-modality-id'));
+    renderPickerList();
+  });
+}
+
+function renderPickerChips() {
+  const groupBox = document.getElementById('exPickerGroupChips');
+  const modBox = document.getElementById('exPickerModalityChips');
+  const groups = window._GRUPAMENTOS || [];
+  const modalities = window._modalityList || [];
+  if (groupBox) {
+    groupBox.innerHTML = groups.map(it => `
+      <button type="button" class="chip${_pickerFilterGroupIds.includes(it.id) ? ' active' : ''}" data-group-id="${it.id}">${escapeHtml(it.label)}</button>
+    `).join('');
+  }
+  if (modBox) {
+    modBox.innerHTML = modalities.map(it => `
+      <button type="button" class="chip${_pickerFilterModalityIds.includes(it.id) ? ' active' : ''}" data-modality-id="${it.id}">${escapeHtml(it.label)}</button>
+    `).join('');
+  }
+}
+
+function renderPickerList() {
+  const term = normalizeSearch(document.getElementById('exPickerSearch')?.value || '');
+  const lib = window._exerciseLibrary || [];
+  const filtered = lib.filter(ex => {
+    if (term && !ex.nomeBusca.includes(term)) return false;
+    if (_pickerFilterGroupIds.length && !_pickerFilterGroupIds.every(id => (ex.grupamentos || []).includes(id))) return false;
+    if (_pickerFilterModalityIds.length && !_pickerFilterModalityIds.every(id => (ex.modalidades || []).includes(id))) return false;
+    return true;
+  });
+
+  const countEl = document.getElementById('exPickerCount');
+  if (countEl) countEl.textContent = `${filtered.length} exercício${filtered.length === 1 ? '' : 's'} encontrado${filtered.length === 1 ? '' : 's'}`;
+
+  const listEl = document.getElementById('exPickerList');
+  if (!listEl) return;
+
+  let html = filtered.map(ex => `
+    <div class="ex-suggestion-item" data-ex-picker-pick="${ex.id}" style="cursor:pointer;">
+      ${escapeHtml(ex.nome)}
+      ${exerciseTagLabels(ex) ? `<div class="ex-suggestion-tags">${escapeHtml(exerciseTagLabels(ex))}</div>` : ''}
+    </div>`).join('');
+
+  const searchVal = document.getElementById('exPickerSearch')?.value.trim() || '';
+  html += `<div class="ex-suggestion-add" data-ex-picker-add-new style="cursor:pointer;">+ Não achei, criar novo exercício${searchVal ? ` "${escapeHtml(searchVal)}"` : ''}</div>`;
+
+  listEl.innerHTML = html;
+}
+
+function openExercisePicker(wrap) {
+  _pickerTargetWrap = wrap;
+  _pickerFilterGroupIds = [];
+  _pickerFilterModalityIds = [];
+  ensurePickerModal();
+  const searchInput = document.getElementById('exPickerSearch');
+  if (searchInput) searchInput.value = '';
+  document.getElementById('exPickerOverlay')?.classList.remove('hidden');
+
+  window._ensureExerciseLibrary?.().then(() => {
+    renderPickerChips();
+    renderPickerList();
+  });
+}
+
+function closeExercisePicker() {
+  document.getElementById('exPickerOverlay')?.classList.add('hidden');
+  _pickerTargetWrap = null;
+}
+
+document.addEventListener('click', (e) => {
+  const pick = e.target.closest('[data-ex-picker-pick]');
+  if (pick) {
+    const ex = (window._exerciseLibrary || []).find(x => x.id === pick.dataset.exPickerPick);
+    const nameInput = _pickerTargetWrap?.querySelector('[data-ex-name]');
+    const videoInput = nameInput?.closest('.ex-row')?.querySelector('[data-ex-video]');
+    if (nameInput && ex) nameInput.value = ex.nome;
+    if (videoInput && ex?.youtubeUrl && !videoInput.value) videoInput.value = ex.youtubeUrl;
+    closeExercisePicker();
+    return;
+  }
+  const addNew = e.target.closest('[data-ex-picker-add-new]');
+  if (addNew) {
+    const searchVal = document.getElementById('exPickerSearch')?.value.trim() || '';
+    const targetWrap = _pickerTargetWrap;
+    closeExercisePicker();
+    window._openExerciseQuickAdd?.(searchVal, (savedEx) => {
+      const nameInput = targetWrap?.querySelector('[data-ex-name]');
+      if (nameInput) {
+        nameInput.value = savedEx.nome;
+        const videoInput = nameInput.closest('.ex-row')?.querySelector('[data-ex-video]');
+        if (videoInput && savedEx.youtubeUrl && !videoInput.value) videoInput.value = savedEx.youtubeUrl;
+      }
+    });
+  }
+});
+
 document.addEventListener('focusout', (e) => {
   const input = e.target.closest('[data-ex-name]');
   if (!input) return;
@@ -525,6 +678,12 @@ document.addEventListener('focusout', (e) => {
 });
 
 document.addEventListener('click', (e) => {
+  const openPicker = e.target.closest('[data-ex-lib-open]');
+  if (openPicker) {
+    const wrap = openPicker.closest('.ex-autocomplete-wrap');
+    if (wrap) openExercisePicker(wrap);
+    return;
+  }
   const pick = e.target.closest('[data-ex-pick]');
   if (pick) {
     const wrap = pick.closest('.ex-autocomplete-wrap');
