@@ -182,17 +182,8 @@
             </div>
 
             <div id="progFieldsCircuit" class="prog-fields hidden">
-              <div class="field-group" style="margin-bottom:12px;">
-                <label class="field-label">Nº Exercícios</label>
-                <input class="field-input" type="number" id="progExCount" value="4" min="1" max="12">
-              </div>
-              <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
-                <div class="field-group"><label class="field-label">Rodadas</label><input class="field-input" type="number" id="progRounds" value="3"></div>
-                <div class="field-group"><label class="field-label">Preparação (s)</label><input class="field-input" type="number" id="progCPrep" value="10"></div>
-                <div class="field-group"><label class="field-label">Execução (s)</label><input class="field-input" type="number" id="progCAction" value="30"></div>
-                <div class="field-group"><label class="field-label">Intervalo entre exercícios (s)</label><input class="field-input" type="number" id="progCRest" value="0"></div>
-              </div>
-              <div id="progCircuitExList"></div>
+              <div id="progCircuitBlocksList"></div>
+              <button type="button" class="admin-btn" id="progAddCircuitBlockBtn" style="background:var(--surface2);margin-bottom:12px;">+ ADICIONAR BLOCO</button>
             </div>
 
             <div id="progFieldsBrain" class="prog-fields hidden">
