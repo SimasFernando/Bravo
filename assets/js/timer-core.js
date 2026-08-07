@@ -2,7 +2,36 @@ const CIRC=2*Math.PI*52;
 const ringFg=document.getElementById('ringFg');
 ringFg.style.strokeDasharray=CIRC;
 
-let tmr={preset:null,phase:'prep',cycle:1,seconds:0,total:0,running:false,_int:null,isCircuit:false,round:1,exIndex:0,color:'#00E676'};
+let tmr={preset:null,phase:'prep',cycle:1,seconds:0,total:0,running:false,_int:null,isCircuit:false,round:1,exIndex:0,blockIndex:0,blocks:null,color:'#00E676'};
+
+// Formato novo do Circuito: `p.circuitBlocks` é uma lista de blocos
+// sequenciais, cada um com seus próprios exercícios/rodadas/preparação/
+// execução/intervalo. Formato antigo (programas salvos antes dos blocos
+// existirem): campos soltos no próprio p, tratados como um único bloco.
+function getCircuitBlocks(p){
+  if(p.circuitBlocks&&p.circuitBlocks.length) return p.circuitBlocks;
+  if(p.exercises||p.exCount||p.rounds!=null){
+    return [{
+      exCount:p.exCount||4, exercises:p.exercises||[], exerciseVideos:p.exerciseVideos||[],
+      rounds:p.rounds??3, prep:p.prep??10, action:p.action??30, rest:p.rest??0,
+    }];
+  }
+  return [{exCount:0,exercises:[],exerciseVideos:[],rounds:1,prep:10,action:30,rest:0}];
+}
+
+// Calcula série/prep/execução/recuperação efetivos pro exercício `exIndex`
+// do modo Clássico: usa a personalização daquele exercício quando existir,
+// senão cai pros parâmetros globais do treino/programa. (O Circuito não usa
+// personalização por exercício — lá a divisão é por blocos, ver acima.)
+function effectiveParamsFor(p,exIndex){
+  const ov=p.normalExerciseOverrides?.[exIndex]||null;
+  return {
+    cycles: (ov&&ov.cycles!=null) ? ov.cycles : (p.cycles||3),
+    prep:   (ov&&ov.prep!=null)   ? ov.prep   : (p.prep||10),
+    action: (ov&&ov.action!=null) ? ov.action : (p.action||40),
+    rest:   (ov&&ov.rest!=null)   ? ov.rest   : (p.rest||20),
+  };
+}
 
 function phaseColor(phase,base){
   return '#F04E23';
@@ -24,16 +53,21 @@ function startTimer(){
   tmr.preset=p;tmr.running=true;tmr.isCircuit=(p.mode==='circuit');tmr.color=p.color||'#00E676';
   applyProgColor(tmr.color);
   if(tmr.isCircuit){
-    tmr.round=1;tmr.exIndex=0;tmr.phase='prep';tmr.seconds=p.prep;tmr.total=p.prep;
+    tmr.blocks=getCircuitBlocks(p);
+    tmr.blockIndex=0;tmr.round=1;tmr.exIndex=0;tmr.phase='prep';
+    const blk=tmr.blocks[0];
+    tmr.seconds=blk.prep;tmr.total=blk.prep;
     buildCircuitUI();
     document.getElementById('dotsRow').style.display='none';
     document.getElementById('roundDotsRow').style.display='none';
     updateCircuitExLabel();updateCircuitRoundDots();
-    updateProgressChips(p.exCount||1,1,p.rounds,1);
+    updateProgressChips(blk.exCount||1,1,blk.rounds,1);
   } else {
-    tmr.cycle=1;tmr.phase='prep';tmr.seconds=p.prep;tmr.total=p.prep;
+    tmr.cycle=1;tmr.phase='prep';
     tmr.exIndex=0;
     tmr.normalExCount=Math.max(1,p.normalExCount||1);
+    const eff0=effectiveParamsFor(p,0);
+    tmr.seconds=eff0.prep;tmr.total=eff0.prep;
     buildDots();
     document.getElementById('dotsRow').style.display='none';
     document.getElementById('roundDotsRow').style.display='none';
@@ -42,7 +76,7 @@ function startTimer(){
     } else {
       document.getElementById('circuitExLabel').style.display='none';
     }
-    updateProgressChips(tmr.normalExCount,1,p.cycles,1);
+    updateProgressChips(tmr.normalExCount,1,eff0.cycles,1);
   }
   updateTimerUI();showScreen('timer');
   acquireWakeLock();phaseStart();tick();
@@ -81,49 +115,74 @@ function nextPhase(){
   const p=tmr.preset;
   if(tmr.isCircuit){nextCircuitPhase();return;}
   const multiEx=(tmr.normalExCount>1);
-  if(tmr.phase==='prep'){tmr.phase='action';tmr.seconds=p.action;tmr.total=p.action;phaseStart();}
+  const eff=effectiveParamsFor(p,tmr.exIndex);
+  if(tmr.phase==='prep'){tmr.phase='action';tmr.seconds=eff.action;tmr.total=eff.action;phaseStart();}
   else if(tmr.phase==='action'){
     markDot(tmr.cycle-1,'done');
-    if(tmr.cycle>=p.cycles){
+    if(tmr.cycle>=eff.cycles){
       if(multiEx&&tmr.exIndex<tmr.normalExCount-1){
         tmr.exIndex++;tmr.cycle=1;
-        tmr.phase='prep';tmr.seconds=p.prep;tmr.total=p.prep;
+        const effNext=effectiveParamsFor(p,tmr.exIndex);
+        tmr.phase='prep';tmr.seconds=effNext.prep;tmr.total=effNext.prep;
         buildDots();
         updateNormalExLabel();
-        updateProgressChips(tmr.normalExCount,tmr.exIndex+1,p.cycles,1);
+        updateProgressChips(tmr.normalExCount,tmr.exIndex+1,effNext.cycles,1);
         phaseStart();updateTimerUI();return;
       }
       clearInterval(tmr._int);setTimeout(()=>showFinish(p),600);return;
     }
-    tmr.phase='rest';tmr.seconds=p.rest;tmr.total=p.rest;phaseStart();
+    tmr.phase='rest';tmr.seconds=eff.rest;tmr.total=eff.rest;phaseStart();
   } else {
-    tmr.cycle++;tmr.phase='action';tmr.seconds=p.action;tmr.total=p.action;
+    tmr.cycle++;tmr.phase='action';tmr.seconds=eff.action;tmr.total=eff.action;
     markDot(tmr.cycle-1,'active');phaseStart();
   }
-  updateProgressChips(tmr.normalExCount,tmr.exIndex+1,p.cycles,tmr.cycle);
+  updateProgressChips(tmr.normalExCount,tmr.exIndex+1,eff.cycles,tmr.cycle);
   updateTimerUI();
 }
 
+// Percorre o circuito bloco a bloco: dentro de um bloco, roda a rotação
+// normal (todos os exercícios do bloco, por N rodadas). Ao terminar TODAS
+// as rodadas do bloco atual, passa pro próximo bloco (do zero: rodada 1,
+// primeiro exercício, com os parâmetros próprios do novo bloco) — só
+// termina o treino quando o último bloco acabar.
 function nextCircuitPhase(){
   const p=tmr.preset;
-  if(tmr.phase==='prep'){tmr.phase='action';tmr.seconds=p.action;tmr.total=p.action;phaseStart();updateCircuitExLabel();}
-  else if(tmr.phase==='action'){
-    const lastEx=(tmr.exIndex>=p.exCount-1),lastRound=(tmr.round>=p.rounds);
-    if(lastEx&&lastRound){clearInterval(tmr._int);setTimeout(()=>showFinish(p),600);return;}
-    if(lastEx){tmr.exIndex=0;tmr.round++;updateCircuitRoundDots();tmr.phase='prep';tmr.seconds=p.prep;tmr.total=p.prep;phaseStart();}
-    else if(p.rest>0){tmr.phase='rest';tmr.seconds=p.rest;tmr.total=p.rest;phaseStart();updateCircuitExLabel(tmr.exIndex+1);}
-    else{tmr.exIndex++;tmr.phase='action';tmr.seconds=p.action;tmr.total=p.action;phaseStart();updateCircuitExLabel();}
+  const blk=tmr.blocks[tmr.blockIndex];
+  if(tmr.phase==='prep'){
+    tmr.phase='action';tmr.seconds=blk.action;tmr.total=blk.action;phaseStart();updateCircuitExLabel();
+  } else if(tmr.phase==='action'){
+    const lastEx=(tmr.exIndex>=blk.exCount-1),lastRound=(tmr.round>=blk.rounds);
+    if(lastEx&&lastRound){
+      if(tmr.blockIndex<tmr.blocks.length-1){
+        tmr.blockIndex++;tmr.exIndex=0;tmr.round=1;
+        const nextBlk=tmr.blocks[tmr.blockIndex];
+        buildCircuitUI();updateCircuitRoundDots();
+        tmr.phase='prep';tmr.seconds=nextBlk.prep;tmr.total=nextBlk.prep;phaseStart();updateCircuitExLabel();
+      } else {
+        clearInterval(tmr._int);setTimeout(()=>showFinish(p),600);return;
+      }
+    } else if(lastEx){
+      tmr.exIndex=0;tmr.round++;updateCircuitRoundDots();
+      tmr.phase='prep';tmr.seconds=blk.prep;tmr.total=blk.prep;phaseStart();
+    } else if(blk.rest>0){
+      tmr.phase='rest';tmr.seconds=blk.rest;tmr.total=blk.rest;phaseStart();updateCircuitExLabel(tmr.exIndex+1);
+    } else {
+      tmr.exIndex++;
+      tmr.phase='action';tmr.seconds=blk.action;tmr.total=blk.action;phaseStart();updateCircuitExLabel();
+    }
   } else {
-    tmr.exIndex++;tmr.phase='action';tmr.seconds=p.action;tmr.total=p.action;phaseStart();updateCircuitExLabel();
+    tmr.exIndex++;
+    tmr.phase='action';tmr.seconds=blk.action;tmr.total=blk.action;phaseStart();updateCircuitExLabel();
   }
-  updateProgressChips(p.exCount||1,tmr.exIndex+1,p.rounds,tmr.round);
+  const curBlk=tmr.blocks[tmr.blockIndex];
+  updateProgressChips(curBlk.exCount||1,tmr.exIndex+1,curBlk.rounds,tmr.round);
   updateTimerUI();
 }
 
 function updateCircuitExLabel(idxOverride){
-  const p=tmr.preset;
+  const blk=tmr.blocks[tmr.blockIndex];
   const idx=idxOverride!=null?idxOverride:tmr.exIndex;
-  const name=(p.exercises?.[idx]||'').trim();
+  const name=(blk.exercises?.[idx]||'').trim();
   const el=document.getElementById('circuitExLabel');
   if(name){el.textContent=name;el.style.display='block';el.style.color='var(--prog)';}
   else{el.style.display='none';}
@@ -136,9 +195,9 @@ function updateNormalExLabel(){
   else{el.style.display='none';}
 }
 function buildCircuitUI(){
-  const p=tmr.preset;
+  const blk=tmr.blocks[tmr.blockIndex];
   const row=document.getElementById('roundDotsRow');row.innerHTML='';
-  for(let i=0;i<p.rounds;i++){const d=document.createElement('div');d.className='round-dot'+(i===0?' active':'');row.appendChild(d);}
+  for(let i=0;i<blk.rounds;i++){const d=document.createElement('div');d.className='round-dot'+(i===0?' active':'');row.appendChild(d);}
 }
 function updateCircuitRoundDots(){
   document.querySelectorAll('.round-dot').forEach((d,i)=>{d.className='round-dot'+(i<tmr.round-1?' done':i===tmr.round-1?' active':'');});
@@ -176,8 +235,9 @@ function phaseStart(){
   if (tmr.phase === 'prep' || tmr.phase === 'action' || isCircuitTransition) {
     const p = resolveSelectedProgram(selectedId);
     const idx = isCircuitTransition ? (tmr.exIndex + 1) : (tmr.exIndex || 0);
-    const vids = tmr.isCircuit ? p?.exerciseVideos : p?.normalExerciseVideos;
-    const names = tmr.isCircuit ? p?.exercises : p?.normalExercises;
+    const blk = tmr.isCircuit ? tmr.blocks[tmr.blockIndex] : null;
+    const vids = tmr.isCircuit ? blk?.exerciseVideos : p?.normalExerciseVideos;
+    const names = tmr.isCircuit ? blk?.exercises : p?.normalExercises;
     const vid = extractYtId(vids?.[idx] || '');
     const label = (names?.[idx] || '').trim();
     showYtEmbed('timerYtWrap', vid, 'timerMain', label);
@@ -211,7 +271,8 @@ function updateTimerUI(){
 
 function buildDots(){
   const row=document.getElementById('dotsRow');row.innerHTML='';
-  for(let i=0;i<tmr.preset.cycles;i++){const d=document.createElement('div');d.className='dot'+(i===0?' active':'');row.appendChild(d);}
+  const eff=effectiveParamsFor(tmr.preset,tmr.exIndex);
+  for(let i=0;i<eff.cycles;i++){const d=document.createElement('div');d.className='dot'+(i===0?' active':'');row.appendChild(d);}
 }
 function markDot(i,cls){
   document.querySelectorAll('.dot').forEach((d,j)=>{d.className='dot'+(j===i?' '+cls:j<i?' done':'');});
@@ -264,7 +325,9 @@ function showFinish(p){
   speak('Treino concluído. Parabéns!');
   beep(880,.15,.6,'sine',0);beep(1100,.15,.6,'sine',.2);beep(1320,.3,.7,'sine',.4);
   vibrate([100,50,100,50,200]);
-  const label=p.mode==='circuit'?`${p.name} · ${p.rounds} rodadas`:`${p.name} · ${p.cycles} séries`;
+  const label=p.mode==='circuit'
+    ? `${p.name} · ${tmr.blocks?.length>1 ? tmr.blocks.length+' blocos' : (tmr.blocks?.[0]?.rounds||0)+' rodadas'}`
+    : `${p.name} · ${p.cycles} séries`;
   document.getElementById('finishSub').textContent=label;
   showScreen('finish');
   showBravoFixed(label);

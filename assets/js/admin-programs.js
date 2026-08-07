@@ -20,6 +20,63 @@ import { collection, getDocs, doc, setDoc, deleteDoc }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 const EX_LETTERS = ['A','B','C','D','E','F','G','H','I','J','K','L'];
+
+// Quais parâmetros cada modo permite personalizar por exercício, e o id do
+// campo global correspondente (usado como valor inicial ao abrir o painel
+// de personalização pela primeira vez). Circuito não entra aqui: lá a
+// personalização é por BLOCO (ver seção "BLOCOS DE CIRCUITO"), não por
+// exercício individual.
+const MODE_PARAM_FIELDS = {
+  normal:  [
+    { key: 'cycles', label: 'Séries' },
+    { key: 'prep',   label: 'Preparação (s)' },
+    { key: 'action', label: 'Execução (s)' },
+    { key: 'rest',   label: 'Recuperação (s)' },
+  ],
+  brain: [
+    { key: 'brainSeries', label: 'Séries' },
+    { key: 'brainPrep',   label: 'Preparação (s)' },
+    { key: 'brainAction', label: 'Execução (s)' },
+  ],
+};
+
+function globalParamFieldIds(mode, idx) {
+  const p = idx == null ? '' : `progW${idx}_`;
+  if (mode === 'normal') return { cycles: idx == null ? 'progCycles' : `${p}Cycles`, prep: idx == null ? 'progPrep' : `${p}Prep`, action: idx == null ? 'progAction' : `${p}Action`, rest: idx == null ? 'progRest' : `${p}Rest` };
+  return { brainSeries: idx == null ? 'progBrainSeries' : `${p}BrainSeries`, brainPrep: idx == null ? 'progBrainPrep' : `${p}BrainPrep`, brainAction: idx == null ? 'progBrainAction' : `${p}BrainAction` };
+}
+
+// Lê, pro exercício i, o valor atual do parâmetro `key`: se já existe uma
+// personalização, usa ela; senão usa o valor global do modo como ponto de
+// partida (assim o painel já abre preenchido, pronto pra ajustar).
+function paramStartValue(mode, idx, key, existingOverride) {
+  if (existingOverride && existingOverride[key] !== undefined && existingOverride[key] !== null) return existingOverride[key];
+  const globalIds = globalParamFieldIds(mode, idx);
+  const globalEl = document.getElementById(globalIds[key]);
+  return globalEl ? globalEl.value : '';
+}
+
+// Lê os overrides preenchidos no formulário pra um bloco de exercícios,
+// pra salvar junto com o programa. Índices sem personalização ativa viram
+// null (usam os parâmetros globais do modo).
+function readExerciseOverrides(prefix, count, mode) {
+  const fields = MODE_PARAM_FIELDS[mode] || [];
+  const overrides = [];
+  for (let i = 0; i < count; i++) {
+    const flagEl = document.getElementById(prefix + 'OvOn' + i);
+    if (flagEl && flagEl.value === '1') {
+      const ov = {};
+      fields.forEach(f => {
+        const v = document.getElementById(`${prefix}Ov${i}_${f.key}`)?.value;
+        if (v !== undefined && v !== '') ov[f.key] = parseInt(v) || 0;
+      });
+      overrides.push(Object.keys(ov).length ? ov : null);
+    } else {
+      overrides.push(null);
+    }
+  }
+  return overrides;
+}
 let _programs = null;
 let editingId = null;
 let _workoutIdx = 0; // contador de blocos de treino na sessão atual do formulário
@@ -52,15 +109,41 @@ const BRAVO_ORANGE = '#F04E23';
 // busca em si e o "+ adicionar à biblioteca" são tratados por delegação de
 // evento lá embaixo, então essa função só marca os elementos certos com
 // data-ex-* pra esses handlers encontrarem o que precisam.
-function renderExerciseInputs(containerId, prefix, count, existingNames, existingVideos) {
+function renderExerciseInputs(containerId, prefix, count, existingNames, existingVideos, mode, scopeIdx, existingOverrides) {
   const el = document.getElementById(containerId);
   if (!el) return;
+  const paramFields = mode ? (MODE_PARAM_FIELDS[mode] || []) : [];
   let html = '';
   for (let i = 0; i < count; i++) {
     const nameVal = existingNames?.[i] || '';
     const videoVal = existingVideos?.[i] || '';
     const canUp = i > 0;
     const canDown = i < count - 1;
+    const ov = existingOverrides?.[i] || null;
+    const hasOverride = !!ov;
+
+    let overridePanelHtml = '';
+    if (mode) {
+      const fieldsHtml = paramFields.map(f => `
+          <div class="field-group" style="flex:1;min-width:90px;margin-bottom:0;">
+            <label class="field-label">${f.label}</label>
+            <input class="field-input" type="number" id="${prefix}Ov${i}_${f.key}" value="${escapeHtml(String(paramStartValue(mode, scopeIdx, f.key, ov)))}">
+          </div>`).join('');
+      overridePanelHtml = `
+      <div style="margin-top:4px;">
+        <button type="button" data-ex-ov-toggle="${prefix}" data-ex-ov-index="${i}"
+          style="border:none;background:none;padding:2px 0;font-size:12px;cursor:pointer;color:${hasOverride ? 'var(--brand, #ff6a00)' : 'var(--muted)'};">
+          ${hasOverride ? '⚙ Parâmetros personalizados ✓' : '⚙ Personalizar parâmetros deste exercício'}
+        </button>
+        <div class="ex-ov-panel${hasOverride ? '' : ' hidden'}" id="${prefix}OvPanel${i}" style="display:${hasOverride ? 'flex' : 'none'};gap:8px;margin-top:6px;padding:8px;background:var(--surface2);border-radius:8px;flex-wrap:wrap;align-items:flex-end;">
+          ${fieldsHtml}
+          <button type="button" data-ex-ov-clear="${prefix}" data-ex-ov-clear-index="${i}"
+            style="border:none;background:none;color:var(--muted);font-size:12px;cursor:pointer;padding:6px 4px;">Usar padrão do treino</button>
+        </div>
+        <input type="hidden" id="${prefix}OvOn${i}" value="${hasOverride ? '1' : ''}">
+      </div>`;
+    }
+
     html += `<div class="ex-row" style="margin-bottom:8px;">
       <div style="display:flex;gap:8px;align-items:flex-end;">
         <div style="display:flex;flex-direction:column;gap:3px;padding-bottom:2px;">
@@ -81,11 +164,51 @@ function renderExerciseInputs(containerId, prefix, count, existingNames, existin
           <input class="field-input" id="${prefix}Yt${i}" data-ex-video value="${escapeHtml(videoVal)}" placeholder="https://youtube.com/...">
         </div>
       </div>
+      ${overridePanelHtml}
     </div>`;
   }
   el.innerHTML = html;
   window._ensureExerciseLibrary?.(); // aquece o cache assim que a lista aparece na tela
 }
+
+// ---- abrir / fechar / limpar o painel de personalização por exercício ----
+document.addEventListener('click', (e) => {
+  const toggleBtn = e.target.closest('[data-ex-ov-toggle]');
+  if (toggleBtn) {
+    const prefix = toggleBtn.dataset.exOvToggle;
+    const i = toggleBtn.dataset.exOvIndex;
+    const panel = document.getElementById(`${prefix}OvPanel${i}`);
+    const flag = document.getElementById(`${prefix}OvOn${i}`);
+    if (!panel) return;
+    const opening = panel.classList.contains('hidden');
+    if (opening) {
+      panel.classList.remove('hidden');
+      panel.style.display = 'flex';
+      if (flag) flag.value = '1';
+      toggleBtn.textContent = '⚙ Parâmetros personalizados ✓';
+      toggleBtn.style.color = 'var(--brand, #ff6a00)';
+    } else {
+      panel.classList.add('hidden');
+      panel.style.display = 'none';
+    }
+    return;
+  }
+  const clearBtn = e.target.closest('[data-ex-ov-clear]');
+  if (clearBtn) {
+    const prefix = clearBtn.dataset.exOvClear;
+    const i = clearBtn.dataset.exOvClearIndex;
+    const panel = document.getElementById(`${prefix}OvPanel${i}`);
+    const flag = document.getElementById(`${prefix}OvOn${i}`);
+    const toggleBtn = document.querySelector(`[data-ex-ov-toggle="${prefix}"][data-ex-ov-index="${i}"]`);
+    if (flag) flag.value = '';
+    if (panel) { panel.classList.add('hidden'); panel.style.display = 'none'; }
+    if (toggleBtn) {
+      toggleBtn.textContent = '⚙ Personalizar parâmetros deste exercício';
+      toggleBtn.style.color = 'var(--muted)';
+    }
+    return;
+  }
+});
 
 // ---- reordenar exercícios: troca os VALORES (nome + vídeo) entre posições
 // adjacentes, sem mexer nos ids/DOM. Isso mantém intacta toda a lógica de
@@ -104,6 +227,36 @@ function swapExerciseValues(prefix, i, j) {
     videoA.value = videoB.value;
     videoB.value = tmpVideo;
   }
+
+  // a personalização de parâmetros (se houver) acompanha o exercício na troca
+  const flagA = document.getElementById(prefix + 'OvOn' + i);
+  const flagB = document.getElementById(prefix + 'OvOn' + j);
+  if (flagA && flagB) {
+    const tmpFlag = flagA.value;
+    flagA.value = flagB.value;
+    flagB.value = tmpFlag;
+  }
+  document.querySelectorAll(`[id^="${prefix}Ov${i}_"]`).forEach(elA => {
+    const key = elA.id.slice((`${prefix}Ov${i}_`).length);
+    const elB = document.getElementById(`${prefix}Ov${j}_${key}`);
+    if (elB) {
+      const tmp = elA.value;
+      elA.value = elB.value;
+      elB.value = tmp;
+    }
+  });
+  // atualiza a aparência (painel aberto/fechado, texto do botão) das duas linhas
+  [i, j].forEach(idx => {
+    const panel = document.getElementById(`${prefix}OvPanel${idx}`);
+    const flag = document.getElementById(`${prefix}OvOn${idx}`);
+    const toggleBtn = document.querySelector(`[data-ex-ov-toggle="${prefix}"][data-ex-ov-index="${idx}"]`);
+    const has = flag?.value === '1';
+    if (panel) { panel.classList.toggle('hidden', !has); panel.style.display = has ? 'flex' : 'none'; }
+    if (toggleBtn) {
+      toggleBtn.textContent = has ? '⚙ Parâmetros personalizados ✓' : '⚙ Personalizar parâmetros deste exercício';
+      toggleBtn.style.color = has ? 'var(--brand, #ff6a00)' : 'var(--muted)';
+    }
+  });
 }
 
 document.addEventListener('click', (e) => {
@@ -125,7 +278,6 @@ function modeFieldConf(mode, idx) {
   const p = idx == null ? '' : `progW${idx}_`;
   const map = {
     normal:  { countId: idx == null ? 'progNormalExCount' : `${p}NormalExCount`, listId: idx == null ? 'progNormalExList' : `${p}NormalExList`, prefix: idx == null ? 'progNfEx' : `${p}NfEx` },
-    circuit: { countId: idx == null ? 'progExCount' : `${p}ExCount`, listId: idx == null ? 'progCircuitExList' : `${p}CircuitExList`, prefix: idx == null ? 'progCEx' : `${p}CEx` },
     brain:   { countId: idx == null ? 'progBrainExCount' : `${p}BrainExCount`, listId: idx == null ? 'progBrainExList' : `${p}BrainExList`, prefix: idx == null ? 'progBEx' : `${p}BEx` },
   };
   return map[mode];
@@ -146,18 +298,174 @@ function readExerciseValues(prefix, count) {
 // de múltiplos treinos.
 function carryExercisesOnModeSwitch(oldMode, newMode, idx) {
   if (oldMode === newMode) return;
-  const oldConf = modeFieldConf(oldMode, idx);
-  if (!oldConf) return;
-  const oldCount = parseInt(document.getElementById(oldConf.countId)?.value) || 0;
-  const { names, videos } = readExerciseValues(oldConf.prefix, oldCount);
+  const scope = idx == null ? '' : `progW${idx}_`;
+
+  // reúne os nomes/vídeos que estavam no modo antigo (no circuito, de
+  // todos os blocos juntos, na ordem em que aparecem)
+  let names = [], videos = [];
+  if (oldMode === 'circuit') {
+    readCircuitBlocksFromDOM(scope).forEach(b => {
+      names.push(...(b.exercises || []));
+      videos.push(...(b.exerciseVideos || []));
+    });
+  } else {
+    const oldConf = modeFieldConf(oldMode, idx);
+    if (oldConf) {
+      const oldCount = parseInt(document.getElementById(oldConf.countId)?.value) || 0;
+      const r = readExerciseValues(oldConf.prefix, oldCount);
+      names = r.names; videos = r.videos;
+    }
+  }
   if (!names.some(n => n)) return; // nada preenchido no modo anterior, não há o que herdar
+
+  if (newMode === 'circuit') {
+    // substitui os blocos atuais por um único bloco novo com os exercícios herdados
+    const container = document.getElementById(`${scope}CircuitBlocksList`);
+    if (!container) return;
+    container.innerHTML = '';
+    container.dataset.nextIdx = '0';
+    addCircuitBlock(scope, { exCount: Math.min(Math.max(names.length, 1), 12), exercises: names, exerciseVideos: videos });
+    return;
+  }
+
   const newConf = modeFieldConf(newMode, idx);
   if (!newConf) return;
   const newCount = Math.min(Math.max(names.length, 1), 12);
   const countInput = document.getElementById(newConf.countId);
   if (countInput) countInput.value = newCount;
-  renderExerciseInputs(newConf.listId, newConf.prefix, newCount, names, videos);
+  // parâmetros personalizados não fazem sentido de um modo pro outro
+  // (as unidades mudam: séries/rodadas, com/sem intervalo, etc.), então a
+  // lista nova começa sem personalizações — só os nomes/vídeos são herdados.
+  renderExerciseInputs(newConf.listId, newConf.prefix, newCount, names, videos, newMode, idx, null);
 }
+
+// ============================================================
+// BLOCOS DE CIRCUITO
+// ============================================================
+// No modo Circuito, em vez de uma lista única de exercícios com parâmetros
+// globais, o programa é dividido em blocos sequenciais — cada bloco tem seu
+// próprio número de exercícios, rodadas, preparação, execução e intervalo.
+// O bloco 2 só começa depois que TODAS as rodadas do bloco 1 terminarem.
+// `scope` é '' pro formulário de modo único, ou `progW{idx}_` pra um bloco
+// de treino específico no builder de múltiplos treinos.
+
+function nextCircuitBlockIndex(container) {
+  const n = parseInt(container.dataset.nextIdx || '0');
+  container.dataset.nextIdx = String(n + 1);
+  return n;
+}
+
+function renumberCircuitBlocks(scope) {
+  const container = document.getElementById(`${scope}CircuitBlocksList`);
+  if (!container) return;
+  [...container.children].forEach((block, i) => {
+    const label = block.querySelector('[data-cb-label]');
+    if (label) label.textContent = `Bloco ${i + 1}`;
+  });
+}
+
+function addCircuitBlock(scope, existing) {
+  const container = document.getElementById(`${scope}CircuitBlocksList`);
+  if (!container) return;
+  const bIdx = nextCircuitBlockIndex(container);
+  const blockId = `${scope}CB${bIdx}`;
+  const exCount = existing?.exCount || 4;
+  const div = document.createElement('div');
+  div.className = 'circuit-block';
+  div.id = blockId;
+  div.style.cssText = 'border:1px solid var(--surface2);border-radius:12px;padding:12px;margin-bottom:12px;';
+  div.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <div style="font-weight:700;font-size:13px;color:var(--muted);" data-cb-label>Bloco</div>
+      <button type="button" data-remove-circuit-block="${scope}" style="border:none;background:none;color:var(--muted);font-size:13px;cursor:pointer;">Remover bloco</button>
+    </div>
+    <div class="field-group" style="margin-bottom:12px;">
+      <label class="field-label">Nº Exercícios</label>
+      <input class="field-input" type="number" id="${blockId}_ExCount" value="${exCount}" min="1" max="12">
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+      <div class="field-group"><label class="field-label">Rodadas</label><input class="field-input" type="number" id="${blockId}_Rounds" value="${existing?.rounds ?? 3}"></div>
+      <div class="field-group"><label class="field-label">Preparação (s)</label><input class="field-input" type="number" id="${blockId}_Prep" value="${existing?.prep ?? 10}"></div>
+      <div class="field-group"><label class="field-label">Execução (s)</label><input class="field-input" type="number" id="${blockId}_Action" value="${existing?.action ?? 30}"></div>
+      <div class="field-group"><label class="field-label">Intervalo (s)</label><input class="field-input" type="number" id="${blockId}_Rest" value="${existing?.rest ?? 0}"></div>
+    </div>
+    <div id="${blockId}_ExList"></div>
+  `;
+  container.appendChild(div);
+  // mode=null: circuito não usa personalização por exercício (ver seção acima)
+  renderExerciseInputs(`${blockId}_ExList`, `${blockId}_CEx`, exCount, existing?.exercises, existing?.exerciseVideos, null, null, null);
+  renumberCircuitBlocks(scope);
+}
+
+// Formato novo: programa já tem `circuitBlocks`. Formato antigo (antes dos
+// blocos existirem): campos soltos (exCount/exercises/rounds/...) que viram
+// um único bloco, pra continuar abrindo normalmente na edição.
+function getCircuitBlocks(p) {
+  if (!p) return [];
+  if (p.circuitBlocks && p.circuitBlocks.length) return p.circuitBlocks;
+  if (p.exercises || p.exCount || p.rounds != null) {
+    return [{
+      exCount: p.exCount || 4, exercises: p.exercises || [], exerciseVideos: p.exerciseVideos || [],
+      rounds: p.rounds ?? 3, prep: p.prep ?? 10, action: p.action ?? 30, rest: p.rest ?? 0,
+    }];
+  }
+  return [];
+}
+
+function renderCircuitBlocks(scope, p) {
+  const container = document.getElementById(`${scope}CircuitBlocksList`);
+  if (!container) return;
+  container.innerHTML = '';
+  container.dataset.nextIdx = '0';
+  const blocks = getCircuitBlocks(p);
+  if (blocks.length) blocks.forEach(b => addCircuitBlock(scope, b));
+  else addCircuitBlock(scope, null); // programa novo: começa com 1 bloco em branco
+}
+
+function readCircuitBlocksFromDOM(scope) {
+  const container = document.getElementById(`${scope}CircuitBlocksList`);
+  if (!container) return [];
+  return [...container.children].map(blockEl => {
+    const blockId = blockEl.id;
+    const count = parseInt(document.getElementById(`${blockId}_ExCount`)?.value) || 1;
+    const { names, videos: exerciseVideos } = readExerciseValues(`${blockId}_CEx`, count);
+    const exercises = names.map((n, i) => n || EX_LETTERS[i] || `Exercício ${i + 1}`);
+    return {
+      exCount: count, exercises, exerciseVideos,
+      rounds: parseInt(document.getElementById(`${blockId}_Rounds`)?.value) || 1,
+      prep: parseInt(document.getElementById(`${blockId}_Prep`)?.value) || 0,
+      action: parseInt(document.getElementById(`${blockId}_Action`)?.value) || 0,
+      rest: parseInt(document.getElementById(`${blockId}_Rest`)?.value) || 0,
+    };
+  });
+}
+
+document.addEventListener('click', (e) => {
+  const addBtn = e.target.closest('[data-add-circuit-block]');
+  if (addBtn) { addCircuitBlock(addBtn.dataset.addCircuitBlock, null); return; }
+  const removeBtn = e.target.closest('[data-remove-circuit-block]');
+  if (removeBtn) {
+    const scope = removeBtn.dataset.removeCircuitBlock;
+    const block = removeBtn.closest('.circuit-block');
+    const container = document.getElementById(`${scope}CircuitBlocksList`);
+    if (block && container && container.children.length > 1) {
+      block.remove();
+      renumberCircuitBlocks(scope);
+    }
+    return;
+  }
+});
+
+document.addEventListener('input', (e) => {
+  const m = e.target.id.match(/^(.*)CB(\d+)_ExCount$/);
+  if (!m) return;
+  const blockId = `${m[1]}CB${m[2]}`;
+  const count = parseInt(e.target.value) || 1;
+  const { names, videos } = readExerciseValues(`${blockId}_CEx`, count);
+  renderExerciseInputs(`${blockId}_ExList`, `${blockId}_CEx`, count, names, videos, null, null, null);
+});
+
+document.getElementById('progAddCircuitBlockBtn')?.addEventListener('click', () => addCircuitBlock('', null));
 
 // ============================================================
 // AUTOCOMPLETE — sugestões da biblioteca de exercícios enquanto digita
@@ -244,13 +552,16 @@ document.addEventListener('click', (e) => {
 // FORMULÁRIO — modo único (comportamento original)
 // ============================================================
 document.getElementById('progNormalExCount')?.addEventListener('input', (e) => {
-  renderExerciseInputs('progNormalExList', 'progNfEx', parseInt(e.target.value) || 1);
-});
-document.getElementById('progExCount')?.addEventListener('input', (e) => {
-  renderExerciseInputs('progCircuitExList', 'progCEx', parseInt(e.target.value) || 1);
+  const count = parseInt(e.target.value) || 1;
+  const { names, videos } = readExerciseValues('progNfEx', count);
+  const overrides = readExerciseOverrides('progNfEx', count, 'normal');
+  renderExerciseInputs('progNormalExList', 'progNfEx', count, names, videos, 'normal', null, overrides);
 });
 document.getElementById('progBrainExCount')?.addEventListener('input', (e) => {
-  renderExerciseInputs('progBrainExList', 'progBEx', parseInt(e.target.value) || 1);
+  const count = parseInt(e.target.value) || 1;
+  const { names, videos } = readExerciseValues('progBEx', count);
+  const overrides = readExerciseOverrides('progBEx', count, 'brain');
+  renderExerciseInputs('progBrainExList', 'progBEx', count, names, videos, 'brain', null, overrides);
 });
 document.querySelectorAll('#progSingleFields .mode-btn').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -326,17 +637,8 @@ function addWorkoutBlock(existing) {
         <div id="progW${idx}_NormalExList"></div>
       </div>
       <div id="progW${idx}_FieldsCircuit" class="prog-fields${mode === 'circuit' ? '' : ' hidden'}">
-        <div class="field-group" style="margin-bottom:8px;">
-          <label class="field-label">Nº Exercícios</label>
-          <input class="field-input" type="number" id="progW${idx}_ExCount" value="${existing?.exCount || 4}" min="1" max="12">
-        </div>
-        <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
-          <div class="field-group"><label class="field-label">Rodadas</label><input class="field-input" type="number" id="progW${idx}_Rounds" value="${existing?.rounds ?? 3}"></div>
-          <div class="field-group"><label class="field-label">Preparação (s)</label><input class="field-input" type="number" id="progW${idx}_CPrep" value="${existing?.prep ?? 10}"></div>
-          <div class="field-group"><label class="field-label">Execução (s)</label><input class="field-input" type="number" id="progW${idx}_CAction" value="${existing?.action ?? 30}"></div>
-          <div class="field-group"><label class="field-label">Intervalo (s)</label><input class="field-input" type="number" id="progW${idx}_CRest" value="${existing?.rest ?? 0}"></div>
-        </div>
-        <div id="progW${idx}_CircuitExList"></div>
+        <div id="progW${idx}_CircuitBlocksList"></div>
+        <button type="button" class="admin-btn" data-add-circuit-block="progW${idx}_" style="background:var(--surface2);margin-bottom:12px;">+ ADICIONAR BLOCO</button>
       </div>
       <div id="progW${idx}_FieldsBrain" class="prog-fields${mode === 'brain' ? '' : ' hidden'}">
         <div class="field-group" style="margin-bottom:8px;">
@@ -353,9 +655,9 @@ function addWorkoutBlock(existing) {
     </div>
   `;
   container.appendChild(div);
-  renderExerciseInputs(`progW${idx}_NormalExList`, `progW${idx}_NfEx`, existing?.normalExCount || 1, existing?.normalExercises, existing?.normalExerciseVideos);
-  renderExerciseInputs(`progW${idx}_CircuitExList`, `progW${idx}_CEx`, existing?.exCount || 4, existing?.exercises, existing?.exerciseVideos);
-  renderExerciseInputs(`progW${idx}_BrainExList`, `progW${idx}_BEx`, existing?.brainExCount || 2, existing?.brainExercises, existing?.brainExerciseVideos);
+  renderExerciseInputs(`progW${idx}_NormalExList`, `progW${idx}_NfEx`, existing?.normalExCount || 1, existing?.normalExercises, existing?.normalExerciseVideos, 'normal', idx, existing?.normalExerciseOverrides);
+  renderCircuitBlocks(`progW${idx}_`, existing);
+  renderExerciseInputs(`progW${idx}_BrainExList`, `progW${idx}_BEx`, existing?.brainExCount || 2, existing?.brainExercises, existing?.brainExerciseVideos, 'brain', idx, existing?.brainExerciseOverrides);
 }
 
 document.getElementById('progWorkoutsList')?.addEventListener('click', (e) => {
@@ -381,12 +683,20 @@ document.getElementById('progWorkoutsList')?.addEventListener('click', (e) => {
 
 document.getElementById('progWorkoutsList')?.addEventListener('input', (e) => {
   const id = e.target.id || '';
-  const m = id.match(/^progW(\d+)_(NormalExCount|ExCount|BrainExCount)$/);
+  const m = id.match(/^progW(\d+)_(NormalExCount|BrainExCount)$/);
   if (!m) return;
   const idx = m[1];
-  if (m[2] === 'NormalExCount') renderExerciseInputs(`progW${idx}_NormalExList`, `progW${idx}_NfEx`, parseInt(e.target.value) || 1);
-  else if (m[2] === 'ExCount') renderExerciseInputs(`progW${idx}_CircuitExList`, `progW${idx}_CEx`, parseInt(e.target.value) || 1);
-  else if (m[2] === 'BrainExCount') renderExerciseInputs(`progW${idx}_BrainExList`, `progW${idx}_BEx`, parseInt(e.target.value) || 1);
+  if (m[2] === 'NormalExCount') {
+    const count = parseInt(e.target.value) || 1;
+    const { names, videos } = readExerciseValues(`progW${idx}_NfEx`, count);
+    const overrides = readExerciseOverrides(`progW${idx}_NfEx`, count, 'normal');
+    renderExerciseInputs(`progW${idx}_NormalExList`, `progW${idx}_NfEx`, count, names, videos, 'normal', idx, overrides);
+  } else if (m[2] === 'BrainExCount') {
+    const count = parseInt(e.target.value) || 1;
+    const { names, videos } = readExerciseValues(`progW${idx}_BEx`, count);
+    const overrides = readExerciseOverrides(`progW${idx}_BEx`, count, 'brain');
+    renderExerciseInputs(`progW${idx}_BrainExList`, `progW${idx}_BEx`, count, names, videos, 'brain', idx, overrides);
+  }
 });
 
 function readWorkoutBlock(idx) {
@@ -409,24 +719,13 @@ function readWorkoutBlock(idx) {
       prep: parseInt(document.getElementById(`progW${idx}_Prep`)?.value) || 0,
       action: parseInt(document.getElementById(`progW${idx}_Action`)?.value) || 0,
       rest: parseInt(document.getElementById(`progW${idx}_Rest`)?.value) || 0,
-      normalExercises: exercises, normalExerciseVideos: videos
+      normalExercises: exercises, normalExerciseVideos: videos,
+      normalExerciseOverrides: readExerciseOverrides(`progW${idx}_NfEx`, count, 'normal')
     };
   } else if (mode === 'circuit') {
-    const count = parseInt(document.getElementById(`progW${idx}_ExCount`)?.value) || 1;
-    const exercises = [], videos = [];
-    for (let i = 0; i < count; i++) {
-      exercises.push(document.getElementById(`progW${idx}_CEx${i}`)?.value.trim() || EX_LETTERS[i]);
-      const v = document.getElementById(`progW${idx}_CExYt${i}`)?.value.trim() || '';
-      videos.push(v); videoUrls.push(v);
-    }
-    w = { ...w,
-      exCount: count,
-      rounds: parseInt(document.getElementById(`progW${idx}_Rounds`)?.value) || 1,
-      prep: parseInt(document.getElementById(`progW${idx}_CPrep`)?.value) || 0,
-      action: parseInt(document.getElementById(`progW${idx}_CAction`)?.value) || 0,
-      rest: parseInt(document.getElementById(`progW${idx}_CRest`)?.value) || 0,
-      exercises, exerciseVideos: videos
-    };
+    const circuitBlocks = readCircuitBlocksFromDOM(`progW${idx}_`);
+    circuitBlocks.forEach(b => b.exerciseVideos.forEach(v => { if (v) videoUrls.push(v); }));
+    w = { ...w, circuitBlocks };
   } else {
     const count = parseInt(document.getElementById(`progW${idx}_BrainExCount`)?.value) || 1;
     const exercises = [], videos = [];
@@ -440,7 +739,8 @@ function readWorkoutBlock(idx) {
       brainSeries: parseInt(document.getElementById(`progW${idx}_BrainSeries`)?.value) || 1,
       brainAction: parseInt(document.getElementById(`progW${idx}_BrainAction`)?.value) || 0,
       brainPrep: parseInt(document.getElementById(`progW${idx}_BrainPrep`)?.value) || 0,
-      brainExercises: exercises, brainExerciseVideos: videos
+      brainExercises: exercises, brainExerciseVideos: videos,
+      brainExerciseOverrides: readExerciseOverrides(`progW${idx}_BEx`, count, 'brain')
     };
   }
   return { workout: w, videoUrls };
@@ -462,11 +762,10 @@ function resetForm() {
   document.querySelectorAll('#progSingleFields .prog-fields').forEach(f => window.adminHide(f));
   window.adminShow(document.getElementById('progFieldsNormal'));
   document.getElementById('progNormalExCount').value = 1;
-  document.getElementById('progExCount').value = 4;
   document.getElementById('progBrainExCount').value = 2;
-  renderExerciseInputs('progNormalExList', 'progNfEx', 1);
-  renderExerciseInputs('progCircuitExList', 'progCEx', 4);
-  renderExerciseInputs('progBrainExList', 'progBEx', 2);
+  renderExerciseInputs('progNormalExList', 'progNfEx', 1, null, null, 'normal', null, null);
+  renderExerciseInputs('progBrainExList', 'progBEx', 2, null, null, 'brain', null, null);
+  renderCircuitBlocks('', null);
 
   document.getElementById('progMultiToggle').checked = false;
   document.getElementById('progWorkoutsList').innerHTML = '';
@@ -518,22 +817,16 @@ function editProgram(p) {
       document.getElementById('progPrep').value = p.prep ?? 10;
       document.getElementById('progAction').value = p.action ?? 40;
       document.getElementById('progRest').value = p.rest ?? 20;
-      renderExerciseInputs('progNormalExList', 'progNfEx', count, p.normalExercises, p.normalExerciseVideos);
+      renderExerciseInputs('progNormalExList', 'progNfEx', count, p.normalExercises, p.normalExerciseVideos, 'normal', null, p.normalExerciseOverrides);
     } else if (mode === 'circuit') {
-      const count = p.exCount || 4;
-      document.getElementById('progExCount').value = count;
-      document.getElementById('progRounds').value = p.rounds ?? 3;
-      document.getElementById('progCPrep').value = p.prep ?? 10;
-      document.getElementById('progCAction').value = p.action ?? 30;
-      document.getElementById('progCRest').value = p.rest ?? 0;
-      renderExerciseInputs('progCircuitExList', 'progCEx', count, p.exercises, p.exerciseVideos);
+      renderCircuitBlocks('', p);
     } else {
       const count = p.brainExCount || 2;
       document.getElementById('progBrainExCount').value = count;
       document.getElementById('progBrainSeries').value = p.brainSeries ?? 3;
       document.getElementById('progBrainPrep').value = p.brainPrep ?? 15;
       document.getElementById('progBrainAction').value = p.brainAction ?? 40;
-      renderExerciseInputs('progBrainExList', 'progBEx', count, p.brainExercises, p.brainExerciseVideos);
+      renderExerciseInputs('progBrainExList', 'progBEx', count, p.brainExercises, p.brainExerciseVideos, 'brain', null, p.brainExerciseOverrides);
     }
   }
 
@@ -596,26 +889,16 @@ document.getElementById('progSaveBtn')?.addEventListener('click', async () => {
         prep: parseInt(document.getElementById('progPrep').value) || 0,
         action: parseInt(document.getElementById('progAction').value) || 0,
         rest: parseInt(document.getElementById('progRest').value) || 0,
-        normalExCount, normalExercises, normalExerciseVideos
+        normalExCount, normalExercises, normalExerciseVideos,
+        normalExerciseOverrides: readExerciseOverrides('progNfEx', normalExCount, 'normal')
       };
     } else if (mode === 'circuit') {
-      const exCount = parseInt(document.getElementById('progExCount').value) || 1;
-      const exercises = [];
-      const exerciseVideos = [];
-      for (let i = 0; i < exCount; i++) {
-        exercises.push(document.getElementById('progCEx' + i)?.value.trim() || EX_LETTERS[i]);
-        const v = document.getElementById('progCExYt' + i)?.value.trim() || '';
-        exerciseVideos.push(v);
-        allVideoUrls.push(v);
-      }
-      data = { ...data, mode,
-        exCount,
-        rounds: parseInt(document.getElementById('progRounds').value) || 1,
-        prep: parseInt(document.getElementById('progCPrep').value) || 0,
-        action: parseInt(document.getElementById('progCAction').value) || 0,
-        rest: parseInt(document.getElementById('progCRest').value) || 0,
-        exercises, exerciseVideos
-      };
+      const circuitBlocks = readCircuitBlocksFromDOM('');
+      circuitBlocks.forEach(b => b.exerciseVideos.forEach(v => { if (v) allVideoUrls.push(v); }));
+      // os campos soltos antigos (exCount/exercises/rounds/...) não são mais
+      // escritos — a leitura sempre prioriza circuitBlocks quando presente,
+      // então não precisa limpar o que já existir de programas antigos.
+      data = { ...data, mode, circuitBlocks };
     } else { // brain
       const brainExCount = parseInt(document.getElementById('progBrainExCount').value) || 1;
       const brainExercises = [];
@@ -631,7 +914,8 @@ document.getElementById('progSaveBtn')?.addEventListener('click', async () => {
         brainSeries: parseInt(document.getElementById('progBrainSeries').value) || 1,
         brainAction: parseInt(document.getElementById('progBrainAction').value) || 0,
         brainPrep: parseInt(document.getElementById('progBrainPrep').value) || 0,
-        brainExercises, brainExerciseVideos
+        brainExercises, brainExerciseVideos,
+        brainExerciseOverrides: readExerciseOverrides('progBEx', brainExCount, 'brain')
       };
     }
 

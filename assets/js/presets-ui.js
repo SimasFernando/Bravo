@@ -112,6 +112,54 @@ function beepCountdown(){beep(600,.12,.4,'square',0);beep(750,.12,.5,'square',.4
 function vibrate(p=[100]){if(cfg.vibrate)navigator.vibrate?.(p);}
 
 function fmtSec(s){return s>=60?`${Math.floor(s/60)}m${s%60?s%60+'s':''}`:`${s}s`;}
+
+// Formato novo do Circuito: `p.circuitBlocks` é uma lista de blocos
+// sequenciais. Formato antigo (programas salvos antes dos blocos
+// existirem): campos soltos no próprio p, tratados como um único bloco.
+function getCircuitBlocks(p){
+  if(p.circuitBlocks&&p.circuitBlocks.length) return p.circuitBlocks;
+  if(p.exercises||p.exCount||p.rounds!=null){
+    return [{
+      exCount:p.exCount||4, exercises:p.exercises||[], exerciseVideos:p.exerciseVideos||[],
+      rounds:p.rounds??3, prep:p.prep??10, action:p.action??30, rest:p.rest??0,
+    }];
+  }
+  return [{exCount:0,exercises:[],exerciseVideos:[],rounds:0,prep:0,action:0,rest:0}];
+}
+
+// Resumo pro card recolhido: total de exercícios (somando todos os blocos)
+// e, quando só há 1 bloco, as rodadas dele — quando há vários blocos, o
+// "rodadas" não faz sentido como número único, então mostra a contagem de
+// blocos no lugar.
+function circuitSummary(p){
+  const blocks=getCircuitBlocks(p);
+  const totalEx=blocks.reduce((s,b)=>s+(b.exCount||0),0);
+  return { blocks, totalEx, multiBlock: blocks.length>1 };
+}
+
+// Pílulas expandidas do card pro modo Circuito. Com 1 bloco só, mostra os
+// detalhes de sempre (exercícios/rodadas/prep/exec/descanso). Com vários
+// blocos, mostra o total de exercícios e quantos blocos há — prep/exec/
+// descanso variam por bloco, então não dá pra resumir num número só.
+function circuitPillsHtml(p){
+  const { blocks, totalEx, multiBlock } = circuitSummary(p);
+  if(!multiBlock){
+    const b=blocks[0]||{};
+    return `<div class="card-exp-pill-row">
+               <div class="card-exp-pill"><img class="pill-icon" src="ic_noexe.png?v=202506" alt="">${b.exCount||0} ex</div>
+               <div class="card-exp-pill"><img class="pill-icon" src="ic_norodadas.png?v=202506" alt="">${b.rounds||0} rodadas</div>
+             </div>
+             <div class="card-exp-pill-row">
+               <div class="card-exp-pill"><img class="pill-icon" src="ic_preparacao.png?v=202506" alt="">${fmtSec(b.prep||0)} prep</div>
+               <div class="card-exp-pill"><img class="pill-icon" src="ic_execucao.png?v=202506" alt="">${fmtSec(b.action||0)} exec</div>
+               <div class="card-exp-pill"><img class="pill-icon" src="ic_recuperacao.png?v=202506" alt="">${fmtSec(b.rest||0)} desc</div>
+             </div>`;
+  }
+  return `<div class="card-exp-pill-row">
+             <div class="card-exp-pill"><img class="pill-icon" src="ic_noexe.png?v=202506" alt="">${totalEx} ex</div>
+             <div class="card-exp-pill"><img class="pill-icon" src="ic_norodadas.png?v=202506" alt="">${blocks.length} blocos</div>
+           </div>`;
+}
 function fmtMs(ms){const s=Math.round(ms/1000);return s>=60?`${Math.floor(s/60)}m${s%60?String(s%60).padStart(2,'0')+'s':''}`:`${s}s`;}
 function isLight(hex){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return(r*299+g*587+b*114)/1000>140;}
 
@@ -308,24 +356,17 @@ function renderHome(){
       return;
     }
 
-    const exCount = ap.mode === 'circuit' ? ap.exCount : (ap.mode === 'brain' ? ap.brainExCount : ap.normalExCount);
-    const secondaryLabel = ap.mode === 'circuit' ? 'rounds' : 'séries';
-    const secondaryVal = ap.mode === 'circuit' ? ap.rounds : (ap.mode === 'brain' ? ap.brainSeries : ap.cycles);
+    const circSum = ap.mode === 'circuit' ? circuitSummary(ap) : null;
+    const exCount = ap.mode === 'circuit' ? circSum.totalEx : (ap.mode === 'brain' ? ap.brainExCount : ap.normalExCount);
+    const secondaryLabel = ap.mode === 'circuit' ? (circSum.multiBlock ? 'blocos' : 'rounds') : 'séries';
+    const secondaryVal = ap.mode === 'circuit' ? (circSum.multiBlock ? circSum.blocks.length : circSum.blocks[0]?.rounds) : (ap.mode === 'brain' ? ap.brainSeries : ap.cycles);
     const modeBadge = { normal: 'CLÁSSICO', circuit: 'CIRCUITO', brain: 'BRAVO' }[ap.mode] || '';
     const cardSel = selectedId === adminSelId;
 
     // Pills com os detalhes do programa, no mesmo padrão dos outros cards
     let aPills = '';
     if (ap.mode === 'circuit') {
-      aPills = `<div class="card-exp-pill-row">
-                 <div class="card-exp-pill"><img class="pill-icon" src="ic_noexe.png?v=202506" alt="">${ap.exCount||0} ex</div>
-                 <div class="card-exp-pill"><img class="pill-icon" src="ic_norodadas.png?v=202506" alt="">${ap.rounds||0} rodadas</div>
-               </div>
-               <div class="card-exp-pill-row">
-                 <div class="card-exp-pill"><img class="pill-icon" src="ic_preparacao.png?v=202506" alt="">${fmtSec(ap.prep||0)} prep</div>
-                 <div class="card-exp-pill"><img class="pill-icon" src="ic_execucao.png?v=202506" alt="">${fmtSec(ap.action||0)} exec</div>
-                 <div class="card-exp-pill"><img class="pill-icon" src="ic_recuperacao.png?v=202506" alt="">${fmtSec(ap.rest||0)} desc</div>
-               </div>`;
+      aPills = circuitPillsHtml(ap);
     } else if (ap.mode === 'brain') {
       aPills = `<div class="card-exp-pill-row">
                  <div class="card-exp-pill"><img class="pill-icon" src="ic_noexe.png?v=202506" alt="">${ap.brainExCount||0} ex</div>
@@ -389,7 +430,10 @@ function renderHome(){
     card.style.setProperty('--cr',hexToRgb(c));
 
     let collapsedMeta='';
-    if(p.mode==='circuit') collapsedMeta=`<img class="meta-icon" src="ic_noexe.png?v=202506" alt="">${p.exCount} ex<span class="meta-sep">·</span><img class="meta-icon" src="ic_norodadas.png?v=202506" alt="">${p.rounds} rod`;
+    if(p.mode==='circuit'){
+      const cs=circuitSummary(p);
+      collapsedMeta=`<img class="meta-icon" src="ic_noexe.png?v=202506" alt="">${cs.totalEx} ex<span class="meta-sep">·</span><img class="meta-icon" src="ic_norodadas.png?v=202506" alt="">${cs.multiBlock?cs.blocks.length+' bl':(cs.blocks[0]?.rounds||0)+' rod'}`;
+    }
     else if(p.mode==='brain') collapsedMeta=`<img class="meta-icon" src="ic_noexe.png?v=202506" alt="">${p.brainExCount||2} ex<span class="meta-sep">·</span><img class="meta-icon" src="ic_noseries.png?v=202506" alt="">${p.brainSeries||3} sér`;
     else collapsedMeta=`<img class="meta-icon" src="ic_noexe.png?v=202506" alt="">${p.normalExCount||1} ex<span class="meta-sep">·</span><img class="meta-icon" src="ic_noseries.png?v=202506" alt="">${p.cycles} sér`;
 
@@ -400,15 +444,7 @@ function renderHome(){
 
     let pills='';
     if(p.mode==='circuit'){
-      pills=`<div class="card-exp-pill-row">
-               <div class="card-exp-pill"><img class="pill-icon" src="ic_noexe.png?v=202506" alt="">${p.exCount} ex</div>
-               <div class="card-exp-pill"><img class="pill-icon" src="ic_norodadas.png?v=202506" alt="">${p.rounds} rodadas</div>
-             </div>
-             <div class="card-exp-pill-row">
-               <div class="card-exp-pill"><img class="pill-icon" src="ic_preparacao.png?v=202506" alt="">${fmtSec(p.prep)} prep</div>
-               <div class="card-exp-pill"><img class="pill-icon" src="ic_execucao.png?v=202506" alt="">${fmtSec(p.action)} exec</div>
-               <div class="card-exp-pill"><img class="pill-icon" src="ic_recuperacao.png?v=202506" alt="">${fmtSec(p.rest)} desc</div>
-             </div>`;
+      pills=circuitPillsHtml(p);
     } else if(p.mode==='brain'){
       pills=`<div class="card-exp-pill-row">
                <div class="card-exp-pill"><img class="pill-icon" src="ic_noexe.png?v=202506" alt="">${p.brainExCount||2} ex</div>
