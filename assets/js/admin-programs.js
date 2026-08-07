@@ -298,7 +298,10 @@ function readExerciseValues(prefix, count) {
 // de múltiplos treinos.
 function carryExercisesOnModeSwitch(oldMode, newMode, idx) {
   if (oldMode === newMode) return;
-  const scope = idx == null ? '' : `progW${idx}_`;
+  // Escopo dos ids de campo: 'prog' pro formulário de modo único (bate com
+  // os ids estáticos do HTML, ex. progCircuitBlocksList), ou `progW{idx}_`
+  // pra um bloco específico do builder de múltiplos treinos.
+  const scope = idx == null ? 'prog' : `progW${idx}_`;
 
   // reúne os nomes/vídeos que estavam no modo antigo (no circuito, de
   // todos os blocos juntos, na ordem em que aparecem)
@@ -465,7 +468,7 @@ document.addEventListener('input', (e) => {
   renderExerciseInputs(`${blockId}_ExList`, `${blockId}_CEx`, count, names, videos, null, null, null);
 });
 
-document.getElementById('progAddCircuitBlockBtn')?.addEventListener('click', () => addCircuitBlock('', null));
+document.getElementById('progAddCircuitBlockBtn')?.addEventListener('click', () => addCircuitBlock('prog', null));
 
 // ============================================================
 // AUTOCOMPLETE — sugestões da biblioteca de exercícios enquanto digita
@@ -765,7 +768,7 @@ function resetForm() {
   document.getElementById('progBrainExCount').value = 2;
   renderExerciseInputs('progNormalExList', 'progNfEx', 1, null, null, 'normal', null, null);
   renderExerciseInputs('progBrainExList', 'progBEx', 2, null, null, 'brain', null, null);
-  renderCircuitBlocks('', null);
+  renderCircuitBlocks('prog', null);
 
   document.getElementById('progMultiToggle').checked = false;
   document.getElementById('progWorkoutsList').innerHTML = '';
@@ -819,7 +822,7 @@ function editProgram(p) {
       document.getElementById('progRest').value = p.rest ?? 20;
       renderExerciseInputs('progNormalExList', 'progNfEx', count, p.normalExercises, p.normalExerciseVideos, 'normal', null, p.normalExerciseOverrides);
     } else if (mode === 'circuit') {
-      renderCircuitBlocks('', p);
+      renderCircuitBlocks('prog', p);
     } else {
       const count = p.brainExCount || 2;
       document.getElementById('progBrainExCount').value = count;
@@ -893,7 +896,7 @@ document.getElementById('progSaveBtn')?.addEventListener('click', async () => {
         normalExerciseOverrides: readExerciseOverrides('progNfEx', normalExCount, 'normal')
       };
     } else if (mode === 'circuit') {
-      const circuitBlocks = readCircuitBlocksFromDOM('');
+      const circuitBlocks = readCircuitBlocksFromDOM('prog');
       circuitBlocks.forEach(b => b.exerciseVideos.forEach(v => { if (v) allVideoUrls.push(v); }));
       // os campos soltos antigos (exCount/exercises/rounds/...) não são mais
       // escritos — a leitura sempre prioriza circuitBlocks quando presente,
