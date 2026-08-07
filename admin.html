@@ -119,7 +119,20 @@
           <div class="admin-status" id="exStatus"></div>
         </div>
 
-        <input class="field-input" id="exSearchInput" placeholder="Buscar na biblioteca..." style="margin-bottom:16px;">
+        <input class="field-input" id="exSearchInput" placeholder="Buscar na biblioteca..." style="margin-bottom:12px;">
+
+        <div style="margin-bottom:16px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <label class="field-label" style="margin:0;">Filtrar por grupamento</label>
+          </div>
+          <div id="exFilterGroupChips" class="chip-select"></div>
+
+          <label class="field-label" style="margin-top:12px;display:block;">Filtrar por modalidade</label>
+          <div id="exFilterModalityChips" class="chip-select"></div>
+
+          <button type="button" id="exFilterClearBtn" style="background:none;border:none;color:var(--accent);font-size:13px;cursor:pointer;padding:0;margin-top:8px;display:none;">Limpar filtros</button>
+        </div>
+
         <div id="exLibraryCount" style="color:var(--muted);font-size:13px;margin-bottom:12px;"></div>
         <div id="exLibraryList"></div>
       </div>
