@@ -309,6 +309,21 @@ function editExercise(ex) {
 // ============================================================
 // LISTAGEM / BUSCA
 // ============================================================
+// ordem da lista da biblioteca: 'alpha' (A-Z) ou 'recent' (mais recentes primeiro)
+let libSortOrder = localStorage.getItem('bravoExLibSort') === 'recent' ? 'recent' : 'alpha';
+
+function exerciseCreatedAt(ex) {
+  if (ex.criadoEm) return ex.criadoEm;
+  // exercícios antigos não têm criadoEm salvo; o id (ex_<timestamp36>) já
+  // carrega a data de criação, então usamos ele como fallback
+  const m = /^ex_([a-z0-9]+)$/i.exec(ex.id || '');
+  if (m) {
+    const t = parseInt(m[1], 36);
+    if (!isNaN(t)) return t;
+  }
+  return 0;
+}
+
 function renderExerciseList() {
   const list = document.getElementById('exLibraryList');
   const countEl = document.getElementById('exLibraryCount');
@@ -328,7 +343,10 @@ function renderExerciseList() {
   }
 
   list.innerHTML = filtered
-    .slice().sort((a, b) => a.nome.localeCompare(b.nome))
+    .slice()
+    .sort((a, b) => libSortOrder === 'recent'
+      ? exerciseCreatedAt(b) - exerciseCreatedAt(a)
+      : a.nome.localeCompare(b.nome))
     .map(ex => `
     <div class="ex-lib-card">
       <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -348,6 +366,18 @@ function renderExerciseList() {
 }
 
 document.getElementById('exSearchInput')?.addEventListener('input', renderExerciseList);
+
+document.getElementById('exSortAlphaBtn')?.addEventListener('click', () => setLibSortOrder('alpha'));
+document.getElementById('exSortRecentBtn')?.addEventListener('click', () => setLibSortOrder('recent'));
+
+function setLibSortOrder(order) {
+  libSortOrder = order;
+  localStorage.setItem('bravoExLibSort', order);
+  document.getElementById('exSortAlphaBtn')?.classList.toggle('active', order === 'alpha');
+  document.getElementById('exSortRecentBtn')?.classList.toggle('active', order === 'recent');
+  renderExerciseList();
+}
+setLibSortOrder(libSortOrder);
 
 document.addEventListener('modalityListChanged', () => {
   const filterModBox = document.getElementById('exFilterModalityChips');
