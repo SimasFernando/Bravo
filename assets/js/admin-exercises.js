@@ -62,6 +62,68 @@ function isValidYtUrl(url) {
   if (!url) return true;
   return /(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/))([A-Za-z0-9_-]{11})/.test(url);
 }
+function extractYoutubeId(url) {
+  if (!url) return null;
+  const m = /(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/))([A-Za-z0-9_-]{11})/.exec(url);
+  return m ? m[1] : null;
+}
+window._extractYoutubeId = extractYoutubeId;
+
+// ============================================================
+// MODAL DE PREVIEW DE VÍDEO — compartilhado com admin-programs.js
+// ============================================================
+function ensureVideoPreviewModal() {
+  if (document.getElementById('videoPreviewOverlay')) return;
+  const overlay = document.createElement('div');
+  overlay.className = 'ex-modal-overlay hidden';
+  overlay.id = 'videoPreviewOverlay';
+  overlay.innerHTML = `
+    <div class="ex-modal" style="max-width:520px;width:92%;padding:16px;">
+      <div style="position:relative;width:100%;padding-top:56.25%;background:#000;border-radius:10px;overflow:hidden;">
+        <iframe id="videoPreviewFrame" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;"
+          src="" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+      </div>
+      <button type="button" class="admin-btn" id="videoPreviewCloseBtn" style="background:var(--surface2);margin-top:14px;">FECHAR</button>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeVideoPreview(); });
+  overlay.querySelector('#videoPreviewCloseBtn').addEventListener('click', closeVideoPreview);
+}
+
+function openVideoPreview(url) {
+  const id = extractYoutubeId(url);
+  if (!id) {
+    alert('Esse link não parece ser um vídeo válido do YouTube.');
+    return;
+  }
+  ensureVideoPreviewModal();
+  document.getElementById('videoPreviewFrame').src = `https://www.youtube.com/embed/${id}?autoplay=1`;
+  document.getElementById('videoPreviewOverlay')?.classList.remove('hidden');
+}
+window._openVideoPreview = openVideoPreview;
+
+function closeVideoPreview() {
+  const frame = document.getElementById('videoPreviewFrame');
+  if (frame) frame.src = ''; // para o vídeo ao fechar
+  document.getElementById('videoPreviewOverlay')?.classList.add('hidden');
+}
+
+// botão ▶ ao lado de qualquer campo de link do YouTube (exercícios e programas)
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-video-preview-btn]');
+  if (!btn) return;
+  const input = document.getElementById(btn.getAttribute('data-video-preview-btn'));
+  const url = input?.value.trim();
+  if (!url) { alert('Cole um link do YouTube nesse campo primeiro.'); return; }
+  openVideoPreview(url);
+});
+
+// botão ▶ nos cards da biblioteca (Exercícios) — já tem a URL pronta no atributo
+document.addEventListener('click', (e) => {
+  const openBtn = e.target.closest('[data-video-preview-open]');
+  if (!openBtn) return;
+  openVideoPreview(openBtn.getAttribute('data-video-preview-open'));
+});
 
 // ============================================================
 // CARREGAMENTO / CACHE (compartilhado com admin-programs.js)
@@ -360,7 +422,7 @@ function renderExerciseList() {
         ${(ex.grupamentos || []).map(id => `<span class="ex-lib-tag">${escapeHtml(labelFor(GRUPAMENTOS, id))}</span>`).join('')}
         ${(ex.modalidades || []).map(id => `<span class="ex-lib-tag">${escapeHtml(labelFor(_modalities, id))}</span>`).join('')}
       </div>
-      ${ex.youtubeUrl ? `<div style="font-size:12px;color:var(--muted);margin-top:6px;">▶ vídeo cadastrado</div>` : ''}
+      ${ex.youtubeUrl ? `<button type="button" data-video-preview-open="${escapeHtml(ex.youtubeUrl)}" style="background:none;border:none;color:var(--accent);font-size:12px;padding:0;margin-top:6px;cursor:pointer;">▶ ver vídeo</button>` : ''}
     </div>
   `).join('');
 }

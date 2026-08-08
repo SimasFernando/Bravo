@@ -165,7 +165,11 @@ function renderExerciseInputs(containerId, prefix, count, existingNames, existin
         </div>
         <div class="field-group" style="flex:1;">
           <label class="field-label">Link YouTube (opcional)</label>
-          <input class="field-input" id="${prefix}Yt${i}" data-ex-video value="${escapeHtml(videoVal)}" placeholder="https://youtube.com/...">
+          <div style="display:flex;gap:6px;">
+            <input class="field-input" id="${prefix}Yt${i}" data-ex-video value="${escapeHtml(videoVal)}" placeholder="https://youtube.com/..." style="flex:1;">
+            <button type="button" data-video-preview-btn="${prefix}Yt${i}" title="Ver vídeo" aria-label="Ver vídeo"
+              style="flex-shrink:0;border:none;background:var(--surface2);border-radius:8px;width:42px;font-size:16px;cursor:pointer;color:var(--text);">▶</button>
+          </div>
         </div>
       </div>
       ${overridePanelHtml}
@@ -610,9 +614,12 @@ function renderPickerList() {
   if (!listEl) return;
 
   let html = filtered.map(ex => `
-    <div class="ex-suggestion-item" data-ex-picker-pick="${ex.id}" style="cursor:pointer;">
-      ${escapeHtml(ex.nome)}
-      ${exerciseTagLabels(ex) ? `<div class="ex-suggestion-tags">${escapeHtml(exerciseTagLabels(ex))}</div>` : ''}
+    <div class="ex-suggestion-item" data-ex-picker-pick="${ex.id}" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px;">
+      <div style="flex:1;">
+        ${escapeHtml(ex.nome)}
+        ${exerciseTagLabels(ex) ? `<div class="ex-suggestion-tags">${escapeHtml(exerciseTagLabels(ex))}</div>` : ''}
+      </div>
+      ${ex.youtubeUrl ? `<button type="button" data-video-preview-open="${escapeHtml(ex.youtubeUrl)}" title="Ver vídeo" aria-label="Ver vídeo" style="flex-shrink:0;background:none;border:none;color:var(--accent);font-size:16px;cursor:pointer;padding:4px;">▶</button>` : ''}
     </div>`).join('');
 
   const searchVal = document.getElementById('exPickerSearch')?.value.trim() || '';
@@ -642,6 +649,7 @@ function closeExercisePicker() {
 }
 
 document.addEventListener('click', (e) => {
+  if (e.target.closest('[data-video-preview-open]')) return; // deixa o botão ▶ só abrir o preview, sem selecionar
   const pick = e.target.closest('[data-ex-picker-pick]');
   if (pick) {
     const ex = (window._exerciseLibrary || []).find(x => x.id === pick.dataset.exPickerPick);
