@@ -66,19 +66,7 @@
         <button data-view="offers">Escolhas Bravo</button>
       </div>
 
-      <div id="adminViewHome">
-        <p style="color:var(--muted);font-size:14px;">
-          Login e permissão de admin funcionando. Grupos, Programas, Mensagens
-          e Ofertas entram nos próximos passos.
-        </p>
-
-        <button type="button" id="adminHardRefreshBtn"
-          title="Busca a versão mais recente do painel, ignorando o cache do navegador"
-          style="margin-top:28px;background:none;border:1px solid var(--surface2);color:var(--muted);font-size:12px;padding:6px 14px;border-radius:8px;cursor:pointer;">
-          ↻ Buscar atualizações
-        </button>
-        <div id="adminHardRefreshStatus" style="color:var(--muted);font-size:12px;margin-top:6px;"></div>
-      </div>
+      <div id="adminViewHome"></div>
 
       <div id="adminViewUsers" class="hidden">
         <input class="field-input" id="adminUserSearch" placeholder="Buscar por nome, telefone ou e-mail" style="margin-bottom:16px;">
@@ -305,45 +293,6 @@
     </div>
   </div>
 
-  <script>
-    // Hard refresh de verdade: como este painel não usa Service Worker, o que
-    // fica "preso" é o cache HTTP normal do navegador (disco), não o Cache
-    // Storage. Por isso buscamos o HTML mais recente e forçamos o download de
-    // cada script/css referenciado nele direto da rede (cache: 'no-store'),
-    // antes de recarregar a página.
-    document.getElementById('adminHardRefreshBtn')?.addEventListener('click', async () => {
-      const btn = document.getElementById('adminHardRefreshBtn');
-      const statusEl = document.getElementById('adminHardRefreshStatus');
-      if (btn) { btn.disabled = true; btn.textContent = '↻ Buscando...'; }
-      if (statusEl) statusEl.textContent = '';
-
-      try {
-        const res = await fetch(location.pathname, { cache: 'no-store' });
-        const html = await res.text();
-        const urls = [...html.matchAll(/<(?:script[^>]*\ssrc|link[^>]*\shref)=["']([^"']+)["']/gi)]
-          .map(m => m[1])
-          .filter(u => !/^(https?:)?\/\//i.test(u) || u.startsWith(location.origin));
-
-        await Promise.all(urls.map(u =>
-          fetch(new URL(u, location.href), { cache: 'no-store' }).catch(() => {})
-        ));
-
-        // limpeza extra por segurança, caso um dia entre um Service Worker
-        if ('caches' in window) {
-          const keys = await caches.keys();
-          await Promise.all(keys.map(k => caches.delete(k)));
-        }
-        if ('serviceWorker' in navigator) {
-          const regs = await navigator.serviceWorker.getRegistrations();
-          await Promise.all(regs.map(r => r.unregister()));
-        }
-      } catch (e) {
-        console.warn('Hard refresh: falhou parte da limpeza, recarregando mesmo assim.', e);
-      } finally {
-        location.href = location.pathname + '?t=' + Date.now();
-      }
-    });
-  </script>
   <script src="assets/js/admin-nav.js"></script>
   <script type="module" src="assets/js/admin-auth.js"></script>
   <script type="module" src="assets/js/admin-users.js"></script>
